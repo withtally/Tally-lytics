@@ -29,6 +29,62 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+## Overview
+
+This repository provides a comprehensive pipeline for analyzing DAO governance data. It integrates with multiple data sources including Discourse forums, Snapshot, Tally, and news APIs to provide a complete view of DAO activities and governance.
+
+## Key Features
+
+- **Forum Analysis:**
+  - Fetch and analyze topics, posts, and user data from configured Discourse forums
+  - Vector embeddings for semantic search using OpenAI's `text-embedding-ada-002`
+  - LLM-powered content evaluation and quality scoring
+  
+- **Governance Analysis:**
+  - Integration with Snapshot proposals
+  - Integration with Tally governance data
+  - Historical data processing and analysis
+
+- **News & Market Data:**
+  - Automated news collection and analysis for DAOs
+  - Market cap tracking and analysis
+  - News article evaluation using LLMs
+
+- **Search & Analytics:**
+  - Semantic search across all content types
+  - Materialized views for analytics
+  - Common topics identification and tracking
+  - Real-time content evaluation
+
+- **Management Interface:**
+  - Web-based management dashboard
+  - Real-time status monitoring
+  - Crawl and job control
+  - Log viewing and analysis
+
+## Architecture Overview
+
+1. **Data Ingestion:**
+   - **Discourse Forums:** Uses API keys to fetch `latest.json`, topics, and posts
+   - **Snapshot & Tally:** Uses GraphQL or REST APIs to fetch governance proposals
+   - **News API:** Fetches and analyzes DAO-related news
+   - **Market Data:** Tracks market cap and related metrics
+
+2. **Database & Storage:**
+   - **PostgreSQL with pgvector:** Stores all content with vector embeddings
+   - **Knex Migrations:** Database schema management
+   - **Materialized Views:** Pre-computed analytics and metrics
+
+3. **AI & Analysis:**
+   - **OpenAI Integration:** For embeddings and content evaluation
+   - **LLM Processing:** Quality scoring, summarization, and analysis
+   - **Vector Search:** Semantic similarity search across all content
+
+4. **API & Interface:**
+   - **REST API:** Comprehensive endpoints for all functionality
+   - **Web Dashboard:** Management interface for all features
+   - **Monitoring:** Real-time status and health checks
+
 # Discourse Demo - Vectorized Forum Content Analysis
 
 This repository provides a pipeline for crawling, processing, vectorizing, and analyzing Discourse forum data. It integrates with OpenAI for generating embeddings and evaluating post quality, as well as external data sources like Snapshot and Tally for proposal information. The code supports storing, searching, and analyzing content in a vector database, enabling advanced similarity searches and semantic analysis.
