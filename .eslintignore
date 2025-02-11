@@ -1,0 +1,5 @@
+db/migrations/*.cjs
+node_modules/
+dist/
+build/
+coverage/ 

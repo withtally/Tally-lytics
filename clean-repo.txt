@@ -1,0 +1,6 @@
+regex:(?i)(api[_-]*key|secret|password|token|auth|credential|OPENAI|SUPABASE|DATABASE_URL)[=:]\s*["']?[A-Za-z0-9_\-]{16,}["']?
+regex:sk-[a-zA-Z0-9]{32,}
+regex:gsk_[a-zA-Z0-9]{32,}
+regex:sk-ant-api[a-zA-Z0-9\-]{32,}
+regex:CG-[a-zA-Z0-9]{20,}
+regex:[0-9a-f]{32,} 

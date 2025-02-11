@@ -1,0 +1,90 @@
+exports.up = function (knex) {
+    return knex.schema.raw(`
+      -- Create materialized view for community champion analytics
+      -- This view provides user-level statistics and rankings based on their post evaluations
+      -- Use cases:
+      -- 1. Leaderboards for different metrics (logic, persuasiveness, etc.)
+      -- 2. Finding active, high-quality contributors
+      -- 3. Tracking user engagement and post quality over time
+      --
+      -- Note: Requires minimum 2 posts for inclusion, but this can be filtered further in queries
+      -- You can filter by:
+      -- - forum_name for specific communities
+      -- - total_evaluated_posts for minimum post requirements
+      -- - activity_status for current engagement
+      -- - any quality metrics (avg_overall_quality, avg_logical_reasoning, etc.)
+  
+      CREATE MATERIALIZED VIEW community_champions AS
+      WITH user_metrics AS (
+          SELECT 
+              p.username,
+              p.forum_name,
+              COUNT(DISTINCT p.id) as total_evaluated_posts,
+              ROUND(AVG(pe.overall_quality)::numeric, 2) as avg_overall_quality,
+              ROUND(AVG(pe.logical_reasoning)::numeric, 2) as avg_logical_reasoning,
+              ROUND(AVG(pe.persuasiveness)::numeric, 2) as avg_persuasiveness,
+              ROUND(AVG(pe.clarity)::numeric, 2) as avg_clarity,
+              ROUND(AVG(pe.constructiveness)::numeric, 2) as avg_constructiveness,
+              ROUND(AVG(pe.engagement_potential)::numeric, 2) as avg_engagement,
+              ROUND(AVG(pe.hostility)::numeric, 2) as avg_hostility,
+              ROUND(STDDEV(pe.overall_quality)::numeric, 2) as quality_consistency,
+              MIN(p.created_at) as first_post_date,
+              MAX(p.created_at) as last_post_date,
+              ROUND(
+                  (COUNT(*) FILTER (WHERE pe.constructiveness > 7 AND pe.hostility < 3)::numeric / 
+                  COUNT(*)::numeric * 100), 2
+              ) as constructive_post_percentage
+          FROM 
+              posts p
+              INNER JOIN post_evaluations pe ON p.id = pe.post_id AND p.forum_name = pe.forum_name
+          GROUP BY 
+              p.username,
+              p.forum_name
+          HAVING 
+              COUNT(DISTINCT p.id) >= 2
+      )
+      SELECT 
+          username,
+          forum_name,
+          total_evaluated_posts,
+          avg_overall_quality,
+          avg_logical_reasoning,
+          avg_persuasiveness,
+          avg_clarity,
+          avg_constructiveness,
+          avg_engagement,
+          avg_hostility,
+          quality_consistency,
+          constructive_post_percentage,
+          first_post_date,
+          last_post_date,
+          CASE 
+              WHEN last_post_date >= NOW() - INTERVAL '30 days' THEN 'active'
+              WHEN last_post_date >= NOW() - INTERVAL '90 days' THEN 'semi-active'
+              ELSE 'inactive'
+          END as activity_status,
+          DATE_PART('day', last_post_date - first_post_date) as days_active;
+  
+      -- Create indexes for common query patterns
+      CREATE INDEX idx_community_champions_forum_posts ON community_champions(forum_name, total_evaluated_posts);
+      CREATE INDEX idx_community_champions_quality ON community_champions(forum_name, avg_overall_quality);
+      CREATE INDEX idx_community_champions_logic ON community_champions(forum_name, avg_logical_reasoning);
+      CREATE INDEX idx_community_champions_persuasive ON community_champions(forum_name, avg_persuasiveness);
+      CREATE INDEX idx_community_champions_activity ON community_champions(forum_name, activity_status);
+  
+      -- Create a function to refresh the materialized view
+      CREATE OR REPLACE FUNCTION refresh_community_champions()
+      RETURNS void AS $$
+      BEGIN
+        REFRESH MATERIALIZED VIEW community_champions;
+      END;
+      $$ LANGUAGE plpgsql;
+    `);
+  };
+  
+  exports.down = function (knex) {
+    return knex.schema.raw(`
+      DROP MATERIALIZED VIEW IF EXISTS community_champions CASCADE;
+      DROP FUNCTION IF EXISTS refresh_community_champions();
+    `);
+  };
