@@ -19,6 +19,6 @@ export const configureMiddleware = (app: Hono) => {
     })
   );
 
-  // Serve static files from the managementFrontened directory
-  app.use('/*', serveStatic({ root: './managementFrontened' }));
+  // Serve static files from the managementFrontend directory
+  app.use('/*', serveStatic({ root: './managementFrontend' }));
 };
