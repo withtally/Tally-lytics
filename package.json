@@ -24,7 +24,7 @@
     "startServer": "NODE_ENV=production bun server.ts",
     "test": "dotenv -e .env.test -- jest",
     "clean": "rm db/discourse.db && bun knex migrate:latest",
-    "migrate:prod": "dotenv -e .env.production -- bun knex migrate:latest",
+    "migrate:prod": "NODE_ENV=production bun knex migrate:latest",
     "migrate": "bun knex migrate:latest",
     "test:vector": "NODE_ENV=production bun reset:prod && NODE_ENV=production bun /Users/dennisonbertram/develop/discourse-demo/services/llm/embeddings/testInsert.ts",
     "format": "prettier --write \"./services/**/*.{js,jsx,ts,tsx,cjs}\" \"./db/**/*.{js,jsx,ts,tsx,cjs}\" \"./config/**/*.{js,jsx,ts,tsx,cjs}\" \"./utils/**/*.{js,jsx,ts,tsx,cjs}\" \"*.{js,jsx,ts,tsx,json,md,cjs}\"",
