@@ -31,8 +31,8 @@ export default {
     // debug: true,
     ...commonConfig,
     connection: {
-      connectionString: process.env.SUPABASE_CONNECTION_STRING,
-      // ssl: { rejectUnauthorized: false },
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
     },
   },
 };
