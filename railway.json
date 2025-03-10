@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "cron": [
+    {
+      "schedule": "0 0 * * *",
+      "command": "curl -X POST ${RAILWAY_PUBLIC_DOMAIN}/api/common-topics/generate-all -H 'Content-Type: application/json' -H 'X-API-Key: ${CRON_API_KEY}' -d '{\"timeframe\": \"${TOPICS_GENERATION_TIMEFRAME:-14d}\"}'",
+      "timezone": "UTC"
+    },
+    {
+      "schedule": "0 */4 * * *",
+      "command": "curl -X GET ${RAILWAY_PUBLIC_DOMAIN}/api/health/topics-generation",
+      "timezone": "UTC"
+    }
+  ]
+}

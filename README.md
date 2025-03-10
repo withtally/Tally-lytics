@@ -369,6 +369,67 @@ The deployment process is managed by:
 
 The server includes a `/health` endpoint that Railway uses to monitor the application's status.
 
+### Railway Cron Service Integration
+
+This application uses Railway's native cron service for scheduled tasks, particularly for generating common topics. This approach offers several advantages over in-app cron jobs:
+
+1. **Reliability**: Jobs run independently of the main application's state
+2. **Resource Isolation**: Cron jobs don't consume resources from the main application
+3. **Observability**: Logs for cron jobs are stored separately for easier debugging
+
+#### Configuration
+
+The cron jobs are configured in `railway.json`:
+
+```json
+{
+  "version": 2,
+  "cron": [
+    {
+      "schedule": "0 0 * * *",
+      "command": "curl -X POST ${RAILWAY_PUBLIC_DOMAIN}/api/common-topics/generate-all -H 'Content-Type: application/json' -H 'X-API-Key: ${CRON_API_KEY}' -d '{\"timeframe\": \"${TOPICS_GENERATION_TIMEFRAME:-14d}\"}'",
+      "timezone": "UTC"
+    },
+    {
+      "schedule": "0 */4 * * *",
+      "command": "curl -X GET ${RAILWAY_PUBLIC_DOMAIN}/api/health/topics-generation",
+      "timezone": "UTC"
+    }
+  ]
+}
+```
+
+#### Required Environment Variables
+
+Set these environment variables in your Railway project:
+
+- `CRON_API_KEY`: A secure API key for authenticating cron job requests
+- `TOPICS_GENERATION_TIMEFRAME`: Time range for topic generation (default: '14d')
+
+#### Monitoring Cron Jobs
+
+The application provides endpoints to monitor cron job execution:
+
+- `GET /api/cron/job-history`: View execution history of all jobs
+  - Query parameters:
+    - `job_name`: Filter by job name
+    - `status`: Filter by status (running, success, failed)
+    - `limit`: Number of records to return (default: 10)
+    - `offset`: Number of records to skip (default: 0)
+
+- `GET /api/health/topics-generation`: Check health status of topic generation jobs
+  - Returns status: 'healthy', 'warning', 'critical', or 'never_run'
+  - Includes information about the last successful run
+
+#### Manual Execution
+
+To manually trigger topic generation:
+
+```bash
+curl -X POST https://your-app-url.railway.app/api/cron/run-topic-generation \
+  -H 'Content-Type: application/json' \
+  -H 'X-API-Key: your-cron-api-key' \
+  -d '{"timeframe": "7d"}'
 ```
 
 ```

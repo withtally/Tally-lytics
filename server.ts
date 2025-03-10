@@ -22,6 +22,7 @@ import { CommonTopicsCron } from './services/cron/commonTopicsCron';
 import { chatRoutes } from './services/server/chatRoutes';
 import { llmRateLimiter } from './services/middleware/rateLimiter';
 import { llmRoutes } from './services/server/llmRoutes';
+import { cronStatusRoutes } from './services/server/cronStatusRoutes';
 
 // HeartbeatMonitor class definition
 class HeartbeatMonitor {
@@ -104,14 +105,18 @@ app.route('', commonTopicsRoutes);
 // Add chat routes
 app.route('', chatRoutes);
 
+// Add cron status routes
+app.route('', cronStatusRoutes);
+
 // Add LLM routes with rate limiting
 app.use('/api/generateSimile', llmRateLimiter);
 app.use('/api/generateFollowUp', llmRateLimiter);
 app.route('', llmRoutes);
 
-// Initialize cron job for common topics
-const commonTopicsCron = new CommonTopicsCron();
-commonTopicsCron.start();
+// Initialize cron job for common topics - DISABLED for Railway deployment
+// We now use Railway's native cron service instead
+// const commonTopicsCron = new CommonTopicsCron();
+// commonTopicsCron.start();
 
 // Add search logging middleware to search routes
 // app.post('/api/search', searchLogger, searchHandler);
