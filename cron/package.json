@@ -1,0 +1,15 @@
+{
+    "name": "cron-service",
+    "version": "1.0.0",
+    "description": "Cron service for scheduling API calls",
+    "main": "index.js",
+    "scripts": {
+      "start": "echo 'Cron service ready'"
+    },
+    "dependencies": {
+      "curl": "^0.1.4"
+    },
+    "engines": {
+      "node": ">=16.0.0"
+    }
+  }

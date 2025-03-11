@@ -1,0 +1,6 @@
+[build]
+builder = "nixpacks"
+buildCommand = "echo 'No build needed for cron service'"
+
+[deploy]
+startCommand = "echo 'Cron service ready'"
