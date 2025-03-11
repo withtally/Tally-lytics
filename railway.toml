@@ -10,4 +10,15 @@ restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
 
 [deploy.env]
-NODE_ENV = "production" 
+NODE_ENV = "production"
+
+# Cron service specific settings
+[services.cron-service.build]
+buildCommand = "echo 'Skipping build for cron service'"
+
+[services.cron-service.deploy]
+startCommand = "curl -X POST $MAIN_SERVICE_URL/api/crawl/start-all -H 'Content-Type: application/json'"
+restartPolicyType = "never"
+
+[services.cron-service.cron]
+schedule = "0 */2 * * *" 
