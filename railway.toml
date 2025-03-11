@@ -12,7 +12,3 @@ restartPolicyMaxRetries = 3
 [deploy.env]
 NODE_ENV = "production"
 
-# Cron service specific settings
-[services.cron-crawler]
-startCommand = "curl -X POST $MAIN_SERVICE_URL/api/crawl/start-all -H 'Content-Type: application/json'"
-schedule = "0 */2 * * *" 
