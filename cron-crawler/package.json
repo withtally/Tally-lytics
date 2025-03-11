@@ -1,0 +1,12 @@
+{
+  "name": "crawler-cron",
+  "version": "1.0.0",
+  "description": "Crawler cron service",
+  "main": "index.js",
+  "scripts": {
+    "start": "curl -X POST $MAIN_SERVICE_URL/api/crawl/start-all -H 'Content-Type: application/json'"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+} 
