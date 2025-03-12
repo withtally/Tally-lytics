@@ -1,7 +1,7 @@
 // modules/crawl.ts
 import type { Context, Hono } from 'hono';
 import { CrawlerManager } from '../crawling/crawlerManager';
-import { _ForumConfig, forumConfigs } from '../../config/forumConfig';
+import { forumConfigs } from '../../config/forumConfig';
 import { Logger } from '../logging';
 
 export const crawlRoutes = (app: Hono, crawlerManager: CrawlerManager, logger: Logger) => {
@@ -39,12 +39,24 @@ export const crawlRoutes = (app: Hono, crawlerManager: CrawlerManager, logger: L
   // Start crawl for all forums
   app.post('/api/crawl/start/all', async (c: Context) => {
     try {
+      const requestSource = c.req.header('user-agent') || 'Unknown source';
+      const requestIP = c.req.header('x-forwarded-for') || c.req.header('x-real-ip') || 'Unknown IP';
+
+      logger.info(`[CRON SERVICE] Received request to start all crawls`, {
+        source: requestSource,
+        ip: requestIP,
+        timestamp: new Date().toISOString(),
+      });
+
       // Check if any crawls are already running
       const runningForums = crawlerManager
         .getAllStatuses()
         .filter(status => status.status === 'running');
 
       if (runningForums.length > 0) {
+        logger.warn(
+          `[CRON SERVICE] Indexing already in progress for forums: ${runningForums.map(f => f.forumName).join(', ')}`
+        );
         return c.json(
           {
             success: false,
@@ -59,22 +71,27 @@ export const crawlRoutes = (app: Hono, crawlerManager: CrawlerManager, logger: L
       // Start crawls for all forums in the background
       Promise.resolve().then(async () => {
         try {
+          logger.info(
+            `[CRON SERVICE] Starting crawls for all forums: ${forumConfigs.map(c => c.name).join(', ')}`
+          );
           for (const config of forumConfigs) {
             try {
+              logger.info(`[CRON SERVICE] Beginning crawl for ${config.name}`);
               await crawlerManager.startCrawl(config.name);
-              logger.info(`Completed crawl for ${config.name}`);
+              logger.info(`[CRON SERVICE] Completed crawl for ${config.name}`);
             } catch (error: any) {
-              logger.error(`Failed indexing for ${config.name}:`, error);
+              logger.error(`[CRON SERVICE] Failed indexing for ${config.name}:`, error);
               // Continue with other forums even if one fails
             }
           }
-          logger.info('All forum crawls completed');
+          logger.info('[CRON SERVICE] All forum crawls completed');
         } catch (error: any) {
-          logger.error('Error in background crawl process:', error);
+          logger.error('[CRON SERVICE] Error in background crawl process:', error);
         }
       });
 
       // Immediately respond that crawls have been initiated
+      logger.info(`[CRON SERVICE] Responding with success for crawl initiation`);
       return c.json({
         success: true,
         message: 'Crawls initiated for all forums',
@@ -83,7 +100,7 @@ export const crawlRoutes = (app: Hono, crawlerManager: CrawlerManager, logger: L
       });
     } catch (error: any) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      logger.error('Failed to start indexing:', { error: errorMessage });
+      logger.error('[CRON SERVICE] Failed to start indexing:', { error: errorMessage });
       return c.json(
         {
           success: false,

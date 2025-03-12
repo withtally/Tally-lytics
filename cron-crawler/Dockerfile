@@ -9,8 +9,8 @@ RUN apt-get update && apt-get install -y curl && apt-get clean
 ENV NODE_ENV=production
 
 # Create a simple script to run the curl command
-RUN echo '#!/bin/sh\ncurl -X POST $MAIN_SERVICE_URL/api/crawl/start-all -H "Content-Type: application/json"\n' > /app/run.sh
+RUN echo '#!/bin/sh\necho "Cron job started at $(date)"\ncurl -v -X POST $MAIN_SERVICE_URL/api/crawl/start/all -H "Content-Type: application/json"\nEXIT_CODE=$?\necho "Curl completed with exit code: $EXIT_CODE at $(date)"\n' > /app/run.sh
 RUN chmod +x /app/run.sh
 
 # Set the command to run
-CMD ["/app/run.sh"] 
+CMD ["/app/run.sh"]

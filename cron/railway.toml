@@ -1,6 +1,6 @@
 [build]
 builder = "nixpacks"
-buildCommand = "echo 'No build needed for cron service'"
+buildCommand = "echo 'No build needed for cron service' && chmod +x ./run-cron.sh"
 
 [deploy]
-startCommand = "echo 'Cron service ready'"
+startCommand = "./run-cron.sh"

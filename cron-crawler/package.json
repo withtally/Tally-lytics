@@ -4,9 +4,9 @@
   "description": "Crawler cron service",
   "main": "index.js",
   "scripts": {
-    "start": "curl -X POST $MAIN_SERVICE_URL/api/crawl/start-all -H 'Content-Type: application/json'"
+    "start": "curl -v -X POST $MAIN_SERVICE_URL/api/crawl/start/all -H 'Content-Type: application/json'"
   },
   "engines": {
     "node": ">=14"
   }
-} 
+}
