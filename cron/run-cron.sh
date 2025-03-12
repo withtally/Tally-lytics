@@ -12,7 +12,7 @@ if [ -z "$MAIN_SERVICE_URL" ]; then
   echo "Example: https://your-main-service.railway.app"
   
   # Try to use a default URL if available
-  DEFAULT_URL="https://tally-lytics-production.up.railway.app"
+  DEFAULT_URL="https://web-production-88af4.up.railway.app"
   echo "Attempting to use default URL: $DEFAULT_URL"
   MAIN_SERVICE_URL="$DEFAULT_URL"
 fi

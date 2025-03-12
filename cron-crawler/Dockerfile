@@ -14,8 +14,8 @@ echo "Cron job started at $(date)"\n\
 # Check if MAIN_SERVICE_URL is set\n\
 if [ -z "$MAIN_SERVICE_URL" ]; then\n\
   echo "ERROR: MAIN_SERVICE_URL environment variable is not set!"\n\
-  echo "Attempting to use default URL: https://tally-lytics-production.up.railway.app"\n\
-  MAIN_SERVICE_URL="https://tally-lytics-production.up.railway.app"\n\
+  echo "Attempting to use default URL: https://web-production-88af4.up.railway.app"\n\
+  MAIN_SERVICE_URL="https://web-production-88af4.up.railway.app"\n\
 fi\n\
 echo "Calling: $MAIN_SERVICE_URL/api/crawl/start/all"\n\
 curl -v -X POST $MAIN_SERVICE_URL/api/crawl/start/all -H "Content-Type: application/json"\n\
