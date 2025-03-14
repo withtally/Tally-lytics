@@ -134,7 +134,7 @@ export const crawlerApi = {
 // Search API
 export const searchApi = {
   searchByType: async (query: string, type: string, forum: string, limit?: number, threshold?: number) => {
-    const response = await api.post<ApiResponse<Array<Record<string, unknown>>>>('/searchByType', {
+    const response = await api.post<ApiResponse<Array<Record<string, unknown>>>>('/api/searchByType', {
       query,
       type,
       forum,
@@ -145,7 +145,7 @@ export const searchApi = {
   },
   
   searchAll: async (query: string, forum: string, limit?: number, threshold?: number) => {
-    const response = await api.post<ApiResponse<Array<Record<string, unknown>>>>('/searchAll', {
+    const response = await api.post<ApiResponse<Array<Record<string, unknown>>>>('/api/searchAll', {
       query,
       forum,
       limit,
