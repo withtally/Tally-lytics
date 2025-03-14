@@ -1,6 +1,85 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+// For local development, we'll use relative URLs which will be proxied through Next.js
+// This helps avoid CORS issues when running locally
+const API_BASE_URL = '';
+
+// Define common interfaces for API responses
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string;
+  error?: string;
+}
+
+// Define interfaces for specific API responses
+export interface SystemHealthData {
+  status: string;
+  timestamp: string;
+  services: {
+    crawler: {
+      status: string;
+    };
+    search: {
+      status: string;
+    };
+  };
+}
+
+export interface CrawlerStatusData {
+  status: string;
+  lastRun?: string;
+  nextRun?: string;
+  isRunning: boolean;
+  forums?: {
+    [key: string]: {
+      status: string;
+      lastRun?: string;
+      isRunning: boolean;
+    };
+  };
+}
+
+export interface ForumStatusData {
+  status: string;
+  lastRun?: string;
+  isRunning: boolean;
+}
+
+export interface MarketCapData {
+  tokens: Array<{
+    name: string;
+    symbol: string;
+    price: number;
+    marketCap: number;
+    volume: number;
+    change24h: number;
+    lastUpdated: string;
+  }>;
+}
+
+export interface NewsArticle {
+  title: string;
+  url: string;
+  source: string;
+  publishedAt: string;
+  summary?: string;
+}
+
+export interface CommonTopic {
+  id: string;
+  title: string;
+  description: string;
+  forums: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ChatPayload {
+  message: string;
+  forum?: string;
+  context?: string;
+}
 
 // Create axios instance with default config
 const api = axios.create({
@@ -8,40 +87,46 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  // Add withCredentials for CORS requests when needed
+  withCredentials: false,
 });
 
-// API Response types
-export interface ApiResponse<T> {
-  data?: T;
-  error?: string;
-  message?: string;
-  timestamp?: string;
-}
+// Add response interceptor for error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Log the error for debugging
+    console.error('API Error:', error);
+    
+    // Return a rejected promise with the error
+    return Promise.reject(error);
+  }
+);
 
 // Crawler API
 export const crawlerApi = {
   getAllStatus: async () => {
-    const response = await api.get<ApiResponse<any>>('/api/crawl/status');
+    const response = await api.get<ApiResponse<CrawlerStatusData>>('/crawl/status');
     return response.data;
   },
   
   getForumStatus: async (forumName: string) => {
-    const response = await api.get<ApiResponse<any>>(`/api/crawl/status/${forumName}`);
+    const response = await api.get<ApiResponse<ForumStatusData>>(`/crawl/status/${forumName}`);
     return response.data;
   },
   
-  startAllCrawls: async () => {
-    const response = await api.post<ApiResponse<any>>('/api/crawl/start/all');
+  startAllCrawlers: async () => {
+    const response = await api.post<ApiResponse<{ message: string }>>('/crawl/start/all');
     return response.data;
   },
   
-  startForumCrawl: async (forumName: string) => {
-    const response = await api.post<ApiResponse<any>>(`/api/crawl/start/${forumName}`);
+  startForumCrawler: async (forumName: string) => {
+    const response = await api.post<ApiResponse<{ message: string }>>(`/crawl/start/${forumName}`);
     return response.data;
   },
   
-  stopForumCrawl: async (forumName: string) => {
-    const response = await api.post<ApiResponse<any>>(`/api/crawl/stop/${forumName}`);
+  stopForumCrawler: async (forumName: string) => {
+    const response = await api.post<ApiResponse<{ message: string }>>(`/crawl/stop/${forumName}`);
     return response.data;
   }
 };
@@ -49,7 +134,7 @@ export const crawlerApi = {
 // Search API
 export const searchApi = {
   searchByType: async (query: string, type: string, forum: string, limit?: number, threshold?: number) => {
-    const response = await api.post<ApiResponse<any>>('/api/searchByType', {
+    const response = await api.post<ApiResponse<Array<Record<string, unknown>>>>('/searchByType', {
       query,
       type,
       forum,
@@ -60,7 +145,7 @@ export const searchApi = {
   },
   
   searchAll: async (query: string, forum: string, limit?: number, threshold?: number) => {
-    const response = await api.post<ApiResponse<any>>('/api/searchAll', {
+    const response = await api.post<ApiResponse<Array<Record<string, unknown>>>>('/searchAll', {
       query,
       forum,
       limit,
@@ -73,17 +158,17 @@ export const searchApi = {
 // Cron API
 export const cronApi = {
   getStatus: async () => {
-    const response = await api.get<ApiResponse<any>>('/api/cron/status');
+    const response = await api.get<ApiResponse<{ status: string; schedule?: string }>>('/cron/status');
     return response.data;
   },
   
-  startCron: async (schedule?: string) => {
-    const response = await api.post<ApiResponse<any>>('/api/cron/start', { schedule });
+  startCron: async (schedule: string) => {
+    const response = await api.post<ApiResponse<{ message: string }>>('/cron/start', { schedule });
     return response.data;
   },
   
   stopCron: async () => {
-    const response = await api.post<ApiResponse<any>>('/api/cron/stop');
+    const response = await api.post<ApiResponse<{ message: string }>>('/cron/stop');
     return response.data;
   }
 };
@@ -91,8 +176,46 @@ export const cronApi = {
 // Health API
 export const healthApi = {
   getSystemHealth: async () => {
-    const response = await api.get<ApiResponse<any>>('/api/health');
-    return response.data;
+    try {
+      // Log the API URL we're using
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-88af4.up.railway.app';
+      console.log('API Base URL:', apiUrl);
+      console.log('Attempting to fetch health data from: /api/health');
+      
+      // Try direct API call first
+      try {
+        console.log('Trying primary endpoint: /api/health');
+        const response = await api.get('/api/health');
+        console.log('Health API primary endpoint response:', response);
+        return response;
+      } catch (primaryError) {
+        console.error('Primary endpoint failed:', primaryError);
+        
+        // Try alternative endpoints if primary fails
+        try {
+          console.log('Trying alternative endpoint: /health');
+          const altResponse = await api.get('/health');
+          console.log('Health API alternative endpoint response:', altResponse);
+          return altResponse;
+        } catch (altError) {
+          console.error('Alternative endpoint failed:', altError);
+          
+          // Try direct API call to the base URL as a last resort
+          try {
+            console.log(`Trying direct API call: ${apiUrl}/api/health`);
+            const directResponse = await axios.get(`${apiUrl}/api/health`);
+            console.log('Direct API call response:', directResponse);
+            return directResponse;
+          } catch (directError) {
+            console.error('Direct API call failed:', directError);
+            throw directError;
+          }
+        }
+      }
+    } catch (error) {
+      console.error('All health API attempts failed:', error);
+      throw error;
+    }
   },
   
   getLogs: async (forum: string) => {
@@ -106,12 +229,12 @@ export const healthApi = {
 // Market Cap API
 export const marketCapApi = {
   getMarketCapData: async (forumName: string) => {
-    const response = await api.get<ApiResponse<any>>(`/api/marketcap/${forumName}`);
+    const response = await api.get<ApiResponse<MarketCapData>>(`/marketcap/${forumName}`);
     return response.data;
   },
   
   triggerMarketCapCrawl: async () => {
-    const response = await api.post<ApiResponse<any>>('/api/marketcap/crawl');
+    const response = await api.post<ApiResponse<{ message: string }>>('/marketcap/crawl');
     return response.data;
   }
 };
@@ -119,12 +242,12 @@ export const marketCapApi = {
 // News API
 export const newsApi = {
   getNewsArticles: async (forumName: string) => {
-    const response = await api.get<ApiResponse<any>>(`/api/news/${forumName}`);
+    const response = await api.get<ApiResponse<NewsArticle[]>>(`/news/${forumName}`);
     return response.data;
   },
   
   triggerNewsCrawl: async () => {
-    const response = await api.post<ApiResponse<any>>('/api/news/crawl');
+    const response = await api.post<ApiResponse<{ message: string }>>('/news/crawl');
     return response.data;
   }
 };
@@ -133,41 +256,41 @@ export const newsApi = {
 export const commonTopicsApi = {
   getTopics: async (forums?: string) => {
     const params = forums ? { forums } : undefined;
-    const response = await api.get<ApiResponse<any>>('/api/common-topics', { params });
+    const response = await api.get<ApiResponse<CommonTopic[]>>('/common-topics', { params });
     return response.data;
   },
   
-  getFullTopics: async (forums?: string) => {
+  getTopicsFull: async (forums?: string) => {
     const params = forums ? { forums } : undefined;
-    const response = await api.get<ApiResponse<any>>('/api/common-topics/full', { params });
+    const response = await api.get<ApiResponse<CommonTopic[]>>('/common-topics/full', { params });
     return response.data;
   },
   
-  getTopic: async (id: string) => {
-    const response = await api.get<ApiResponse<any>>(`/api/common-topics/${id}`);
+  getTopicById: async (id: string) => {
+    const response = await api.get<ApiResponse<CommonTopic>>(`/common-topics/${id}`);
     return response.data;
   },
   
-  generateTopics: async (forumName: string) => {
-    const response = await api.post<ApiResponse<any>>(`/api/common-topics/generate/${forumName}`);
+  generateForForum: async (forumName: string) => {
+    const response = await api.post<ApiResponse<{ message: string }>>(`/common-topics/generate/${forumName}`);
     return response.data;
   },
   
-  generateAllTopics: async () => {
-    const response = await api.post<ApiResponse<any>>('/api/common-topics/generate-all');
+  generateForAllForums: async () => {
+    const response = await api.post<ApiResponse<{ message: string }>>('/common-topics/generate-all');
     return response.data;
   }
 };
 
 // Chat and LLM API
 export const aiApi = {
-  processChat: async (payload: any) => {
-    const response = await api.post<ApiResponse<any>>('/api/chat', payload);
+  processChat: async (payload: ChatPayload) => {
+    const response = await api.post<ApiResponse<{ response: string }>>('/chat', payload);
     return response.data;
   },
   
-  generateSimilarQuery: async (query: string, forum?: string) => {
-    const response = await api.post<ApiResponse<any>>('/api/generateSimile', {
+  generateSimile: async (query: string, forum: string) => {
+    const response = await api.post<ApiResponse<{ simile: string }>>('/generateSimile', {
       query,
       forum
     });
@@ -175,16 +298,26 @@ export const aiApi = {
   },
   
   generateFollowUp: async (query: string, forum?: string, context?: string) => {
-    const response = await api.post<ApiResponse<any>>('/api/generateFollowUp', {
+    const response = await api.post<ApiResponse<{ followUp: string[] }>>('/generateFollowUp', {
       query,
       forum,
       context
     });
     return response.data;
+  },
+  
+  generateSummary: async (query: string, forum: string) => {
+    const response = await api.post<ApiResponse<{ summary: string }>>('/generateSummary', {
+      query,
+      forum
+    });
+    return response.data;
   }
 };
 
-export default {
+// Create a variable for the default export to fix the lint error
+const apiServices = {
+  api,
   crawlerApi,
   searchApi,
   cronApi,
@@ -194,3 +327,5 @@ export default {
   commonTopicsApi,
   aiApi
 };
+
+export default apiServices;
