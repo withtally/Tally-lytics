@@ -26,6 +26,30 @@ export interface SystemHealthData {
   };
 }
 
+// Crawler status response from the backend
+export interface CrawlerProgress {
+  totalDocuments?: number;
+  processedDocuments?: number;
+  evaluations?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+export interface CrawlerStatusItem {
+  forumName: string;
+  status: string;
+  progress: CrawlerProgress;
+  startTime?: string;
+  lastRun?: string;
+  lastError?: string;
+  [key: string]: unknown;
+}
+
+export interface CrawlerStatusResponse {
+  statuses: CrawlerStatusItem[];
+  timestamp: string;
+}
+
+// Original crawler status data format
 export interface CrawlerStatusData {
   status: string;
   lastRun?: string;
@@ -106,7 +130,7 @@ api.interceptors.response.use(
 // Crawler API
 export const crawlerApi = {
   getAllStatus: async () => {
-    const response = await api.get<ApiResponse<CrawlerStatusData>>('/api/crawl/status');
+    const response = await api.get<CrawlerStatusResponse>('/api/crawl/status');
     return response.data;
   },
   
