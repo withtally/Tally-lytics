@@ -106,27 +106,27 @@ api.interceptors.response.use(
 // Crawler API
 export const crawlerApi = {
   getAllStatus: async () => {
-    const response = await api.get<ApiResponse<CrawlerStatusData>>('/crawl/status');
+    const response = await api.get<ApiResponse<CrawlerStatusData>>('/api/crawl/status');
     return response.data;
   },
   
   getForumStatus: async (forumName: string) => {
-    const response = await api.get<ApiResponse<ForumStatusData>>(`/crawl/status/${forumName}`);
+    const response = await api.get<ApiResponse<ForumStatusData>>(`/api/crawl/status/${forumName}`);
     return response.data;
   },
   
   startAllCrawlers: async () => {
-    const response = await api.post<ApiResponse<{ message: string }>>('/crawl/start/all');
+    const response = await api.post<ApiResponse<{ message: string }>>('/api/crawl/start/all');
     return response.data;
   },
   
   startForumCrawler: async (forumName: string) => {
-    const response = await api.post<ApiResponse<{ message: string }>>(`/crawl/start/${forumName}`);
+    const response = await api.post<ApiResponse<{ message: string }>>(`/api/crawl/start/${forumName}`);
     return response.data;
   },
   
   stopForumCrawler: async (forumName: string) => {
-    const response = await api.post<ApiResponse<{ message: string }>>(`/crawl/stop/${forumName}`);
+    const response = await api.post<ApiResponse<{ message: string }>>(`/api/crawl/stop/${forumName}`);
     return response.data;
   }
 };
@@ -158,17 +158,17 @@ export const searchApi = {
 // Cron API
 export const cronApi = {
   getStatus: async () => {
-    const response = await api.get<ApiResponse<{ status: string; schedule?: string }>>('/cron/status');
+    const response = await api.get<ApiResponse<{ status: string; schedule?: string }>>('/api/cron/status');
     return response.data;
   },
   
   startCron: async (schedule: string) => {
-    const response = await api.post<ApiResponse<{ message: string }>>('/cron/start', { schedule });
+    const response = await api.post<ApiResponse<{ message: string }>>('/api/cron/start', { schedule });
     return response.data;
   },
   
   stopCron: async () => {
-    const response = await api.post<ApiResponse<{ message: string }>>('/cron/stop');
+    const response = await api.post<ApiResponse<{ message: string }>>('/api/cron/stop');
     return response.data;
   }
 };
@@ -229,12 +229,12 @@ export const healthApi = {
 // Market Cap API
 export const marketCapApi = {
   getMarketCapData: async (forumName: string) => {
-    const response = await api.get<ApiResponse<MarketCapData>>(`/marketcap/${forumName}`);
+    const response = await api.get<ApiResponse<MarketCapData>>(`/api/marketcap/${forumName}`);
     return response.data;
   },
   
   triggerMarketCapCrawl: async () => {
-    const response = await api.post<ApiResponse<{ message: string }>>('/marketcap/crawl');
+    const response = await api.post<ApiResponse<{ message: string }>>('/api/marketcap/crawl');
     return response.data;
   }
 };
@@ -242,12 +242,12 @@ export const marketCapApi = {
 // News API
 export const newsApi = {
   getNewsArticles: async (forumName: string) => {
-    const response = await api.get<ApiResponse<NewsArticle[]>>(`/news/${forumName}`);
+    const response = await api.get<ApiResponse<NewsArticle[]>>(`/api/news/${forumName}`);
     return response.data;
   },
   
   triggerNewsCrawl: async () => {
-    const response = await api.post<ApiResponse<{ message: string }>>('/news/crawl');
+    const response = await api.post<ApiResponse<{ message: string }>>('/api/news/crawl');
     return response.data;
   }
 };
@@ -256,28 +256,28 @@ export const newsApi = {
 export const commonTopicsApi = {
   getTopics: async (forums?: string) => {
     const params = forums ? { forums } : undefined;
-    const response = await api.get<ApiResponse<CommonTopic[]>>('/common-topics', { params });
+    const response = await api.get<ApiResponse<CommonTopic[]>>('/api/common-topics', { params });
     return response.data;
   },
   
   getTopicsFull: async (forums?: string) => {
     const params = forums ? { forums } : undefined;
-    const response = await api.get<ApiResponse<CommonTopic[]>>('/common-topics/full', { params });
+    const response = await api.get<ApiResponse<CommonTopic[]>>('/api/common-topics/full', { params });
     return response.data;
   },
   
   getTopicById: async (id: string) => {
-    const response = await api.get<ApiResponse<CommonTopic>>(`/common-topics/${id}`);
+    const response = await api.get<ApiResponse<CommonTopic>>(`/api/common-topics/${id}`);
     return response.data;
   },
   
   generateForForum: async (forumName: string) => {
-    const response = await api.post<ApiResponse<{ message: string }>>(`/common-topics/generate/${forumName}`);
+    const response = await api.post<ApiResponse<{ message: string }>>(`/api/common-topics/generate/${forumName}`);
     return response.data;
   },
   
   generateForAllForums: async () => {
-    const response = await api.post<ApiResponse<{ message: string }>>('/common-topics/generate-all');
+    const response = await api.post<ApiResponse<{ message: string }>>('/api/common-topics/generate-all');
     return response.data;
   }
 };
@@ -285,12 +285,12 @@ export const commonTopicsApi = {
 // Chat and LLM API
 export const aiApi = {
   processChat: async (payload: ChatPayload) => {
-    const response = await api.post<ApiResponse<{ response: string }>>('/chat', payload);
+    const response = await api.post<ApiResponse<{ response: string }>>('/api/chat', payload);
     return response.data;
   },
   
   generateSimile: async (query: string, forum: string) => {
-    const response = await api.post<ApiResponse<{ simile: string }>>('/generateSimile', {
+    const response = await api.post<ApiResponse<{ simile: string }>>('/api/generateSimile', {
       query,
       forum
     });
@@ -298,7 +298,7 @@ export const aiApi = {
   },
   
   generateFollowUp: async (query: string, forum?: string, context?: string) => {
-    const response = await api.post<ApiResponse<{ followUp: string[] }>>('/generateFollowUp', {
+    const response = await api.post<ApiResponse<{ followUp: string[] }>>('/api/generateFollowUp', {
       query,
       forum,
       context
@@ -307,7 +307,7 @@ export const aiApi = {
   },
   
   generateSummary: async (query: string, forum: string) => {
-    const response = await api.post<ApiResponse<{ summary: string }>>('/generateSummary', {
+    const response = await api.post<ApiResponse<{ summary: string }>>('/api/generateSummary', {
       query,
       forum
     });
