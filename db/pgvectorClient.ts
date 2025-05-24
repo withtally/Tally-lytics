@@ -2,7 +2,10 @@ import { Pool, PoolClient, PoolConfig } from 'pg';
 import { registerType } from 'pgvector/pg';
 import { Logger } from '../services/logging';
 
-const logger = new Logger({ logFile: 'logs/database.log' });
+const logger = new Logger({ 
+  level: 'info', 
+  logFile: 'logs/database.log'
+});
 const environment = process.env.NODE_ENV || 'development';
 
 // Base configuration for connection pooling
@@ -12,7 +15,7 @@ const basePoolConfig: Partial<PoolConfig> = {
   min: 2, // Minimum number of connections in pool
   idleTimeoutMillis: 30000, // Close idle connections after 30 seconds
   connectionTimeoutMillis: 10000, // Timeout for acquiring connection from pool
-  acquireTimeoutMillis: 10000, // Timeout for acquiring connection
+  // acquireTimeoutMillis: 10000, // Removed - not a valid Pool config property
   
   // Connection retry settings
   allowExitOnIdle: false, // Don't exit process when pool is idle
@@ -145,7 +148,7 @@ class PgVectorClient {
       const result = await this.query('SELECT 1 as health');
       return result.rows[0]?.health === 1;
     } catch (error) {
-      logger.error('Database health check failed:', error);
+      logger.error('Database health check failed:', error as object);
       return false;
     }
   }
@@ -167,7 +170,7 @@ async function initializePgVectorClient() {
       poolStats: pgVectorClient.getPoolStats(),
     });
   } catch (error) {
-    logger.error('Failed to initialize database connection pool:', error);
+    logger.error('Failed to initialize database connection pool:', error as object);
     throw error;
   }
 }

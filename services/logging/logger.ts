@@ -1,5 +1,18 @@
 import winston from 'winston';
-import chalk from 'chalk';
+// Import chalk differently to avoid Jest ES module issues
+let chalk: any;
+try {
+  chalk = require('chalk');
+} catch {
+  // Fallback for testing environments
+  chalk = {
+    gray: (str: string) => str,
+    red: (str: string) => str,
+    yellow: (str: string) => str,
+    blue: (str: string) => str,
+    green: (str: string) => str,
+  };
+}
 import { LoggingConfig, LogLevel, LogMessage } from './types';
 
 class Logger {

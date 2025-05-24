@@ -83,7 +83,7 @@ export const createTestPost = (overrides: Partial<TestPost> = {}): TestPost => {
     discourse_post_id: faker.number.int({ min: 1000, max: 99999 }),
     discourse_topic_id: faker.number.int({ min: 100, max: 9999 }),
     avatar_template: '/user_avatar/forum.arbitrum.foundation/{size}/123_2.png',
-    username: faker.internet.userName(),
+    username: faker.internet.username(),
     evaluated: false,
     ai_summary: null,
     ai_tags: null,

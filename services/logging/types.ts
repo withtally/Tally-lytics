@@ -1,13 +1,13 @@
 // File: /services/logging/types.ts
 
-import { TransportStream } from 'winston';
+import * as winston from 'winston';
 
 export type LogLevel = 'info' | 'warn' | 'error' | 'debug';
 
 export interface LoggingConfig {
   level: LogLevel;
   logFile: string;
-  additionalTransports?: TransportStream[];
+  additionalTransports?: winston.transport[];
 }
 
 export interface LogMessage {

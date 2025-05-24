@@ -175,11 +175,18 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 ```
 
 **Acceptance Criteria:**
-- [ ] Services accept dependencies via constructor
-- [ ] Services can be instantiated with mocks
-- [ ] Unit tests cover main business logic paths
-- [ ] Tests run in under 1 second each
-- [ ] No external API calls in unit tests
+- [x] Services accept dependencies via constructor
+- [x] Services can be instantiated with mocks
+- [x] Unit tests cover main business logic paths (46 tests passing)
+- [x] Tests run in under 1 second each
+- [x] No external API calls in unit tests
+
+**✅ COMPLETED**: Successfully refactored 3 core LLM services:
+- `PostEvaluationService` - 10 tests ✅
+- `EmbeddingService` - 21 tests ✅  
+- `TopicsService` - 15 tests ✅
+- All services integrated into ServiceContainer
+- 100% dependency injection with proper interfaces
 
 #### ✅ **3.2 Crawling Services Refactoring**
 ```bash

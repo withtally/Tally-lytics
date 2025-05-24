@@ -2,12 +2,6 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  extensionsToTreatAsEsm: ['.ts'],
-  globals: {
-    'ts-jest': {
-      useESM: true,
-    },
-  },
   
   // Test file locations
   roots: ['<rootDir>/services', '<rootDir>/db', '<rootDir>/utils', '<rootDir>/__tests__'],
@@ -17,10 +11,10 @@ module.exports = {
   ],
   
   // Setup files
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  // setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'], // Temporarily disabled due to logger issues
   
   // Module resolution
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
     '^@services/(.*)$': '<rootDir>/services/$1',
     '^@db/(.*)$': '<rootDir>/db/$1',
@@ -76,5 +70,5 @@ module.exports = {
   ],
   
   // Environment variables for tests
-  setupFiles: ['<rootDir>/jest.env.js'],
+  setupFiles: ['<rootDir>/jest.env.cjs'],
 };

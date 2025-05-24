@@ -1,4 +1,5 @@
 // jest.setup.ts - Global test setup
+import '@testing-library/jest-dom';
 import { pgVectorClient } from './db/pgvectorClient';
 
 // Global test timeout
@@ -41,17 +42,21 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
-// Global test utilities
+// Custom Jest matchers
+interface CustomMatchers<R = unknown> {
+  toBeValidDate(): R;
+  toBeValidUUID(): R;
+}
+
 declare global {
   namespace jest {
-    interface Matchers<R> {
-      toBeValidDate(): R;
-      toBeValidUUID(): R;
-    }
+    interface Expect extends CustomMatchers {}
+    interface Matchers<R> extends CustomMatchers<R> {}
+    interface InverseAsymmetricMatchers extends CustomMatchers {}
   }
 }
 
-// Custom Jest matchers
+// Register custom matchers
 expect.extend({
   toBeValidDate(received: any) {
     const pass = received instanceof Date && !isNaN(received.getTime());

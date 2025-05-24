@@ -51,6 +51,17 @@ const config = {
       ssl: false,
     },
   },
+  test: {
+    ...commonConfig,
+    connection: {
+      host: process.env.POSTGRES_HOST || 'localhost',
+      port: process.env.POSTGRES_PORT || 5432,
+      database: process.env.POSTGRES_DB || 'dao_helper_test',
+      user: process.env.POSTGRES_USER || 'test_user',
+      password: process.env.POSTGRES_PASSWORD || 'test_password',
+      ssl: false,
+    },
+  },
   production: {
     debug: true, // Enable debug for production to see queries
     ...commonConfig,
