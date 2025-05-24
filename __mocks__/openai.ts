@@ -1,0 +1,110 @@
+// __mocks__/openai.ts - Simple mock for OpenAI client
+
+export interface MockChatCompletion {
+  choices: Array<{
+    message: {
+      content: string;
+      role: string;
+    };
+    finish_reason: string;
+  }>;
+  usage: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
+}
+
+export interface MockEmbeddingResponse {
+  data: Array<{
+    embedding: number[];
+    index: number;
+  }>;
+  usage: {
+    prompt_tokens: number;
+    total_tokens: number;
+  };
+}
+
+// Simple mock implementation
+export const openai = {
+  chat: {
+    completions: {
+      create: async (params: any): Promise<MockChatCompletion> => {
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 10));
+        
+        // Generate mock response based on input
+        let content = 'This is a mock response from OpenAI.';
+        
+        if (params.messages && params.messages.length > 0) {
+          const lastMessage = params.messages[params.messages.length - 1];
+          
+          if (lastMessage.content.includes('evaluate')) {
+            content = JSON.stringify({
+              quality_score: 0.8,
+              relevance_score: 0.9,
+              summary: 'This is a mock evaluation summary',
+              tags: ['governance', 'proposal', 'mock'],
+            });
+          } else if (lastMessage.content.includes('summarize')) {
+            content = 'This is a mock summary of the content provided.';
+          } else if (lastMessage.content.includes('topic')) {
+            content = JSON.stringify({
+              topic: 'Mock Topic',
+              description: 'This is a mock topic description',
+              relevance_score: 0.85,
+            });
+          }
+        }
+        
+        return {
+          choices: [{
+            message: {
+              content,
+              role: 'assistant',
+            },
+            finish_reason: 'stop',
+          }],
+          usage: {
+            prompt_tokens: 100,
+            completion_tokens: 50,
+            total_tokens: 150,
+          },
+        };
+      },
+    },
+  },
+  
+  embeddings: {
+    create: async (params: any): Promise<MockEmbeddingResponse> => {
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 10));
+      
+      // Generate mock embeddings
+      const embeddings = params.input.map((_: any, index: number) => ({
+        embedding: Array.from({ length: 1536 }, () => Math.random() * 2 - 1),
+        index,
+      }));
+      
+      return {
+        data: embeddings,
+        usage: {
+          prompt_tokens: params.input.length * 10,
+          total_tokens: params.input.length * 10,
+        },
+      };
+    },
+  },
+};
+
+// Export model constants
+export const model = 'gpt-3.5-turbo';
+export const miniModel = 'gpt-3.5-turbo';
+
+// Default export for ES modules
+export default {
+  openai,
+  model,
+  miniModel,
+};
