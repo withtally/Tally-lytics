@@ -31,14 +31,20 @@ export const healthRoutes = (app: Hono, crawlerManager: CrawlerManager) => {
             'Content-Type': 'text/plain',
           },
         });
-      } catch {
-        return c.json(
-          {
-            error: 'Log file not found',
-            details: `No logs available for ${forum}`,
-          },
-          404
-        );
+      } catch (error) {
+        // Check if it's a file not found error
+        if (error instanceof Error && error.message.includes('ENOENT')) {
+          return c.json(
+            {
+              error: 'Log file not found',
+              details: `No logs available for ${forum}`,
+            },
+            404
+          );
+        }
+        
+        // Re-throw other errors to be caught by outer catch
+        throw error;
       }
     } catch (error) {
       return c.json(

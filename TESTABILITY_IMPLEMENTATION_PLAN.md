@@ -210,17 +210,32 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 #### ✅ **4.1 Route Testing**
 ```bash
 # Files to create:
-- services/server/__tests__/health.test.ts
-- services/server/__tests__/crawl.test.ts
-- services/server/__tests__/search.test.ts
+- services/server/__tests__/health.test.ts  ✅ 11 tests passing
+- services/server/__tests__/crawl.test.ts   ✅ 20 tests passing  
+- services/server/__tests__/search.test.ts   🔄 IN PROGRESS
 - services/server/__tests__/commonTopics.test.ts
 ```
 
 **Acceptance Criteria:**
-- [ ] API routes can be tested without starting server
-- [ ] Request/response validation works
-- [ ] Error responses are properly formatted
+- [x] API routes can be tested without starting server
+- [x] Request/response validation works 
+- [x] Error responses are properly formatted
 - [ ] Authentication scenarios are covered
+
+**✅ COMPLETED - Health API Routes**: 
+- 11 comprehensive tests covering `/api/health` and `/api/logs/:forum` endpoints
+- Proper fs.promises mocking with Hono framework
+- Error handling validation (404, 500 status codes)
+- Content-type and response format validation
+
+**✅ COMPLETED - Crawl API Routes**: 
+- 20 comprehensive tests covering all crawl endpoints
+- GET `/api/crawl/status` - crawler status aggregation
+- GET `/api/crawl/status/:forumName` - specific forum status with validation
+- POST `/api/crawl/start/all` - batch crawl initiation with conflict detection
+- POST `/api/crawl/start/:forumName` - individual forum crawling 
+- POST `/api/crawl/stop/:forumName` - crawl termination
+- Complex validation, error handling, and background process testing
 
 #### ✅ **4.2 Integration Testing**
 ```bash
