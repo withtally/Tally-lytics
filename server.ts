@@ -171,6 +171,7 @@ app.onError((err, c) => {
 // Periodic connection and stall checks
 const checkConnections = async () => {
   try {
+    // Test database connection using the existing method
     await pgVectorClient.query('SELECT 1');
     state.isHealthy = true;
 
