@@ -38,7 +38,7 @@ export const marketCapRoutes = (app: Hono, logger: Logger) => {
           // Optionally notify monitoring system
         }
       };
-      
+
       backgroundMarketCapCrawl();
 
       return c.json({

@@ -39,7 +39,7 @@ export const newsRoutes = (app: Hono, logger: Logger) => {
           // Optionally notify monitoring system
         }
       };
-      
+
       backgroundNewsCrawl();
 
       return c.json({

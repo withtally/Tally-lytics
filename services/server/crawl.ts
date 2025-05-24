@@ -81,7 +81,7 @@ export const crawlRoutes = (app: Hono, crawlerManager: CrawlerManager, logger: L
           logger.info(
             `[CRON SERVICE] Starting crawls for all forums: ${forumConfigs.map(c => c.name).join(', ')}`
           );
-          
+
           const crawlResults = [];
           for (const config of forumConfigs) {
             try {
@@ -95,14 +95,14 @@ export const crawlRoutes = (app: Hono, crawlerManager: CrawlerManager, logger: L
               // Continue with other forums even if one fails
             }
           }
-          
+
           logger.info('[CRON SERVICE] All forum crawls completed', { results: crawlResults });
         } catch (error: any) {
           logger.error('[CRON SERVICE] Critical error in background crawl process:', error);
           // Optionally notify external monitoring system here
         }
       };
-      
+
       // Execute background task without awaiting (fire-and-forget with logging)
       backgroundCrawl();
 
@@ -162,7 +162,7 @@ export const crawlRoutes = (app: Hono, crawlerManager: CrawlerManager, logger: L
           // Optionally notify monitoring system
         }
       };
-      
+
       backgroundSingleCrawl();
 
       // Immediately respond that the crawl has started

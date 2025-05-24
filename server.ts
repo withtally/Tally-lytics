@@ -267,7 +267,7 @@ const findAvailablePort = async (startPort: number): Promise<number> => {
 const startServer = async () => {
   try {
     console.log(`Selected environment: ${process.env.NODE_ENV}`);
-    
+
     // Validate environment variables before proceeding
     validateEnvironment();
 
