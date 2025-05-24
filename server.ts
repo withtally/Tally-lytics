@@ -2,6 +2,7 @@
 // Revised to handle clearing of stall detectors (heartbeat monitor) after crawl completes
 
 import dotenv from 'dotenv';
+import { validateEnvironment } from './config/envValidator';
 import { Logger } from './services/logging';
 import { CrawlerManager } from './services/crawling/crawlerManager';
 import { VectorSearchService } from './services/search/vectorSearchService';
@@ -265,6 +266,9 @@ const findAvailablePort = async (startPort: number): Promise<number> => {
 const startServer = async () => {
   try {
     console.log(`Selected environment: ${process.env.NODE_ENV}`);
+    
+    // Validate environment variables before proceeding
+    validateEnvironment();
 
     // Initialize database connection
     await pgVectorClient.connect();

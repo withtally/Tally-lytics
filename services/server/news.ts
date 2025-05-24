@@ -27,16 +27,20 @@ export const newsRoutes = (app: Hono, logger: Logger) => {
   // Trigger news crawl
   app.post('/api/news/crawl', async (c: Context) => {
     try {
-      // Start crawl in the background
-      Promise.resolve().then(async () => {
+      // Start crawl in the background with proper error handling
+      const backgroundNewsCrawl = async () => {
         try {
+          logger.info('Starting background news crawl');
           await crawlNews();
           await crawlNewsArticleEvaluations();
-          logger.info('News crawl and evaluation completed');
+          logger.info('News crawl and evaluation completed successfully');
         } catch (error: any) {
-          logger.error('Error in news crawl:', error);
+          logger.error('Error in background news crawl:', error);
+          // Optionally notify monitoring system
         }
-      });
+      };
+      
+      backgroundNewsCrawl();
 
       return c.json({
         message: 'News crawl initiated',

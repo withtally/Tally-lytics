@@ -27,15 +27,19 @@ export const marketCapRoutes = (app: Hono, logger: Logger) => {
   // Trigger market cap crawl
   app.post('/api/marketcap/crawl', async (c: Context) => {
     try {
-      // Start crawl in the background
-      Promise.resolve().then(async () => {
+      // Start crawl in the background with proper error handling
+      const backgroundMarketCapCrawl = async () => {
         try {
+          logger.info('Starting background market cap crawl');
           await crawlTokenMarketData();
-          logger.info('Market cap crawl completed');
+          logger.info('Market cap crawl completed successfully');
         } catch (error: any) {
-          logger.error('Error in market cap crawl:', error);
+          logger.error('Error in background market cap crawl:', error);
+          // Optionally notify monitoring system
         }
-      });
+      };
+      
+      backgroundMarketCapCrawl();
 
       return c.json({
         message: 'Market cap crawl initiated',

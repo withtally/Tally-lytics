@@ -75,27 +75,36 @@ export const crawlRoutes = (app: Hono, crawlerManager: CrawlerManager, logger: L
         );
       }
 
-      // Start crawls for all forums in the background
-      Promise.resolve().then(async () => {
+      // Start crawls for all forums in the background with proper error handling
+      const backgroundCrawl = async () => {
         try {
           logger.info(
             `[CRON SERVICE] Starting crawls for all forums: ${forumConfigs.map(c => c.name).join(', ')}`
           );
+          
+          const crawlResults = [];
           for (const config of forumConfigs) {
             try {
               logger.info(`[CRON SERVICE] Beginning crawl for ${config.name}`);
               await crawlerManager.startCrawl(config.name);
               logger.info(`[CRON SERVICE] Completed crawl for ${config.name}`);
+              crawlResults.push({ forum: config.name, status: 'success' });
             } catch (error: any) {
               logger.error(`[CRON SERVICE] Failed indexing for ${config.name}:`, error);
+              crawlResults.push({ forum: config.name, status: 'failed', error: error.message });
               // Continue with other forums even if one fails
             }
           }
-          logger.info('[CRON SERVICE] All forum crawls completed');
+          
+          logger.info('[CRON SERVICE] All forum crawls completed', { results: crawlResults });
         } catch (error: any) {
-          logger.error('[CRON SERVICE] Error in background crawl process:', error);
+          logger.error('[CRON SERVICE] Critical error in background crawl process:', error);
+          // Optionally notify external monitoring system here
         }
-      });
+      };
+      
+      // Execute background task without awaiting (fire-and-forget with logging)
+      backgroundCrawl();
 
       // Immediately respond that crawls have been initiated
       logger.info(`[CRON SERVICE] Responding with success for crawl initiation`);
@@ -142,15 +151,19 @@ export const crawlRoutes = (app: Hono, crawlerManager: CrawlerManager, logger: L
       // Use the correct case from the config
       const canonicalForumName = config.name;
 
-      // Start the crawl in the background
-      Promise.resolve().then(async () => {
+      // Start the crawl in the background with proper error handling
+      const backgroundSingleCrawl = async () => {
         try {
+          logger.info(`Starting background crawl for ${canonicalForumName}`);
           await crawlerManager.startCrawl(canonicalForumName);
-          logger.info(`Crawl completed for ${canonicalForumName}`);
+          logger.info(`Crawl completed successfully for ${canonicalForumName}`);
         } catch (error: any) {
           logger.error(`Background crawl error for ${canonicalForumName}:`, error);
+          // Optionally notify monitoring system
         }
-      });
+      };
+      
+      backgroundSingleCrawl();
 
       // Immediately respond that the crawl has started
       return c.json({
