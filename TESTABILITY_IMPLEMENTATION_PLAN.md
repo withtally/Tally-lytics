@@ -210,17 +210,17 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 #### ✅ **4.1 Route Testing**
 ```bash
 # Files to create:
-- services/server/__tests__/health.test.ts  ✅ 11 tests passing
-- services/server/__tests__/crawl.test.ts   ✅ 20 tests passing  
-- services/server/__tests__/search.test.ts   🔄 IN PROGRESS
-- services/server/__tests__/commonTopics.test.ts
+- services/server/__tests__/health.test.ts       ✅ 11 tests passing
+- services/server/__tests__/crawl.test.ts        ✅ 20 tests passing  
+- services/server/__tests__/search.test.ts       ✅ 17 tests passing
+- services/server/__tests__/commonTopics.test.ts 🔄 IN PROGRESS (TS errors in source)
 ```
 
 **Acceptance Criteria:**
 - [x] API routes can be tested without starting server
 - [x] Request/response validation works 
 - [x] Error responses are properly formatted
-- [ ] Authentication scenarios are covered
+- [x] Authentication scenarios are covered (API key validation in generate endpoints)
 
 **✅ COMPLETED - Health API Routes**: 
 - 11 comprehensive tests covering `/api/health` and `/api/logs/:forum` endpoints
@@ -236,6 +236,14 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 - POST `/api/crawl/start/:forumName` - individual forum crawling 
 - POST `/api/crawl/stop/:forumName` - crawl termination
 - Complex validation, error handling, and background process testing
+
+**✅ COMPLETED - Search API Routes**: 
+- 17 comprehensive tests covering search functionality
+- POST `/api/searchByType` - targeted search with result validation
+- POST `/api/searchAll` - comprehensive parallel search across all content types
+- Complex Promise.all error handling and partial failure scenarios
+- Request validation, empty results, and malformed JSON handling
+- Integration with VectorSearchService and searchLogger middleware
 
 #### ✅ **4.2 Integration Testing**
 ```bash
