@@ -1,10 +1,14 @@
 import { Context, Next } from 'hono';
+import { LRUCache } from 'lru-cache';
 import { Logger } from '../logging';
 
 const logger = new Logger({ logFile: 'logs/rate-limiter.log' });
 
-// In-memory store for rate limiting
-const rateLimit = new Map<string, { count: number; resetTime: number }>();
+// LRU cache for rate limiting with automatic cleanup
+const rateLimit = new LRUCache<string, { count: number; resetTime: number }>({
+  max: 10000, // Maximum entries
+  ttl: 60000, // 1 minute TTL
+});
 
 export async function llmRateLimiter(c: Context, next: Next) {
   const ip = c.req.header('x-forwarded-for') || 'unknown';
@@ -12,14 +16,7 @@ export async function llmRateLimiter(c: Context, next: Next) {
   const now = Date.now();
 
   try {
-    // Clean up expired entries
-    for (const [storedKey, data] of rateLimit.entries()) {
-      if (data.resetTime < now) {
-        rateLimit.delete(storedKey);
-      }
-    }
-
-    // Get or create rate limit data
+    // Get or create rate limit data (LRU cache handles cleanup automatically)
     let limitData = rateLimit.get(key);
     if (!limitData || limitData.resetTime < now) {
       limitData = {

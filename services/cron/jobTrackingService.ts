@@ -28,10 +28,10 @@ export class JobTrackingService {
         .insert({
           job_name: jobName,
           status: 'running',
-          started_at: new Date()
+          started_at: new Date(),
         })
         .returning('id');
-      
+
       logger.info(`Job started: ${jobName}, ID: ${record.id}`);
       return record.id;
     } catch (error) {
@@ -47,32 +47,38 @@ export class JobTrackingService {
    * @param status The final status of the job
    * @param message Optional message with details about the job result
    */
-  async recordJobCompletion(jobId: number, status: 'success' | 'failed', message?: string): Promise<void> {
+  async recordJobCompletion(
+    jobId: number,
+    status: 'success' | 'failed',
+    message?: string
+  ): Promise<void> {
     // Skip if job tracking failed at start
     if (jobId === -1) return;
-    
+
     try {
       const completedAt = new Date();
       const jobRecord = await db('cron_job_history').where('id', jobId).first();
-      
+
       if (!jobRecord) {
         logger.warn(`Cannot complete job ${jobId}: record not found`);
         return;
       }
-      
+
       const startedAt = new Date(jobRecord.started_at);
       const durationMs = completedAt.getTime() - startedAt.getTime();
-      
+
       await db('cron_job_history')
         .where('id', jobId)
         .update({
           status,
           message: message || null,
           completed_at: completedAt,
-          duration_ms: durationMs
+          duration_ms: durationMs,
         });
-      
-      logger.info(`Job completed: ${jobRecord.job_name}, ID: ${jobId}, Status: ${status}, Duration: ${durationMs}ms`);
+
+      logger.info(
+        `Job completed: ${jobRecord.job_name}, ID: ${jobId}, Status: ${status}, Duration: ${durationMs}ms`
+      );
     } catch (error) {
       logger.error(`Failed to record job completion for ID ${jobId}:`, error as Error);
     }
@@ -83,27 +89,29 @@ export class JobTrackingService {
    * @param options Query options
    * @returns Array of job records
    */
-  async getJobHistory(options: {
-    jobName?: string;
-    status?: 'running' | 'success' | 'failed';
-    limit?: number;
-    offset?: number;
-  } = {}): Promise<{ jobs: JobRecord[]; total: number }> {
+  async getJobHistory(
+    options: {
+      jobName?: string;
+      status?: 'running' | 'success' | 'failed';
+      limit?: number;
+      offset?: number;
+    } = {}
+  ): Promise<{ jobs: JobRecord[]; total: number }> {
     const { jobName, status, limit = 10, offset = 0 } = options;
-    
+
     try {
       let query = db('cron_job_history').orderBy('started_at', 'desc');
-      
+
       if (jobName) {
         query = query.where('job_name', jobName);
       }
-      
+
       if (status) {
         query = query.where('status', status);
       }
-      
+
       const jobs = await query.limit(limit).offset(offset);
-      
+
       let countQuery = db('cron_job_history').count('id as count');
       if (jobName) {
         countQuery = countQuery.where('job_name', jobName);
@@ -111,12 +119,12 @@ export class JobTrackingService {
       if (status) {
         countQuery = countQuery.where('status', status);
       }
-      
+
       const [total] = await countQuery;
-      
+
       return {
         jobs,
-        total: Number(total.count)
+        total: Number(total.count),
       };
     } catch (error) {
       logger.error('Failed to get job history:', error as Error);
@@ -136,7 +144,7 @@ export class JobTrackingService {
         .where('status', 'success')
         .orderBy('completed_at', 'desc')
         .first();
-      
+
       return record || null;
     } catch (error) {
       logger.error(`Failed to get last successful job for ${jobName}:`, error as Error);

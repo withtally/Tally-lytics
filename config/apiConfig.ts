@@ -11,18 +11,18 @@ export const apiConfig = {
       currency: 'usd',
       orderBy: 'market_cap_desc',
       sparkline: false,
-      priceChangePercentage: '24h'
-    }
+      priceChangePercentage: '24h',
+    },
   },
-  
+
   tally: {
     apiKey: process.env.TALLY_API || '',
     baseUrl: 'https://api.tally.xyz',
     rateLimit: {
       requestsPerMinute: 60,
       maxRetries: 3,
-      backoffMs: 1000
-    }
+      backoffMs: 1000,
+    },
   },
 
   snapshot: {
@@ -30,8 +30,8 @@ export const apiConfig = {
     rateLimit: {
       requestsPerMinute: 100,
       maxRetries: 3,
-      backoffMs: 1000
-    }
+      backoffMs: 1000,
+    },
   },
 
   openai: {
@@ -41,43 +41,43 @@ export const apiConfig = {
     rateLimit: {
       requestsPerMinute: 200,
       maxRetries: 3,
-      backoffMs: 1000
+      backoffMs: 1000,
     },
     defaults: {
       model: process.env.LLM_MODEL || 'gpt-4-turbo-preview',
       temperature: 0.7,
-      maxTokens: 500
-    }
+      maxTokens: 500,
+    },
   },
 
   // Global API settings that apply to all services
   global: {
     timeouts: {
       default: 30000, // 30 seconds
-      long: 60000,    // 1 minute
-      short: 5000     // 5 seconds
+      long: 60000, // 1 minute
+      short: 5000, // 5 seconds
     },
     retry: {
       maxAttempts: 3,
       statusCodesToRetry: [408, 429, 500, 502, 503, 504],
-      methods: ['GET', 'POST', 'PUT', 'DELETE']
+      methods: ['GET', 'POST', 'PUT', 'DELETE'],
     },
     caching: {
       enabled: true,
       ttl: {
-        short: 60,     // 1 minute
-        medium: 300,   // 5 minutes
-        long: 3600,    // 1 hour
-        day: 86400     // 24 hours
-      }
+        short: 60, // 1 minute
+        medium: 300, // 5 minutes
+        long: 3600, // 1 hour
+        day: 86400, // 24 hours
+      },
     },
     headers: {
       common: {
-        'Accept': 'application/json',
-        'User-Agent': 'DAO-Helper-Tool/1.0'
-      }
-    }
-  }
+        Accept: 'application/json',
+        'User-Agent': 'DAO-Helper-Tool/1.0',
+      },
+    },
+  },
 } as const;
 
 export type ApiConfig = typeof apiConfig;
@@ -93,4 +93,4 @@ export function getCacheTTL(ttl: CacheTTL): number {
 // Helper to check if status code should be retried
 export function shouldRetryRequest(statusCode: number): boolean {
   return apiConfig.global.retry.statusCodesToRetry.includes(statusCode);
-} 
+}

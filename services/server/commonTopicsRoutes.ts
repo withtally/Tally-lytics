@@ -4,6 +4,8 @@ import { commonTopicsService } from '../topics/commonTopicsService';
 import { generateLLMChatResponse } from '../llm/llmService';
 import { jobTrackingService } from '../cron/jobTrackingService';
 import { forumConfigs } from '../../config/forumConfig';
+import { validateParam, validateQueryArray } from '../validation/paramValidator';
+import { createErrorResponse, createSuccessResponse, handleValidationError } from '../utils/errorResponse';
 
 const logger = new Logger({ logFile: 'logs/common-topics-routes.log' });
 
@@ -12,7 +14,7 @@ export const commonTopicsRoutes = new Hono();
 // Get list of common topics (minimal data)
 commonTopicsRoutes.get('/api/common-topics', async c => {
   try {
-    const forumNames = c.req.query('forums')?.split(',').filter(Boolean);
+    const forumNames = validateQueryArray(c.req.query('forums'));
     const topics = await commonTopicsService.getCommonTopics(forumNames);
 
     // Return minimal data for list view
@@ -23,42 +25,48 @@ commonTopicsRoutes.get('/api/common-topics', async c => {
       forum_name,
     }));
 
-    return c.json({ topics: minimalTopics });
-  } catch (error) {
+    return c.json(createSuccessResponse({ topics: minimalTopics }));
+  } catch (error: any) {
+    if (error.code) {
+      return c.json(handleValidationError(error), 400);
+    }
     logger.error('Error fetching common topics:', error);
-    return c.json({ error: 'Failed to fetch common topics' }, 500);
+    return c.json(createErrorResponse('Failed to fetch common topics', 'INTERNAL_ERROR'), 500);
   }
 });
 
 // Get full details of common topics
 commonTopicsRoutes.get('/api/common-topics/full', async c => {
   try {
-    const forumNames = c.req.query('forums')?.split(',').filter(Boolean);
+    const forumNames = validateQueryArray(c.req.query('forums'));
     const topics = await commonTopicsService.getCommonTopics(forumNames);
-    return c.json({ topics });
-  } catch (error) {
+    return c.json(createSuccessResponse({ topics }));
+  } catch (error: any) {
+    if (error.code) {
+      return c.json(handleValidationError(error), 400);
+    }
     logger.error('Error fetching full common topics:', error);
-    return c.json({ error: 'Failed to fetch common topics' }, 500);
+    return c.json(createErrorResponse('Failed to fetch common topics', 'INTERNAL_ERROR'), 500);
   }
 });
 
 // Get specific topic by ID
 commonTopicsRoutes.get('/api/common-topics/:id', async c => {
   try {
-    const id = parseInt(c.req.param('id'));
-    if (isNaN(id)) {
-      return c.json({ error: 'Invalid topic ID' }, 400);
-    }
+    const id = validateParam(c.req.param('id'), 'number') as number;
 
     const topic = await commonTopicsService.getCommonTopicById(id);
     if (!topic) {
-      return c.json({ error: 'Topic not found' }, 404);
+      return c.json(createErrorResponse('Topic not found', 'NOT_FOUND'), 404);
     }
 
-    return c.json({ topic });
-  } catch (error) {
+    return c.json(createSuccessResponse({ topic }));
+  } catch (error: any) {
+    if (error.code) {
+      return c.json(handleValidationError(error), 400);
+    }
     logger.error('Error fetching topic:', error);
-    return c.json({ error: 'Failed to fetch topic' }, 500);
+    return c.json(createErrorResponse('Failed to fetch topic', 'INTERNAL_ERROR'), 500);
   }
 });
 

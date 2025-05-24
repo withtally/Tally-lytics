@@ -14,7 +14,8 @@ exports.up = function (knex) {
     table.timestamp('updated_at').defaultTo(knex.fn.now());
 
     // Add foreign key constraint
-    table.foreign(['news_article_id', 'forum_name'])
+    table
+      .foreign(['news_article_id', 'forum_name'])
       .references(['id', 'forum_name'])
       .on('news_articles')
       .onDelete('CASCADE');
@@ -29,4 +30,4 @@ exports.up = function (knex) {
 
 exports.down = function (knex) {
   return knex.schema.dropTableIfExists('news_article_evaluations');
-}; 
+};

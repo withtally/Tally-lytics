@@ -3,10 +3,12 @@
 A comprehensive tool for DAO governance analysis and management.
 
 ## Author
+
 Dennison Bertram  
 Email: dennison@tally.xyz
 
 ## License
+
 MIT License
 
 Copyright (c) 2024 Dennison Bertram
@@ -39,18 +41,20 @@ This repository provides a comprehensive pipeline for analyzing DAO governance d
   - Fetch and analyze topics, posts, and user data from configured Discourse forums
   - Vector embeddings for semantic search using OpenAI's `text-embedding-ada-002`
   - LLM-powered content evaluation and quality scoring
-  
 - **Governance Analysis:**
+
   - Integration with Snapshot proposals
   - Integration with Tally governance data
   - Historical data processing and analysis
 
 - **News & Market Data:**
+
   - Automated news collection and analysis for DAOs
   - Market cap tracking and analysis
   - News article evaluation using LLMs
 
 - **Search & Analytics:**
+
   - Semantic search across all content types
   - Materialized views for analytics
   - Common topics identification and tracking
@@ -65,17 +69,20 @@ This repository provides a comprehensive pipeline for analyzing DAO governance d
 ## Architecture Overview
 
 1. **Data Ingestion:**
+
    - **Discourse Forums:** Uses API keys to fetch `latest.json`, topics, and posts
    - **Snapshot & Tally:** Uses GraphQL or REST APIs to fetch governance proposals
    - **News API:** Fetches and analyzes DAO-related news
    - **Market Data:** Tracks market cap and related metrics
 
 2. **Database & Storage:**
+
    - **PostgreSQL with pgvector:** Stores all content with vector embeddings
    - **Knex Migrations:** Database schema management
    - **Materialized Views:** Pre-computed analytics and metrics
 
 3. **AI & Analysis:**
+
    - **OpenAI Integration:** For embeddings and content evaluation
    - **LLM Processing:** Quality scoring, summarization, and analysis
    - **Vector Search:** Semantic similarity search across all content
@@ -148,6 +155,7 @@ This repository provides a pipeline for crawling, processing, vectorizing, and a
 ## Environment Setup
 
 1. **Install Dependencies:**
+
    ```bash
    bun install
    ```
@@ -204,6 +212,7 @@ This will start the server on a specified port (default: 3000). Visit `http://lo
     }
     ```
 - **Search All Types:** `POST /api/searchAll`
+
   - **Request Body:**
     ```json
     {
@@ -214,17 +223,19 @@ This will start the server on a specified port (default: 3000). Visit `http://lo
     }
     ```
 
-- **Common Topics:** 
+- **Common Topics:**
+
   - `POST /api/common-topics/generate` - Generate common topics from recent forum posts
     - Parameters:
       - `forum` (required): The forum name to generate topics for
       - `timeframe` (optional): Time range in PostgreSQL interval format (e.g., '7d', '2 weeks', '1 month'). Defaults to '14d'
   - `GET /api/common-topics` - Retrieve all generated common topics
   - `GET /api/common-topics/:id` - Retrieve a specific common topic by ID
-  
+
   The common topics feature analyzes recent forum posts to identify and summarize frequently discussed themes and topics. This is useful for understanding the current focus of community discussions and trending subjects.
 
   Example response:
+
   ```json
   {
     "id": "123",
@@ -324,6 +335,7 @@ Contributions are welcome! Please open issues or PRs for bug fixes and enhanceme
 ### Railway Deployment
 
 The application is configured for deployment on Railway.app, which provides:
+
 - Automatic deployments on git push
 - PostgreSQL with pgvector support
 - Environment variable management
@@ -333,27 +345,32 @@ The application is configured for deployment on Railway.app, which provides:
 To deploy:
 
 1. Create a Railway account and install the Railway CLI:
+
    ```bash
    npm i -g @railway/cli
    ```
 
 2. Login to Railway:
+
    ```bash
    railway login
    ```
 
 3. Create a new project:
+
    ```bash
    railway init
    ```
 
 4. Add PostgreSQL:
+
    - Go to Railway dashboard
    - Click "New"
    - Select "Database" → "PostgreSQL"
    - Enable pgvector extension in the PostgreSQL settings
 
 5. Configure environment variables in Railway dashboard:
+
    - Copy all variables from your `.env` file
    - Update `DATABASE_URL` to use Railway's PostgreSQL connection string
 
@@ -363,6 +380,7 @@ To deploy:
    ```
 
 The deployment process is managed by:
+
 - `railway.toml`: Configuration for build and deploy settings
 - `Procfile`: Defines process types and commands
 - `.dockerignore`: Optimizes Docker builds by excluding unnecessary files
@@ -411,6 +429,7 @@ Set these environment variables in your Railway project:
 The application provides endpoints to monitor cron job execution:
 
 - `GET /api/cron/job-history`: View execution history of all jobs
+
   - Query parameters:
     - `job_name`: Filter by job name
     - `status`: Filter by status (running, success, failed)
@@ -430,6 +449,8 @@ curl -X POST https://your-app-url.railway.app/api/cron/run-topic-generation \
   -H 'Content-Type: application/json' \
   -H 'X-API-Key: your-cron-api-key' \
   -d '{"timeframe": "7d"}'
+```
+
 ```
 
 ```

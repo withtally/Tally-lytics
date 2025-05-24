@@ -4,7 +4,7 @@ async function checkMarketData() {
   try {
     // Get total count of records
     const totalCount = await db('token_market_data').count('* as total').first();
-    
+
     // Get count by forum
     const forumCounts = await db('token_market_data')
       .select('forum_name', 'coingecko_id')
@@ -13,10 +13,7 @@ async function checkMarketData() {
 
     // Get date range
     const dateRange = await db('token_market_data')
-      .select(
-        db.raw('MIN(date) as earliest_date'),
-        db.raw('MAX(date) as latest_date')
-      )
+      .select(db.raw('MIN(date) as earliest_date'), db.raw('MAX(date) as latest_date'))
       .first();
 
     // Get latest records for each forum
@@ -27,7 +24,7 @@ async function checkMarketData() {
 
     console.log('\nMARKET DATA SUMMARY:');
     console.log('Total records:', totalCount?.total || 0);
-    
+
     console.log('\nRECORDS BY FORUM:');
     forumCounts.forEach(count => {
       console.log(`${count.forum_name} (${count.coingecko_id}): ${count.total} records`);
@@ -53,4 +50,4 @@ async function checkMarketData() {
   }
 }
 
-checkMarketData(); 
+checkMarketData();

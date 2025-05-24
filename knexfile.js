@@ -1,5 +1,5 @@
 /* eslint-env node */
-/* global process, console, URL */
+/* global process, console */
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -26,22 +26,6 @@ if (process.env.NODE_ENV === 'production') {
 // Log connection details (safely)
 const connectionString = process.env.SUPABASE_CONNECTION_STRING;
 console.log('SUPABASE_CONNECTION_STRING present:', !!connectionString);
-if (connectionString) {
-  // Extract and log parts of the connection string safely
-  try {
-    // Parse connection string to log parts safely
-    const connUrl = new URL(connectionString);
-    console.log('Connection details:');
-    console.log('- Protocol:', connUrl.protocol);
-    console.log('- Host:', connUrl.hostname);
-    console.log('- Port:', connUrl.port);
-    console.log('- Database:', connUrl.pathname.substring(1));
-    console.log('- Username:', connUrl.username ? '✓ Present' : '✗ Missing');
-    console.log('- Password:', connUrl.password ? '✓ Present' : '✗ Missing');
-  } catch (error) {
-    console.error('Error parsing connection string:', error.message);
-  }
-}
 
 const commonConfig = {
   client: 'pg',
@@ -70,11 +54,11 @@ const config = {
   production: {
     debug: true, // Enable debug for production to see queries
     ...commonConfig,
-    connection: connectionString 
-      ? { 
+    connection: connectionString
+      ? {
           connectionString,
           ssl: { rejectUnauthorized: false }, // Enable SSL for Supabase
-        } 
+        }
       : {
           host: process.env.POSTGRES_HOST || 'localhost',
           port: process.env.POSTGRES_PORT || 5432,

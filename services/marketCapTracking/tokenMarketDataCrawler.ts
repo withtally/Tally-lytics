@@ -20,7 +20,11 @@ function timestampToDateString(timestampMs: number): string {
 async function insertDayData(
   forumName: string,
   coingeckoId: string,
-  data: { prices?: [number, number][]; market_caps?: [number, number][]; total_volumes?: [number, number][] },
+  data: {
+    prices?: [number, number][];
+    market_caps?: [number, number][];
+    total_volumes?: [number, number][];
+  },
   day: Date
 ) {
   if (
@@ -125,7 +129,7 @@ async function fetchAndInsertAllDays(
   forceRefresh = false
 ): Promise<void> {
   const coingeckoService = new CoingeckoProService();
-  
+
   // We choose a start range, for example 30 days ago from now
   const now = new Date();
   // Truncate now to midnight UTC
@@ -143,7 +147,7 @@ async function fetchAndInsertAllDays(
     start: start.toISOString(),
     current: current.toISOString(),
     nowMidnight: nowMidnight.toISOString(),
-    forceRefresh
+    forceRefresh,
   });
 
   while (current <= nowMidnight) {
@@ -157,7 +161,7 @@ async function fetchAndInsertAllDays(
       forumName,
       coingeckoId,
       dayStart: dayStart.toISOString(),
-      dayEnd: dayEnd.toISOString()
+      dayEnd: dayEnd.toISOString(),
     });
 
     try {
@@ -166,7 +170,7 @@ async function fetchAndInsertAllDays(
         dayStart.getTime(),
         dayEnd.getTime()
       );
-      
+
       // Insert data for this day
       await insertDayData(forumName, coingeckoId, data, current);
       // Update last processed date after successfully inserting the day
@@ -175,12 +179,12 @@ async function fetchAndInsertAllDays(
       logger.error(
         `Error processing ${forumName}/${coingeckoId} on ${current.toISOString().split('T')[0]}: ${error.message}`
       );
-      
+
       if (error.message.includes('401')) {
         logger.error(`Authentication failure for ${forumName}. Check API Key.`);
         return;
       }
-      
+
       // Stop on error to avoid gaps. Next run will continue from last processed date.
       return;
     }
@@ -244,7 +248,7 @@ export async function truncateMarketDataTables(): Promise<void> {
 if (import.meta.main) {
   // Check for --force flag
   const forceRefresh = process.argv.includes('--force');
-  
+
   crawlTokenMarketData(forceRefresh)
     .then(() => {
       console.log('Market data crawl finished successfully.');

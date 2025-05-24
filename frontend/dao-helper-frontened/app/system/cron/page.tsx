@@ -2,7 +2,14 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '../../../components/common/Button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../../components/common/Card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '../../../components/common/Card';
 import { Layout } from '../../../components/common/Layout';
 import { cronApi } from '../../../services/api';
 
@@ -72,10 +79,10 @@ export default function CronJobsPage() {
     setError(null);
     try {
       const response = await cronApi.getStatus();
-      
+
       if (response.data) {
         setCronData(response.data as CronApiResponse);
-        
+
         // Transform API data to match our UI needs
         if (response.data.jobs) {
           const jobs: CronJob[] = response.data.jobs.map((job: CronJobApiData, index: number) => ({
@@ -87,35 +94,39 @@ export default function CronJobsPage() {
             nextRun: response.data.nextRun || 'Not scheduled',
             status: response.data.running ? 'Active' : 'Paused',
             lastRunStatus: job.lastRunStatus || 'Unknown',
-            duration: job.duration || 'N/A'
+            duration: job.duration || 'N/A',
           }));
           setScheduledJobs(jobs);
         } else {
           // If no jobs data, create a single job entry from the main cron data
-          setScheduledJobs([{
-            id: 1,
-            name: 'Main Cron Job',
-            description: 'Main scheduled job for the system',
-            schedule: response.data.schedule || '0 */6 * * *',
-            lastRun: response.data.lastRun || 'Never',
-            nextRun: response.data.nextRun || 'Not scheduled',
-            status: response.data.running ? 'Active' : 'Paused',
-            lastRunStatus: 'Unknown',
-            duration: 'N/A'
-          }]);
+          setScheduledJobs([
+            {
+              id: 1,
+              name: 'Main Cron Job',
+              description: 'Main scheduled job for the system',
+              schedule: response.data.schedule || '0 */6 * * *',
+              lastRun: response.data.lastRun || 'Never',
+              nextRun: response.data.nextRun || 'Not scheduled',
+              status: response.data.running ? 'Active' : 'Paused',
+              lastRunStatus: 'Unknown',
+              duration: 'N/A',
+            },
+          ]);
         }
-        
+
         // Transform recent executions data if available
         if (response.data.recentExecutions) {
-          const executions: CronExecution[] = response.data.recentExecutions.map((execution: CronExecutionApiData, index: number) => ({
-            id: index + 1,
-            jobName: execution.jobName,
-            startTime: execution.startTime,
-            endTime: execution.endTime,
-            status: execution.status,
-            records: execution.records,
-            error: execution.error
-          }));
+          const executions: CronExecution[] = response.data.recentExecutions.map(
+            (execution: CronExecutionApiData, index: number) => ({
+              id: index + 1,
+              jobName: execution.jobName,
+              startTime: execution.startTime,
+              endTime: execution.endTime,
+              status: execution.status,
+              records: execution.records,
+              error: execution.error,
+            })
+          );
           setRecentExecutions(executions);
         }
       } else {
@@ -124,7 +135,7 @@ export default function CronJobsPage() {
     } catch (err) {
       console.error('Error fetching cron data:', err);
       setError('Failed to fetch cron job data. Please try again.');
-      
+
       // Keep using the current data if we have it, otherwise use fallback data
       if (scheduledJobs.length === 0) {
         // Fallback data in case API fails and we have no existing data
@@ -138,8 +149,8 @@ export default function CronJobsPage() {
             nextRun: 'Unknown',
             status: 'Unknown',
             lastRunStatus: 'Unknown',
-            duration: 'N/A'
-          }
+            duration: 'N/A',
+          },
         ]);
       }
     } finally {
@@ -150,10 +161,10 @@ export default function CronJobsPage() {
   // Initial data fetch
   useEffect(() => {
     fetchCronData();
-    
+
     // Set up interval to refresh data every minute
     const intervalId = setInterval(fetchCronData, 60000);
-    
+
     // Clean up interval on component unmount
     return () => clearInterval(intervalId);
   }, [fetchCronData]);
@@ -208,7 +219,7 @@ export default function CronJobsPage() {
         <input
           type="text"
           value={scheduleInput}
-          onChange={(e) => setScheduleInput(e.target.value)}
+          onChange={e => setScheduleInput(e.target.value)}
           className="w-full px-3 py-2 border rounded-md mb-4"
           placeholder="0 */6 * * *"
         />
@@ -216,10 +227,7 @@ export default function CronJobsPage() {
           <Button variant="outline" onClick={() => setShowScheduleModal(false)}>
             Cancel
           </Button>
-          <Button 
-            onClick={() => handleStartCron(scheduleInput)}
-            disabled={isStartingJob}
-          >
+          <Button onClick={() => handleStartCron(scheduleInput)} disabled={isStartingJob}>
             {isStartingJob ? 'Starting...' : 'Start Job'}
           </Button>
         </div>
@@ -235,9 +243,10 @@ export default function CronJobsPage() {
   ];
 
   // Filter jobs based on selected status
-  const filteredJobs = activeStatus === 'all' 
-    ? scheduledJobs 
-    : scheduledJobs.filter(job => job.status === activeStatus);
+  const filteredJobs =
+    activeStatus === 'all'
+      ? scheduledJobs
+      : scheduledJobs.filter(job => job.status === activeStatus);
 
   // Loading state
   if (loading && scheduledJobs.length === 0) {
@@ -265,18 +274,11 @@ export default function CronJobsPage() {
           <h1 className="text-3xl font-bold">Scheduled Jobs</h1>
           <div className="flex gap-2">
             {cronData?.running ? (
-              <Button 
-                variant="destructive" 
-                onClick={handleStopCron}
-                disabled={isStoppingJob}
-              >
+              <Button variant="destructive" onClick={handleStopCron} disabled={isStoppingJob}>
                 {isStoppingJob ? 'Stopping...' : 'Stop All Jobs'}
               </Button>
             ) : (
-              <Button 
-                onClick={() => setShowScheduleModal(true)}
-                disabled={isStartingJob}
-              >
+              <Button onClick={() => setShowScheduleModal(true)} disabled={isStartingJob}>
                 {isStartingJob ? 'Starting...' : 'Start Scheduled Jobs'}
               </Button>
             )}
@@ -299,7 +301,7 @@ export default function CronJobsPage() {
               <div className="text-2xl font-bold">{scheduledJobs.length}</div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium">Active Jobs</CardTitle>
@@ -310,7 +312,7 @@ export default function CronJobsPage() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium">Next Scheduled Run</CardTitle>
@@ -321,15 +323,13 @@ export default function CronJobsPage() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium">Current Schedule</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-xl font-bold">
-                {cronData?.schedule || 'None'}
-              </div>
+              <div className="text-xl font-bold">{cronData?.schedule || 'None'}</div>
             </CardContent>
           </Card>
         </div>
@@ -343,7 +343,7 @@ export default function CronJobsPage() {
                 <CardDescription>Manage and monitor scheduled jobs</CardDescription>
               </div>
               <div className="flex gap-2">
-                {statusFilters.map((filter) => (
+                {statusFilters.map(filter => (
                   <Button
                     key={filter.id}
                     variant={activeStatus === filter.id ? 'default' : 'outline'}
@@ -378,31 +378,37 @@ export default function CronJobsPage() {
                       </td>
                     </tr>
                   ) : (
-                    filteredJobs.map((job) => (
+                    filteredJobs.map(job => (
                       <tr key={job.id} className="border-b">
                         <td className="py-3 px-2 font-medium">{job.name}</td>
-                        <td className="py-3 px-2 text-sm text-muted-foreground">{job.description}</td>
+                        <td className="py-3 px-2 text-sm text-muted-foreground">
+                          {job.description}
+                        </td>
                         <td className="py-3 px-2 text-sm font-mono">{job.schedule}</td>
                         <td className="py-3 px-2">
-                          <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                            job.status === 'Active' 
-                              ? 'bg-green-100 text-green-800' 
-                              : job.status === 'Paused' 
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : 'bg-gray-100 text-gray-800'
-                          }`}>
+                          <span
+                            className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
+                              job.status === 'Active'
+                                ? 'bg-green-100 text-green-800'
+                                : job.status === 'Paused'
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : 'bg-gray-100 text-gray-800'
+                            }`}
+                          >
                             {job.status}
                           </span>
                         </td>
                         <td className="py-3 px-2 text-right text-sm">
                           <div>{job.lastRun}</div>
-                          <div className={`text-xs ${
-                            job.lastRunStatus === 'Success' 
-                              ? 'text-green-600' 
-                              : job.lastRunStatus === 'Failed' 
-                                ? 'text-red-600'
-                                : ''
-                          }`}>
+                          <div
+                            className={`text-xs ${
+                              job.lastRunStatus === 'Success'
+                                ? 'text-green-600'
+                                : job.lastRunStatus === 'Failed'
+                                  ? 'text-red-600'
+                                  : ''
+                            }`}
+                          >
                             {job.lastRunStatus}
                           </div>
                         </td>
@@ -443,17 +449,19 @@ export default function CronJobsPage() {
                       </td>
                     </tr>
                   ) : (
-                    recentExecutions.map((execution) => (
+                    recentExecutions.map(execution => (
                       <tr key={execution.id} className="border-b">
                         <td className="py-3 px-2 font-medium">{execution.jobName}</td>
                         <td className="py-3 px-2 text-sm">{execution.startTime}</td>
                         <td className="py-3 px-2 text-sm">{execution.endTime}</td>
                         <td className="py-3 px-2">
-                          <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                            execution.status === 'Success' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
-                          }`}>
+                          <span
+                            className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
+                              execution.status === 'Success'
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-red-100 text-red-800'
+                            }`}
+                          >
                             {execution.status}
                           </span>
                         </td>

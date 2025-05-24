@@ -44,8 +44,10 @@ async function getUnevaluatedArticles(limit = 50) {
   const rows = await db('news_articles')
     .select('news_articles.*')
     .leftJoin('news_article_evaluations', function () {
-      this.on('news_articles.id', 'news_article_evaluations.news_article_id')
-      .andOn('news_articles.forum_name', 'news_article_evaluations.forum_name');
+      this.on('news_articles.id', 'news_article_evaluations.news_article_id').andOn(
+        'news_articles.forum_name',
+        'news_article_evaluations.forum_name'
+      );
     })
     .whereNull('news_article_evaluations.id')
     .limit(limit);
@@ -179,10 +181,10 @@ async function insertEvaluation(articleId: number, article: any, evaluation: any
         tags: evaluation.tags,
         suggested_improvements: evaluation.suggested_improvements,
         raw_response: evaluation.raw_response,
-        llm_model: evaluation.llm_model
+        llm_model: evaluation.llm_model,
       },
       relevance_score: 0, // Default value since we don't have this in the evaluation
-      sentiment_score: 0  // Default value since we don't have this in the evaluation
+      sentiment_score: 0, // Default value since we don't have this in the evaluation
     })
     .onConflict(['news_article_id', 'forum_name'])
     .merge();

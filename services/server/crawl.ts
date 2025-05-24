@@ -3,6 +3,12 @@ import type { Context, Hono } from 'hono';
 import { CrawlerManager } from '../crawling/crawlerManager';
 import { forumConfigs } from '../../config/forumConfig';
 import { Logger } from '../logging';
+import { validateParam } from '../validation/paramValidator';
+import {
+  createErrorResponse,
+  createSuccessResponse,
+  handleValidationError,
+} from '../utils/errorResponse';
 
 export const crawlRoutes = (app: Hono, crawlerManager: CrawlerManager, logger: Logger) => {
   // Get all crawler statuses
@@ -14,25 +20,25 @@ export const crawlRoutes = (app: Hono, crawlerManager: CrawlerManager, logger: L
       });
     } catch (error: any) {
       logger.error('Failed to get crawler statuses', { error });
-      return c.json({ error: 'Failed to get crawler statuses' }, 500);
+      return c.json(createErrorResponse('Failed to get crawler statuses', 'INTERNAL_ERROR'), 500);
     }
   });
 
   // Get status for specific forum
   app.get('/api/crawl/status/:forumName', (c: Context) => {
-    const forumName = c.req.param('forumName');
     try {
+      const forumName = validateParam(c.req.param('forumName'), 'forum') as string;
       const status = crawlerManager.getStatus(forumName);
       if (!status) {
-        return c.json({ error: `Forum ${forumName} not found` }, 404);
+        return c.json(createErrorResponse(`Forum ${forumName} not found`, 'NOT_FOUND'), 404);
       }
-      return c.json({
-        status,
-        timestamp: new Date().toISOString(),
-      });
+      return c.json(createSuccessResponse({ status }));
     } catch (error: any) {
-      logger.error(`Failed to get status for ${forumName}`, { error });
-      return c.json({ error: `Failed to get status for ${forumName}` }, 500);
+      if (error.code) {
+        return c.json(handleValidationError(error), 400);
+      }
+      logger.error(`Failed to get status for forum`, { error });
+      return c.json(createErrorResponse('Failed to get crawler status', 'INTERNAL_ERROR'), 500);
     }
   });
 
@@ -40,7 +46,8 @@ export const crawlRoutes = (app: Hono, crawlerManager: CrawlerManager, logger: L
   app.post('/api/crawl/start/all', async (c: Context) => {
     try {
       const requestSource = c.req.header('user-agent') || 'Unknown source';
-      const requestIP = c.req.header('x-forwarded-for') || c.req.header('x-real-ip') || 'Unknown IP';
+      const requestIP =
+        c.req.header('x-forwarded-for') || c.req.header('x-real-ip') || 'Unknown IP';
 
       logger.info(`[CRON SERVICE] Received request to start all crawls`, {
         source: requestSource,

@@ -9,23 +9,21 @@ const logger = new Logger({
 async function testRateLimitHandling() {
   console.log('\n1. Testing rate limit handling...');
   const service = new CoingeckoProService();
-  
+
   // Make multiple rapid requests to test rate limiting
   const requests = Array(10).fill(null);
   console.log('Making 10 rapid requests to test rate limiting...');
-  
-  const results = await Promise.allSettled(
-    requests.map(() => service.getTokenPrice('bitcoin'))
-  );
-  
+
+  const results = await Promise.allSettled(requests.map(() => service.getTokenPrice('bitcoin')));
+
   const successful = results.filter(r => r.status === 'fulfilled').length;
   const failed = results.filter(r => r.status === 'rejected').length;
-  
+
   console.log('Rate limit test results:', {
     totalRequests: requests.length,
     successful,
     failed,
-    failureRate: `${(failed / requests.length * 100).toFixed(1)}%`
+    failureRate: `${((failed / requests.length) * 100).toFixed(1)}%`,
   });
 
   // Log any failure reasons
@@ -41,7 +39,7 @@ async function testRateLimitHandling() {
 async function testErrorHandling() {
   console.log('\n2. Testing error handling...');
   const service = new CoingeckoProService();
-  
+
   // Test invalid coin ID
   try {
     console.log('Testing invalid coin ID...');
@@ -53,7 +51,7 @@ async function testErrorHandling() {
       includes404: error.message.includes('404'),
     });
   }
-  
+
   // Test malformed date parameters
   try {
     console.log('\nTesting invalid date parameters...');
@@ -69,23 +67,22 @@ async function testErrorHandling() {
 async function testDataConsistency() {
   console.log('\n3. Testing data consistency...');
   const service = new CoingeckoProService();
-  
+
   // Get data for a known time range
   const endTime = Date.now();
-  const startTime = endTime - (24 * 60 * 60 * 1000); // 24 hours ago
-  
+  const startTime = endTime - 24 * 60 * 60 * 1000; // 24 hours ago
+
   console.log('Fetching 24 hours of Bitcoin data...');
   const data = await service.getMarketChartRange('bitcoin', startTime, endTime);
-  
+
   // Verify data structure and consistency
-  const hasAllDataPoints = data.prices.length > 0 && 
-    data.market_caps.length > 0 && 
-    data.total_volumes.length > 0;
-    
-  const allTimestampsValid = data.prices.every(([timestamp]) => 
-    timestamp >= startTime && timestamp <= endTime
+  const hasAllDataPoints =
+    data.prices.length > 0 && data.market_caps.length > 0 && data.total_volumes.length > 0;
+
+  const allTimestampsValid = data.prices.every(
+    ([timestamp]) => timestamp >= startTime && timestamp <= endTime
   );
-  
+
   console.log('Data consistency check results:', {
     timeRange: {
       start: new Date(startTime).toISOString(),
@@ -112,16 +109,16 @@ async function testDataConsistency() {
 async function runAllTests() {
   try {
     console.log('Starting CoinGecko Pro API fixes verification...');
-    
+
     // Test 1: Rate Limit Handling
     await testRateLimitHandling();
-    
+
     // Test 2: Error Handling
     await testErrorHandling();
-    
+
     // Test 3: Data Consistency
     await testDataConsistency();
-    
+
     console.log('\n✅ All tests completed successfully!');
   } catch (error) {
     console.error('\n❌ Test suite failed:', error);
@@ -136,4 +133,4 @@ if (import.meta.main) {
       console.error('Unhandled error:', error);
       process.exit(1);
     });
-} 
+}

@@ -14,7 +14,7 @@ async function testCoingeckoProAPI() {
   }
 
   const service = new CoingeckoProService();
-  
+
   try {
     logger.info('Testing CoinGecko PRO API...');
 
@@ -57,4 +57,4 @@ if (import.meta.main) {
       console.error('Unhandled error:', error);
       process.exit(1);
     });
-} 
+}

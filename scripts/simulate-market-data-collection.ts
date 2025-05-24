@@ -10,7 +10,7 @@ const logger = new Logger({
 async function simulateMarketDataCollection(forumName: string) {
   // Find forum config
   const forumConfig = forumConfigs.find(config => config.name === forumName);
-  
+
   if (!forumConfig) {
     logger.error(`Forum ${forumName} not found in config`);
     process.exit(1);
@@ -41,33 +41,37 @@ async function simulateMarketDataCollection(forumName: string) {
 
     // Analyze the data
     const dataPoints = marketData.prices.length;
-    const timeIntervals = dataPoints > 1 
-      ? (marketData.prices[dataPoints-1][0] - marketData.prices[0][0]) / (dataPoints - 1) / 1000 / 60
-      : 0;
+    const timeIntervals =
+      dataPoints > 1
+        ? (marketData.prices[dataPoints - 1][0] - marketData.prices[0][0]) /
+          (dataPoints - 1) /
+          1000 /
+          60
+        : 0;
 
     logger.info('Market data analysis:', {
       totalDataPoints: dataPoints,
       averageMinutesBetweenDataPoints: Math.round(timeIntervals),
       priceRange: {
         start: marketData.prices[0]?.[1],
-        end: marketData.prices[dataPoints-1]?.[1],
+        end: marketData.prices[dataPoints - 1]?.[1],
       },
       marketCapRange: {
         start: marketData.market_caps[0]?.[1],
-        end: marketData.market_caps[dataPoints-1]?.[1],
+        end: marketData.market_caps[dataPoints - 1]?.[1],
       },
       volumeRange: {
         start: marketData.total_volumes[0]?.[1],
-        end: marketData.total_volumes[dataPoints-1]?.[1],
+        end: marketData.total_volumes[dataPoints - 1]?.[1],
       },
     });
 
     // Test rate limiting by making several quick requests
     logger.info('Testing rate limiting with multiple quick requests...');
-    const promises = Array(5).fill(null).map(() => 
-      service.getTokenPrice(coingeckoId)
-    );
-    
+    const promises = Array(5)
+      .fill(null)
+      .map(() => service.getTokenPrice(coingeckoId));
+
     await Promise.all(promises);
     logger.info('Rate limit test completed successfully');
 
@@ -81,11 +85,11 @@ async function simulateMarketDataCollection(forumName: string) {
 if (import.meta.main) {
   // Default to UNISWAP if no forum specified
   const forumName = process.argv[2] || 'UNISWAP';
-  
+
   simulateMarketDataCollection(forumName)
     .then(() => process.exit(0))
     .catch(error => {
       console.error('Unhandled error:', error);
       process.exit(1);
     });
-} 
+}

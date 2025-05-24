@@ -3,7 +3,7 @@ const { Client } = require('pg');
 async function listTables() {
   const client = new Client({
     connectionString: process.env.SUPABASE_CONNECTION_STRING,
-    ssl: { rejectUnauthorized: false }
+    ssl: { rejectUnauthorized: false },
   });
 
   try {
@@ -23,4 +23,4 @@ async function listTables() {
   }
 }
 
-listTables(); 
+listTables();

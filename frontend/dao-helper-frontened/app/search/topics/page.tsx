@@ -2,13 +2,20 @@
 
 import React, { useState } from 'react';
 import { Button } from '../../../components/common/Button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../../components/common/Card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '../../../components/common/Card';
 import { Layout } from '../../../components/common/Layout';
 
 export default function CommonTopicsPage() {
   const [timeRange, setTimeRange] = useState('30d');
   const [activeCategory, setActiveCategory] = useState('all');
-  
+
   // Mock data for common topics
   const commonTopics = [
     {
@@ -18,7 +25,7 @@ export default function CommonTopicsPage() {
       mentionCount: 1245,
       percentChange: 8,
       relatedDAOs: ['Uniswap', 'Aave', 'Compound', 'MakerDAO'],
-      lastMention: '2025-03-13 14:22:05'
+      lastMention: '2025-03-13 14:22:05',
     },
     {
       id: 2,
@@ -27,7 +34,7 @@ export default function CommonTopicsPage() {
       mentionCount: 982,
       percentChange: 15,
       relatedDAOs: ['Uniswap', 'MakerDAO', 'dYdX'],
-      lastMention: '2025-03-12 16:45:18'
+      lastMention: '2025-03-12 16:45:18',
     },
     {
       id: 3,
@@ -36,7 +43,7 @@ export default function CommonTopicsPage() {
       mentionCount: 876,
       percentChange: 32,
       relatedDAOs: ['Aave', 'Compound', 'MakerDAO'],
-      lastMention: '2025-03-13 12:11:56'
+      lastMention: '2025-03-13 12:11:56',
     },
     {
       id: 4,
@@ -45,7 +52,7 @@ export default function CommonTopicsPage() {
       mentionCount: 754,
       percentChange: -5,
       relatedDAOs: ['Uniswap', 'dYdX'],
-      lastMention: '2025-03-11 09:28:42'
+      lastMention: '2025-03-11 09:28:42',
     },
     {
       id: 5,
@@ -54,7 +61,7 @@ export default function CommonTopicsPage() {
       mentionCount: 721,
       percentChange: 6,
       relatedDAOs: ['Aave', 'Compound'],
-      lastMention: '2025-03-12 20:15:33'
+      lastMention: '2025-03-12 20:15:33',
     },
     {
       id: 6,
@@ -63,7 +70,7 @@ export default function CommonTopicsPage() {
       mentionCount: 645,
       percentChange: -2,
       relatedDAOs: ['Uniswap', 'Compound', 'MakerDAO'],
-      lastMention: '2025-03-13 11:34:27'
+      lastMention: '2025-03-13 11:34:27',
     },
     {
       id: 7,
@@ -72,7 +79,7 @@ export default function CommonTopicsPage() {
       mentionCount: 612,
       percentChange: 18,
       relatedDAOs: ['Uniswap', 'Aave'],
-      lastMention: '2025-03-13 17:05:32'
+      lastMention: '2025-03-13 17:05:32',
     },
     {
       id: 8,
@@ -81,7 +88,7 @@ export default function CommonTopicsPage() {
       mentionCount: 598,
       percentChange: 11,
       relatedDAOs: ['MakerDAO', 'Aave', 'Compound'],
-      lastMention: '2025-03-12 14:22:18'
+      lastMention: '2025-03-12 14:22:18',
     },
   ];
 
@@ -104,9 +111,10 @@ export default function CommonTopicsPage() {
   ];
 
   // Filter topics based on selected category
-  const filteredTopics = activeCategory === 'all' 
-    ? commonTopics 
-    : commonTopics.filter(topic => topic.category === activeCategory);
+  const filteredTopics =
+    activeCategory === 'all'
+      ? commonTopics
+      : commonTopics.filter(topic => topic.category === activeCategory);
 
   return (
     <Layout>
@@ -125,7 +133,7 @@ export default function CommonTopicsPage() {
               <div>
                 <div className="text-sm font-medium mb-2">Topic Categories</div>
                 <div className="flex flex-wrap gap-2">
-                  {categories.map((category) => (
+                  {categories.map(category => (
                     <Button
                       key={category.id}
                       variant={activeCategory === category.id ? 'default' : 'outline'}
@@ -140,7 +148,7 @@ export default function CommonTopicsPage() {
               <div>
                 <div className="text-sm font-medium mb-2">Time Range</div>
                 <div className="flex gap-2">
-                  {timeRangeOptions.map((option) => (
+                  {timeRangeOptions.map(option => (
                     <Button
                       key={option.id}
                       variant={timeRange === option.id ? 'default' : 'outline'}
@@ -160,15 +168,18 @@ export default function CommonTopicsPage() {
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">
-              {activeCategory === 'all' ? 'All Topics' : `${categories.find(c => c.id === activeCategory)?.label} Topics`}
+              {activeCategory === 'all'
+                ? 'All Topics'
+                : `${categories.find(c => c.id === activeCategory)?.label} Topics`}
             </h2>
             <span className="text-sm text-muted-foreground">
-              Showing {filteredTopics.length} topics for the last {timeRangeOptions.find(t => t.id === timeRange)?.label.toLowerCase()}
+              Showing {filteredTopics.length} topics for the last{' '}
+              {timeRangeOptions.find(t => t.id === timeRange)?.label.toLowerCase()}
             </span>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {filteredTopics.map((topic) => (
+            {filteredTopics.map(topic => (
               <Card key={topic.id}>
                 <CardHeader className="pb-2">
                   <div className="flex justify-between">
@@ -180,7 +191,9 @@ export default function CommonTopicsPage() {
                     </div>
                     <div className="text-right">
                       <div className="text-2xl font-bold">{topic.mentionCount}</div>
-                      <div className={`text-sm ${topic.percentChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      <div
+                        className={`text-sm ${topic.percentChange >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                      >
                         {topic.percentChange >= 0 ? '↑' : '↓'} {Math.abs(topic.percentChange)}%
                       </div>
                     </div>
@@ -193,8 +206,11 @@ export default function CommonTopicsPage() {
                   <div className="mt-3">
                     <div className="text-sm font-medium mb-1">Related DAOs:</div>
                     <div className="flex flex-wrap gap-2">
-                      {topic.relatedDAOs.map((dao) => (
-                        <span key={dao} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                      {topic.relatedDAOs.map(dao => (
+                        <span
+                          key={dao}
+                          className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full"
+                        >
                           {dao}
                         </span>
                       ))}
@@ -202,7 +218,9 @@ export default function CommonTopicsPage() {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button variant="outline" size="sm" className="w-full">Explore Topic</Button>
+                  <Button variant="outline" size="sm" className="w-full">
+                    Explore Topic
+                  </Button>
                 </CardFooter>
               </Card>
             ))}

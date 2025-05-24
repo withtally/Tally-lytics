@@ -1,7 +1,14 @@
 'use client';
 
 import { Button } from '../components/common/Button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/common/Card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '../components/common/Card';
 import { Layout } from '../components/common/Layout';
 
 export default function Home() {
@@ -9,7 +16,7 @@ export default function Home() {
     <Layout>
       <div className="container mx-auto py-10">
         <h1 className="text-4xl font-bold mb-8">Tally-lytics Dashboard</h1>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Card>
             <CardHeader>
@@ -25,7 +32,7 @@ export default function Home() {
               <Button>View Data Collection</Button>
             </CardFooter>
           </Card>
-          
+
           <Card>
             <CardHeader>
               <CardTitle>Search & Analysis</CardTitle>
@@ -40,7 +47,7 @@ export default function Home() {
               <Button>Go to Search</Button>
             </CardFooter>
           </Card>
-          
+
           <Card>
             <CardHeader>
               <CardTitle>System Health</CardTitle>

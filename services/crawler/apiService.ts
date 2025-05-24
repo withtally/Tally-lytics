@@ -33,7 +33,9 @@ export class ApiService {
         if (response.status === 404) {
           throw new Error(`[Forum: ${this.forumName}] Not found: ${url}`);
         }
-        throw new Error(`[Forum: ${this.forumName}] HTTP error! status: ${response.status} on URL: ${url}`);
+        throw new Error(
+          `[Forum: ${this.forumName}] HTTP error! status: ${response.status} on URL: ${url}`
+        );
       }
 
       return await response.json();

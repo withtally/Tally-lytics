@@ -2,7 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '../../../components/common/Button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../../components/common/Card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '../../../components/common/Card';
 import { Layout } from '../../../components/common/Layout';
 import { healthApi } from '../../../services/api';
 
@@ -76,19 +83,23 @@ interface SystemHealthData {
 }
 
 // Create a simple Alert component since it's missing
-const Alert = ({ 
-  variant, 
-  className, 
-  children 
-}: { 
-  variant?: 'default' | 'destructive'; 
-  className?: string; 
-  children: React.ReactNode 
+const Alert = ({
+  variant,
+  className,
+  children,
+}: {
+  variant?: 'default' | 'destructive';
+  className?: string;
+  children: React.ReactNode;
 }) => {
   return (
-    <div className={`p-4 rounded-md border ${
-      variant === 'destructive' ? 'bg-red-50 border-red-200 text-red-800' : 'bg-blue-50 border-blue-200 text-blue-800'
-    } ${className || ''}`}>
+    <div
+      className={`p-4 rounded-md border ${
+        variant === 'destructive'
+          ? 'bg-red-50 border-red-200 text-red-800'
+          : 'bg-blue-50 border-blue-200 text-blue-800'
+      } ${className || ''}`}
+    >
       {children}
     </div>
   );
@@ -125,43 +136,46 @@ export default function SystemHealthPage() {
       console.log('=== HEALTH PAGE: Starting health data fetch ===');
       // The healthApi.getSystemHealth() now returns the full axios response
       const response = await healthApi.getSystemHealth();
-      
+
       console.log('=== HEALTH PAGE: Raw response received ===');
       console.log('Response type:', typeof response);
       console.log('Response structure:', Object.keys(response || {}));
-      
+
       // Deep inspect the response
       if (response) {
         console.log('Response status:', response.status);
         console.log('Response headers:', response.headers);
-        
+
         if (response.data) {
           console.log('=== HEALTH PAGE: Response data inspection ===');
           console.log('Data type:', typeof response.data);
           console.log('Data structure:', Object.keys(response.data || {}));
           console.log('Is data an array?', Array.isArray(response.data));
-          console.log('Stringified data:', JSON.stringify(response.data, null, 2).substring(0, 500) + '...');
-          
+          console.log(
+            'Stringified data:',
+            JSON.stringify(response.data, null, 2).substring(0, 500) + '...'
+          );
+
           // Check for common properties
           console.log('Has status?', 'status' in response.data);
           console.log('Has services?', 'services' in response.data);
           console.log('Has data property?', 'data' in response.data);
           console.log('Has success property?', 'success' in response.data);
-          
+
           // Try to access data if it's directly in response.data (not wrapped in ApiResponse)
           if ('status' in response.data && 'services' in response.data) {
             console.log('=== HEALTH PAGE: Direct data format detected ===');
             const directData = response.data as unknown as SystemHealthData;
             console.log('Status:', directData.status);
             console.log('Services:', directData.services);
-            
+
             const transformedData: HealthData = {
               status: directData.status || 'unknown',
               timestamp: directData.timestamp || new Date().toISOString(),
               services: directData.services || {
                 crawler: { status: 'unknown' },
-                search: { status: 'unknown' }
-              }
+                search: { status: 'unknown' },
+              },
             };
             setHealthData(transformedData);
             setLastChecked(new Date().toLocaleString());
@@ -174,19 +188,22 @@ export default function SystemHealthPage() {
             console.log('Nested data structure:', Object.keys(nestedData || {}));
             console.log('Nested data has status?', 'status' in nestedData);
             console.log('Nested data has services?', 'services' in nestedData);
-            
+
             const transformedData: HealthData = {
               status: nestedData.status || 'unknown',
               timestamp: nestedData.timestamp || new Date().toISOString(),
               services: nestedData.services || {
                 crawler: { status: 'unknown' },
-                search: { status: 'unknown' }
-              }
+                search: { status: 'unknown' },
+              },
             };
             setHealthData(transformedData);
             setLastChecked(new Date().toLocaleString());
           } else {
-            console.error('=== HEALTH PAGE: Invalid response format ===', JSON.stringify(response.data));
+            console.error(
+              '=== HEALTH PAGE: Invalid response format ===',
+              JSON.stringify(response.data)
+            );
             throw new Error('Invalid response format from health API');
           }
         } else {
@@ -199,22 +216,28 @@ export default function SystemHealthPage() {
       }
     } catch (err) {
       console.error('=== HEALTH PAGE: Error fetching health data ===', err);
-      
+
       // Provide more helpful error messages based on error type
-      const error = err as { 
-        code?: string; 
-        response?: { 
-          status?: number; 
-          data?: { message?: string } 
-        } 
+      const error = err as {
+        code?: string;
+        response?: {
+          status?: number;
+          data?: { message?: string };
+        };
       };
-      
+
       if (error.code === 'ERR_NETWORK') {
-        setError('Network error: Unable to connect to the API server. This may be due to CORS restrictions when running locally. Please check your network connection or try again later.');
+        setError(
+          'Network error: Unable to connect to the API server. This may be due to CORS restrictions when running locally. Please check your network connection or try again later.'
+        );
       } else if (error.response && error.response.status) {
-        setError(`API error (${error.response.status}): ${error.response.data?.message || 'Unknown error'}`);
+        setError(
+          `API error (${error.response.status}): ${error.response.data?.message || 'Unknown error'}`
+        );
       } else {
-        setError(`Failed to fetch system health data: ${err instanceof Error ? err.message : 'Unknown error'}`);
+        setError(
+          `Failed to fetch system health data: ${err instanceof Error ? err.message : 'Unknown error'}`
+        );
       }
     } finally {
       setLoading(false);
@@ -231,13 +254,13 @@ export default function SystemHealthPage() {
   // Parse system components from API data
   const getSystemComponents = (): SystemComponent[] => {
     if (!healthData) return [];
-    
+
     const components: SystemComponent[] = [
       {
         id: 1,
         name: 'API Server',
         status: healthData.status === 'ok' ? 'Healthy' : 'Warning',
-        lastChecked: lastChecked
+        lastChecked: lastChecked,
       },
       // NOTE: Database component hidden until API endpoint is created
       /*
@@ -253,14 +276,14 @@ export default function SystemHealthPage() {
     if (healthData.services?.crawler) {
       const crawlerService = healthData.services.crawler;
       const activeJobs = crawlerService.activeJobs || [];
-      
+
       components.push({
         id: 3,
         name: 'Web Crawlers',
         status: crawlerService.status === 'running' ? 'Healthy' : 'Warning',
         activeJobs: activeJobs.length,
-        failedJobs: activeJobs.filter((job) => job.status === 'failed').length,
-        lastChecked: lastChecked
+        failedJobs: activeJobs.filter(job => job.status === 'failed').length,
+        lastChecked: lastChecked,
       });
     }
 
@@ -269,7 +292,7 @@ export default function SystemHealthPage() {
         id: 4,
         name: 'Search Engine',
         status: healthData.services.search.status === 'running' ? 'Healthy' : 'Warning',
-        lastChecked: lastChecked
+        lastChecked: lastChecked,
       });
     }
 
@@ -279,19 +302,19 @@ export default function SystemHealthPage() {
   // Generate alerts from API data
   const getRecentAlerts = (): Alert[] => {
     if (!healthData) return [];
-    
+
     const alerts: Alert[] = [];
-    
+
     if (healthData.status !== 'ok') {
       alerts.push({
         id: 1,
         component: 'System',
         level: 'Warning',
         message: `System health check returned status: ${healthData.status}`,
-        timestamp: new Date(healthData.timestamp).toLocaleString()
+        timestamp: new Date(healthData.timestamp).toLocaleString(),
       });
     }
-    
+
     if (healthData.services?.crawler?.activeJobs) {
       healthData.services.crawler.activeJobs.forEach((job, index) => {
         if (job.status === 'failed') {
@@ -300,12 +323,14 @@ export default function SystemHealthPage() {
             component: 'Web Crawlers',
             level: 'Warning',
             message: `Crawler job for ${job.forumName} forums failed: ${job.lastError || 'Unknown error'}`,
-            timestamp: job.endTime ? new Date(job.endTime).toLocaleString() : new Date().toLocaleString()
+            timestamp: job.endTime
+              ? new Date(job.endTime).toLocaleString()
+              : new Date().toLocaleString(),
           });
         }
       });
     }
-    
+
     return alerts;
   };
 
@@ -360,7 +385,7 @@ export default function SystemHealthPage() {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">System Health</h1>
           <div className="flex gap-2">
-            {timeRangeOptions.map((option) => (
+            {timeRangeOptions.map(option => (
               <Button
                 key={option.id}
                 variant={timeRange === option.id ? 'default' : 'outline'}
@@ -370,12 +395,7 @@ export default function SystemHealthPage() {
                 {option.label}
               </Button>
             ))}
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleRefresh}
-              disabled={loading}
-            >
+            <Button variant="outline" size="sm" onClick={handleRefresh} disabled={loading}>
               {loading ? 'Refreshing...' : 'Refresh Now'}
             </Button>
           </div>
@@ -389,18 +409,20 @@ export default function SystemHealthPage() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center">
-                <div className={`h-3 w-3 rounded-full mr-2 ${
-                  systemComponents.some(c => c.status === 'Critical') 
-                    ? 'bg-red-500' 
-                    : systemComponents.some(c => c.status === 'Warning') 
-                      ? 'bg-yellow-500' 
-                      : 'bg-green-500'
-                }`}></div>
+                <div
+                  className={`h-3 w-3 rounded-full mr-2 ${
+                    systemComponents.some(c => c.status === 'Critical')
+                      ? 'bg-red-500'
+                      : systemComponents.some(c => c.status === 'Warning')
+                        ? 'bg-yellow-500'
+                        : 'bg-green-500'
+                  }`}
+                ></div>
                 <div className="text-2xl font-bold">
-                  {systemComponents.some(c => c.status === 'Critical') 
-                    ? 'Critical' 
-                    : systemComponents.some(c => c.status === 'Warning') 
-                      ? 'Warning' 
+                  {systemComponents.some(c => c.status === 'Critical')
+                    ? 'Critical'
+                    : systemComponents.some(c => c.status === 'Warning')
+                      ? 'Warning'
                       : 'Healthy'}
                 </div>
               </div>
@@ -409,7 +431,7 @@ export default function SystemHealthPage() {
               </p>
             </CardContent>
           </Card>
-          
+
           {/* NOTE: Time range selector functionality is currently hardcoded and doesn't affect data */}
           {/* It's hidden until the API endpoint is created to support historical data */}
           {/* 
@@ -451,7 +473,7 @@ export default function SystemHealthPage() {
             </CardContent>
           </Card>
           */}
-          
+
           {/* Only show the active jobs card since it's based on real data */}
           <Card>
             <CardHeader className="pb-2">
@@ -461,9 +483,7 @@ export default function SystemHealthPage() {
               <div className="text-2xl font-bold">
                 {healthData?.services?.crawler?.activeJobs?.length || 0}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Currently running
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">Currently running</p>
             </CardContent>
           </Card>
         </div>
@@ -471,18 +491,20 @@ export default function SystemHealthPage() {
         {/* System Components */}
         <h2 className="text-xl font-semibold mb-4">System Components</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {systemComponents.map((component) => (
+          {systemComponents.map(component => (
             <Card key={component.id}>
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-center">
                   <CardTitle className="text-base font-medium">{component.name}</CardTitle>
-                  <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    component.status === 'Healthy' 
-                      ? 'bg-green-100 text-green-800' 
-                      : component.status === 'Warning' 
-                        ? 'bg-yellow-100 text-yellow-800' 
-                        : 'bg-red-100 text-red-800'
-                  }`}>
+                  <div
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      component.status === 'Healthy'
+                        ? 'bg-green-100 text-green-800'
+                        : component.status === 'Warning'
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-red-100 text-red-800'
+                    }`}
+                  >
                     {component.status}
                   </div>
                 </div>
@@ -514,58 +536,71 @@ export default function SystemHealthPage() {
         </div>
 
         {/* Web Crawler Jobs Table */}
-        {healthData?.services?.crawler?.activeJobs && healthData.services.crawler.activeJobs.length > 0 && (
-          <>
-            <h2 className="text-xl font-semibold mb-4">Web Crawler Jobs</h2>
-            <Card className="mb-8">
-              <CardContent className="pt-6">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left py-3 px-4 w-1/6">Forum</th>
-                        <th className="text-left py-3 px-4 w-1/6">Status</th>
-                        <th className="text-left py-3 px-4 w-1/6">Start Time</th>
-                        <th className="text-left py-3 px-4 w-1/6">End Time</th>
-                        <th className="text-left py-3 px-4 w-2/6">Error</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {healthData.services.crawler.activeJobs.map((job, index) => (
-                        <tr key={index} className="border-b">
-                          <td className="py-3 px-4 font-medium text-xs">{job.forumName}</td>
-                          <td className="py-3 px-4">
-                            <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                              job.status === 'running' 
-                                ? 'bg-blue-100 text-blue-800' 
-                                : job.status === 'completed' 
-                                  ? 'bg-green-100 text-green-800'
-                                  : job.status === 'failed'
-                                    ? 'bg-red-100 text-red-800'
-                                    : 'bg-gray-100 text-gray-800'
-                            }`}>
-                              {job.status}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 text-xs max-w-xs break-words" style={{ fontSize: '0.7rem' }}>
-                            {job.startTime ? new Date(job.startTime).toLocaleString() : 'N/A'}
-                          </td>
-                          <td className="py-3 px-4 text-xs max-w-xs break-words" style={{ fontSize: '0.7rem' }}>
-                            {job.endTime ? new Date(job.endTime).toLocaleString() : 'In progress'}
-                          </td>
-                          <td className="py-3 px-4 text-xs text-red-600 max-w-md break-words whitespace-pre-wrap" data-component-name="SystemHealthPage" style={{ fontSize: '0.65rem' }}>
-                            {job.lastError || 'None'}
-                          </td>
+        {healthData?.services?.crawler?.activeJobs &&
+          healthData.services.crawler.activeJobs.length > 0 && (
+            <>
+              <h2 className="text-xl font-semibold mb-4">Web Crawler Jobs</h2>
+              <Card className="mb-8">
+                <CardContent className="pt-6">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left py-3 px-4 w-1/6">Forum</th>
+                          <th className="text-left py-3 px-4 w-1/6">Status</th>
+                          <th className="text-left py-3 px-4 w-1/6">Start Time</th>
+                          <th className="text-left py-3 px-4 w-1/6">End Time</th>
+                          <th className="text-left py-3 px-4 w-2/6">Error</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
-          </>
-        )}
-        
+                      </thead>
+                      <tbody>
+                        {healthData.services.crawler.activeJobs.map((job, index) => (
+                          <tr key={index} className="border-b">
+                            <td className="py-3 px-4 font-medium text-xs">{job.forumName}</td>
+                            <td className="py-3 px-4">
+                              <span
+                                className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
+                                  job.status === 'running'
+                                    ? 'bg-blue-100 text-blue-800'
+                                    : job.status === 'completed'
+                                      ? 'bg-green-100 text-green-800'
+                                      : job.status === 'failed'
+                                        ? 'bg-red-100 text-red-800'
+                                        : 'bg-gray-100 text-gray-800'
+                                }`}
+                              >
+                                {job.status}
+                              </span>
+                            </td>
+                            <td
+                              className="py-3 px-4 text-xs max-w-xs break-words"
+                              style={{ fontSize: '0.7rem' }}
+                            >
+                              {job.startTime ? new Date(job.startTime).toLocaleString() : 'N/A'}
+                            </td>
+                            <td
+                              className="py-3 px-4 text-xs max-w-xs break-words"
+                              style={{ fontSize: '0.7rem' }}
+                            >
+                              {job.endTime ? new Date(job.endTime).toLocaleString() : 'In progress'}
+                            </td>
+                            <td
+                              className="py-3 px-4 text-xs text-red-600 max-w-md break-words whitespace-pre-wrap"
+                              data-component-name="SystemHealthPage"
+                              style={{ fontSize: '0.65rem' }}
+                            >
+                              {job.lastError || 'None'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
+
         {/* Recent Alerts */}
         <Card>
           <CardHeader>
@@ -589,16 +624,18 @@ export default function SystemHealthPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {recentAlerts.map((alert) => (
+                    {recentAlerts.map(alert => (
                       <tr key={alert.id} className="border-b">
                         <td className="py-3 px-4">
-                          <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                            alert.level === 'Critical' 
-                              ? 'bg-red-100 text-red-800' 
-                              : alert.level === 'Warning' 
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : 'bg-blue-100 text-blue-800'
-                          }`}>
+                          <span
+                            className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
+                              alert.level === 'Critical'
+                                ? 'bg-red-100 text-red-800'
+                                : alert.level === 'Warning'
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : 'bg-blue-100 text-blue-800'
+                            }`}
+                          >
                             {alert.level}
                           </span>
                         </td>

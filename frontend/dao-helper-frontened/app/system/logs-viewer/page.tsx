@@ -2,7 +2,14 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '../../../components/common/Button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../../components/common/Card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '../../../components/common/Card';
 import { Layout } from '../../../components/common/Layout';
 
 // Define proper types for logs
@@ -33,7 +40,7 @@ export default function LogsViewerPage() {
     { name: 'GITCOIN-crawler.log', category: 'DAO Crawlers' },
     { name: 'CABIN-crawler.log', category: 'DAO Crawlers' },
     { name: 'ZKSYNC-crawler.log', category: 'DAO Crawlers' },
-    
+
     // Forum crawlers
     { name: 'ARBITRUM-forum-crawler.log', category: 'Forum Crawlers' },
     { name: 'UNISWAP-forum-crawler.log', category: 'Forum Crawlers' },
@@ -42,13 +49,13 @@ export default function LogsViewerPage() {
     { name: 'GITCOIN-forum-crawler.log', category: 'Forum Crawlers' },
     { name: 'CABIN-forum-crawler.log', category: 'Forum Crawlers' },
     { name: 'ZKSYNC-forum-crawler.log', category: 'Forum Crawlers' },
-    
+
     // System logs
     { name: 'server.log', category: 'System' },
     { name: 'global-error-handler.log', category: 'System' },
     { name: 'rate-limiter.log', category: 'System' },
     { name: 'job-tracking.log', category: 'System' },
-    
+
     // Service logs
     { name: 'common-topics.log', category: 'Services' },
     { name: 'news-crawler.log', category: 'Services' },
@@ -56,7 +63,7 @@ export default function LogsViewerPage() {
     { name: 'post-service.log', category: 'Services' },
     { name: 'search-logger.log', category: 'Services' },
     { name: 'token-market-data-crawler.log', category: 'Services' },
-    
+
     // LLM logs
     { name: 'llm-service.log', category: 'LLM' },
     { name: 'llm-routes.log', category: 'LLM' },
@@ -66,13 +73,16 @@ export default function LogsViewerPage() {
   ];
 
   // Group log files by category
-  const groupedLogFiles = logFiles.reduce((acc, logFile) => {
-    if (!acc[logFile.category]) {
-      acc[logFile.category] = [];
-    }
-    acc[logFile.category].push(logFile);
-    return acc;
-  }, {} as Record<string, { name: string, category: string }[]>);
+  const groupedLogFiles = logFiles.reduce(
+    (acc, logFile) => {
+      if (!acc[logFile.category]) {
+        acc[logFile.category] = [];
+      }
+      acc[logFile.category].push(logFile);
+      return acc;
+    },
+    {} as Record<string, { name: string; category: string }[]>
+  );
 
   // Log level filters
   const logLevels = [
@@ -101,7 +111,7 @@ export default function LogsViewerPage() {
       // Example API call:
       // const response = await fetch(`/api/logs/${logFile}?timeRange=${timeRange}`);
       // const data = await response.text();
-      
+
       // For demo purposes, we'll show a simulation message
       setTimeout(() => {
         // Generate some random parsed logs based on the file name
@@ -121,49 +131,49 @@ export default function LogsViewerPage() {
     const logs: LogEntry[] = [];
     const levels: LogEntry['level'][] = ['INFO', 'WARN', 'ERROR', 'DEBUG'];
     const sources = ['API', 'Database', 'Crawler', 'Parser', 'Fetch'];
-    
+
     // Extract DAO name from log file if applicable
     let daoName = '';
     if (logFile.includes('-')) {
       daoName = logFile.split('-')[0];
     }
-    
+
     const now = new Date();
-    
+
     for (let i = 0; i < count; i++) {
       const timestamp = new Date(now.getTime() - i * 60000); // 1 minute apart
       const level = levels[Math.floor(Math.random() * levels.length)];
-      
+
       let message = '';
       let metadata: Record<string, string | number | boolean> = {};
-      
+
       // Customize message based on log file type
       if (logFile.includes('crawler')) {
         message = `Crawling ${daoName} data from endpoint /api/${daoName.toLowerCase()}/posts`;
-        metadata = { 
+        metadata = {
           postsProcessed: Math.floor(Math.random() * 100),
           newPosts: Math.floor(Math.random() * 20),
-          duration: `${Math.floor(Math.random() * 60)}s`
+          duration: `${Math.floor(Math.random() * 60)}s`,
         };
       } else if (logFile.includes('forum')) {
         message = `Processing forum data for ${daoName}`;
         metadata = {
           threadsScanned: Math.floor(Math.random() * 50),
-          commentsIndexed: Math.floor(Math.random() * 200)
+          commentsIndexed: Math.floor(Math.random() * 200),
         };
       } else if (logFile.includes('server')) {
         message = `API request processed: ${['GET', 'POST', 'PUT'][Math.floor(Math.random() * 3)]} /api/${['daos', 'posts', 'users', 'search'][Math.floor(Math.random() * 4)]}`;
         metadata = {
           duration: `${Math.floor(Math.random() * 500)}ms`,
-          status: [200, 201, 404, 500][Math.floor(Math.random() * 4)]
+          status: [200, 201, 404, 500][Math.floor(Math.random() * 4)],
         };
       } else {
         message = `Processing data for service: ${logFile.replace('.log', '')}`;
         metadata = {
-          itemsProcessed: Math.floor(Math.random() * 100)
+          itemsProcessed: Math.floor(Math.random() * 100),
         };
       }
-      
+
       // Add some errors and warnings occasionally
       if (level === 'ERROR') {
         message = `Failed to process data: timeout error`;
@@ -173,17 +183,17 @@ export default function LogsViewerPage() {
         message = `Slow response detected for ${daoName || 'service'}`;
         metadata.responseTime = `${Math.floor(Math.random() * 2000 + 1000)}ms`;
       }
-      
+
       logs.push({
         id: i,
         timestamp: timestamp.toISOString().replace('T', ' ').substring(0, 19),
         level,
         source: `${daoName || logFile.split('.')[0]} ${sources[Math.floor(Math.random() * sources.length)]}`,
         message,
-        metadata
+        metadata,
       });
     }
-    
+
     return logs;
   };
 
@@ -197,8 +207,9 @@ export default function LogsViewerPage() {
   // Filter logs based on selected filters
   const filteredLogs = parsedLogs.filter(log => {
     const levelMatch = logLevel === 'all' || log.level === logLevel;
-    const searchMatch = !searchQuery.trim() || log.message.toLowerCase().includes(searchQuery.toLowerCase());
-    
+    const searchMatch =
+      !searchQuery.trim() || log.message.toLowerCase().includes(searchQuery.toLowerCase());
+
     return levelMatch && searchMatch;
   });
 
@@ -224,7 +235,7 @@ export default function LogsViewerPage() {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">System Logs</h1>
           <div className="flex gap-2">
-            {timeRangeOptions.map((option) => (
+            {timeRangeOptions.map(option => (
               <Button
                 key={option.id}
                 variant={timeRange === option.id ? 'default' : 'outline'}
@@ -251,7 +262,7 @@ export default function LogsViewerPage() {
                     <div key={category}>
                       <h3 className="text-sm font-medium text-muted-foreground mb-2">{category}</h3>
                       <div className="space-y-1">
-                        {files.map((file) => (
+                        {files.map(file => (
                           <Button
                             key={file.name}
                             variant={selectedLogFile === file.name ? 'default' : 'ghost'}
@@ -278,7 +289,7 @@ export default function LogsViewerPage() {
                   <div>
                     <div className="text-sm font-medium mb-2">Log Level</div>
                     <div className="flex flex-wrap gap-2">
-                      {logLevels.map((level) => (
+                      {logLevels.map(level => (
                         <Button
                           key={level.id}
                           variant={logLevel === level.id ? 'default' : 'outline'}
@@ -290,14 +301,14 @@ export default function LogsViewerPage() {
                       ))}
                     </div>
                   </div>
-                  
+
                   <div className="md:col-span-2">
                     <div className="text-sm font-medium mb-2">Search Logs</div>
                     <div className="flex gap-2">
                       <input
                         type="text"
                         value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onChange={e => setSearchQuery(e.target.value)}
                         placeholder="Search log messages..."
                         className="flex-1 px-3 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                       />
@@ -317,7 +328,9 @@ export default function LogsViewerPage() {
                   <div>
                     <CardTitle>Log Entries: {selectedLogFile}</CardTitle>
                     <CardDescription>
-                      Showing {filteredLogs.length} {filteredLogs.length === 1 ? 'entry' : 'entries'} for the last {timeRangeOptions.find(t => t.id === timeRange)?.label.toLowerCase()}
+                      Showing {filteredLogs.length}{' '}
+                      {filteredLogs.length === 1 ? 'entry' : 'entries'} for the last{' '}
+                      {timeRangeOptions.find(t => t.id === timeRange)?.label.toLowerCase()}
                     </CardDescription>
                   </div>
                   <Button variant="outline" size="sm">
@@ -330,8 +343,14 @@ export default function LogsViewerPage() {
                   <div className="flex justify-center items-center h-40">
                     <div className="flex items-center space-x-2">
                       <div className="h-4 w-4 bg-primary rounded-full animate-bounce"></div>
-                      <div className="h-4 w-4 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                      <div className="h-4 w-4 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                      <div
+                        className="h-4 w-4 bg-primary rounded-full animate-bounce"
+                        style={{ animationDelay: '0.2s' }}
+                      ></div>
+                      <div
+                        className="h-4 w-4 bg-primary rounded-full animate-bounce"
+                        style={{ animationDelay: '0.4s' }}
+                      ></div>
                       <span className="ml-2">Loading logs...</span>
                     </div>
                   </div>
@@ -348,13 +367,13 @@ export default function LogsViewerPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {filteredLogs.map((log) => (
+                        {filteredLogs.map(log => (
                           <tr key={log.id} className="border-b">
-                            <td className="py-3 px-2 whitespace-nowrap text-sm">
-                              {log.timestamp}
-                            </td>
+                            <td className="py-3 px-2 whitespace-nowrap text-sm">{log.timestamp}</td>
                             <td className="py-3 px-2">
-                              <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getLogLevelColor(log.level)}`}>
+                              <span
+                                className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getLogLevelColor(log.level)}`}
+                              >
                                 {log.level}
                               </span>
                             </td>
@@ -372,7 +391,9 @@ export default function LogsViewerPage() {
                               )}
                             </td>
                             <td className="py-3 px-2 text-right">
-                              <Button variant="outline" size="sm">Details</Button>
+                              <Button variant="outline" size="sm">
+                                Details
+                              </Button>
                             </td>
                           </tr>
                         ))}
@@ -385,10 +406,16 @@ export default function LogsViewerPage() {
                 <div className="text-sm text-muted-foreground">
                   <p>Path: /logs/{selectedLogFile}</p>
                   <p className="mt-1">
-                    Export: 
-                    <Button variant="link" size="sm" className="px-1">JSON</Button>
-                    <Button variant="link" size="sm" className="px-1">CSV</Button>
-                    <Button variant="link" size="sm" className="px-1">Text</Button>
+                    Export:
+                    <Button variant="link" size="sm" className="px-1">
+                      JSON
+                    </Button>
+                    <Button variant="link" size="sm" className="px-1">
+                      CSV
+                    </Button>
+                    <Button variant="link" size="sm" className="px-1">
+                      Text
+                    </Button>
                   </p>
                 </div>
                 <Button variant="outline">Load More</Button>

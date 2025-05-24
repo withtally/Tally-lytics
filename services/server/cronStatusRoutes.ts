@@ -21,31 +21,34 @@ cronStatusRoutes.get('/api/cron/job-history', async c => {
     const status = c.req.query('status') as 'running' | 'success' | 'failed' | undefined;
     const limit = parseInt(c.req.query('limit') || '10');
     const offset = parseInt(c.req.query('offset') || '0');
-    
+
     const { jobs, total } = await jobTrackingService.getJobHistory({
       jobName,
       status,
       limit,
-      offset
+      offset,
     });
-    
+
     return c.json({
       jobs,
       pagination: {
         total,
         limit,
         offset,
-        has_more: offset + jobs.length < total
+        has_more: offset + jobs.length < total,
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
     logger.error('Error fetching job history:', error);
-    return c.json({
-      error: 'Failed to fetch job history',
-      details: error instanceof Error ? error.message : 'Unknown error',
-      timestamp: new Date().toISOString()
-    }, 500);
+    return c.json(
+      {
+        error: 'Failed to fetch job history',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString(),
+      },
+      500
+    );
   }
 });
 
@@ -58,11 +61,11 @@ cronStatusRoutes.get('/api/health/topics-generation', async c => {
   try {
     // Check last successful run of any topic generation job
     const lastSuccess = await jobTrackingService.getLastSuccessfulJob('generate_all_topics');
-    
+
     // If no generate_all_topics job found, check for individual forum jobs
     let lastRunTime = lastSuccess?.completed_at;
     let jobName = lastSuccess?.job_name;
-    
+
     if (!lastRunTime) {
       // Look for any forum-specific job
       const forumJob = await jobTrackingService.getLastSuccessfulJob('generate_topics_%');
@@ -71,37 +74,45 @@ cronStatusRoutes.get('/api/health/topics-generation', async c => {
         jobName = forumJob.job_name;
       }
     }
-    
+
     // Calculate time since last run
     const now = new Date();
-    const hoursSinceLastRun = lastRunTime 
+    const hoursSinceLastRun = lastRunTime
       ? Math.round((now.getTime() - new Date(lastRunTime).getTime()) / (60 * 60 * 1000))
       : null;
-    
+
     // Check status based on expected daily run
-    const status = !lastRunTime ? 'never_run' :
-                  hoursSinceLastRun > 36 ? 'critical' :
-                  hoursSinceLastRun > 25 ? 'warning' :
-                  'healthy';
-    
+    const status = !lastRunTime
+      ? 'never_run'
+      : hoursSinceLastRun > 36
+        ? 'critical'
+        : hoursSinceLastRun > 25
+          ? 'warning'
+          : 'healthy';
+
     return c.json({
       service: 'topic-generation',
       status,
-      last_success: lastRunTime ? {
-        job: jobName,
-        time: lastRunTime,
-        hours_ago: hoursSinceLastRun
-      } : null,
-      timestamp: now.toISOString()
+      last_success: lastRunTime
+        ? {
+            job: jobName,
+            time: lastRunTime,
+            hours_ago: hoursSinceLastRun,
+          }
+        : null,
+      timestamp: now.toISOString(),
     });
   } catch (error) {
     logger.error('Error checking topic generation health:', error);
-    return c.json({
-      service: 'topic-generation',
-      status: 'error',
-      error: error instanceof Error ? error.message : 'Unknown error',
-      timestamp: new Date().toISOString()
-    }, 500);
+    return c.json(
+      {
+        service: 'topic-generation',
+        status: 'error',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString(),
+      },
+      500
+    );
   }
 });
 
@@ -121,25 +132,31 @@ cronStatusRoutes.post('/api/cron/run-topic-generation', async c => {
         return c.json({ error: 'Unauthorized', code: 'UNAUTHORIZED' }, 401);
       }
     }
-    
+
     // Forward the request to the generate-all endpoint
-    const response = await fetch(`${c.req.url.split('/api/cron')[0]}/api/common-topics/generate-all`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-Key': process.env.CRON_API_KEY || ''
-      },
-      body: c.req.raw.body
-    });
-    
+    const response = await fetch(
+      `${c.req.url.split('/api/cron')[0]}/api/common-topics/generate-all`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': process.env.CRON_API_KEY || '',
+        },
+        body: c.req.raw.body,
+      }
+    );
+
     const result = await response.json();
     return c.json(result, response.status);
   } catch (error) {
     logger.error('Error triggering topic generation:', error);
-    return c.json({
-      error: 'Failed to trigger topic generation',
-      details: error instanceof Error ? error.message : 'Unknown error',
-      timestamp: new Date().toISOString()
-    }, 500);
+    return c.json(
+      {
+        error: 'Failed to trigger topic generation',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString(),
+      },
+      500
+    );
   }
 });

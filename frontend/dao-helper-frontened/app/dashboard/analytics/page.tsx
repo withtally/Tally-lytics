@@ -1,7 +1,13 @@
 'use client';
 
 import { Button } from '../../../components/common/Button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/common/Card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../../../components/common/Card';
 import { Layout } from '../../../components/common/Layout';
 
 export default function AnalyticsDashboardPage() {
@@ -30,18 +36,14 @@ export default function AnalyticsDashboardPage() {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
           <div className="flex space-x-2">
-            {timeRangeOptions.map((option) => (
-              <Button 
-                key={option} 
-                variant={option === '30 Days' ? 'default' : 'outline'} 
-                size="sm"
-              >
+            {timeRangeOptions.map(option => (
+              <Button key={option} variant={option === '30 Days' ? 'default' : 'outline'} size="sm">
                 {option}
               </Button>
             ))}
           </div>
         </div>
-        
+
         {/* Activity Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <Card className="col-span-1">
@@ -58,7 +60,7 @@ export default function AnalyticsDashboardPage() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="col-span-1">
             <CardHeader>
               <CardTitle>Source Distribution</CardTitle>
@@ -89,15 +91,18 @@ export default function AnalyticsDashboardPage() {
                     <div className="w-8 text-muted-foreground">{index + 1}</div>
                     <div className="flex-1 font-medium">{dao.name}</div>
                     <div className="w-20 text-right">{dao.count} docs</div>
-                    <div className={`w-16 text-right ${dao.percentChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {dao.percentChange >= 0 ? '+' : ''}{dao.percentChange}%
+                    <div
+                      className={`w-16 text-right ${dao.percentChange >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                    >
+                      {dao.percentChange >= 0 ? '+' : ''}
+                      {dao.percentChange}%
                     </div>
                   </div>
                 ))}
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader>
               <CardTitle>Top Discussion Topics</CardTitle>
@@ -110,8 +115,11 @@ export default function AnalyticsDashboardPage() {
                     <div className="w-8 text-muted-foreground">{index + 1}</div>
                     <div className="flex-1 font-medium">{topic.name}</div>
                     <div className="w-20 text-right">{topic.count} refs</div>
-                    <div className={`w-16 text-right ${topic.percentChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {topic.percentChange >= 0 ? '+' : ''}{topic.percentChange}%
+                    <div
+                      className={`w-16 text-right ${topic.percentChange >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                    >
+                      {topic.percentChange >= 0 ? '+' : ''}
+                      {topic.percentChange}%
                     </div>
                   </div>
                 ))}
@@ -128,8 +136,12 @@ export default function AnalyticsDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Button className="w-full" variant="outline">Export as CSV</Button>
-              <Button className="w-full" variant="outline">Generate PDF Report</Button>
+              <Button className="w-full" variant="outline">
+                Export as CSV
+              </Button>
+              <Button className="w-full" variant="outline">
+                Generate PDF Report
+              </Button>
               <Button className="w-full">Schedule Reports</Button>
             </div>
           </CardContent>
