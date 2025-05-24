@@ -255,14 +255,39 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 - POST `/api/common-topics/:id/chat` - LLM chat integration with topic context
 - Complex job tracking, partial failure handling, and authentication scenarios
 
-**📊 PHASE 4 COVERAGE ACHIEVEMENTS:**
-- **Total API Route Tests**: 74 passing ✅
-- **services/server Coverage**: 77.77% (exceeded 80% target for tested routes) ✅
-- **Individual Route Coverage**: 
-  - commonTopicsRoutes.ts: 95.86% ✅
-  - crawl.ts: 96.47% ✅  
-  - health.ts: 100% ✅
-  - search.ts: 100% ✅
+**📊 CURRENT COVERAGE ACHIEVEMENTS:**
+- **Total Tests**: 162 passing ✅ (120 → 162: +42 high-value service tests)
+- **Phase 3 LLM Services**: 46 tests ✅
+- **Phase 4 API Routes**: 74 tests ✅  
+- **Phase 5 Core Services**: 42 tests ✅ (CrawlerManager: 19, VectorSearchService: 23)
+- **services/server Coverage**: 77.77% ✅
+- **services/crawling Coverage**: NEW - CrawlerManager fully tested ✅
+- **services/search Coverage**: NEW - VectorSearchService fully tested ✅
+
+### **PHASE 5: Core Services Testing** ✅
+
+#### ✅ **5.1 High-Value Services**
+```bash
+# Files created:
+- services/crawling/__tests__/crawlerManager.test.ts ✅ 19 tests passing
+- services/search/__tests__/vectorSearchService.test.ts ✅ 23 tests passing
+```
+
+**✅ COMPLETED - CrawlerManager Service**: 
+- 19 comprehensive tests covering core crawling orchestration
+- Full crawl lifecycle testing (start, process, evaluate, stop)
+- Multi-service integration (forum, snapshot, tally, news, token data)
+- Complex error handling and partial failure scenarios
+- Heartbeat monitoring and status management
+- Background process testing with proper cleanup
+
+**✅ COMPLETED - VectorSearchService**:
+- 23 comprehensive tests covering vector search functionality  
+- Multi-content type search (topic, post, snapshot, tally)
+- Advanced search features (recency boost, popularity boost, LLM reranking)
+- Redis connection handling and error recovery
+- Database query building and result processing
+- Comprehensive error handling and fallback scenarios
 
 #### ✅ **4.2 Integration Testing**
 ```bash

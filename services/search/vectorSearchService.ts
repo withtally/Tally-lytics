@@ -162,7 +162,7 @@ export class VectorSearchService {
         };
       });
     } catch (error) {
-      this.logger.error('Error applying popularity boost:', error);
+      this.logger.error('Error applying popularity boost:', error as object);
       return results; // Return original results if boost fails
     }
   }
@@ -188,7 +188,7 @@ export class VectorSearchService {
         results.length,
       ]);
 
-      return rerankedResults.rows.map(row => ({
+      return rerankedResults.rows.map((row: any) => ({
         type: row.type,
         id: row.id,
         forum_name: row.forum_name,
@@ -199,7 +199,7 @@ export class VectorSearchService {
         popularity_score: row.popularity_score,
       }));
     } catch (error) {
-      this.logger.error('Error in LLM reranking:', error);
+      this.logger.error('Error in LLM reranking:', error as object);
       return results; // Return original results if reranking fails
     }
   }
@@ -229,7 +229,7 @@ export class VectorSearchService {
         limit,
       ]);
 
-      let searchResults = results.rows.map(row => ({
+      let searchResults = results.rows.map((row: any) => ({
         type,
         id: row.id,
         forum_name: row.forum_name,
@@ -255,9 +255,9 @@ export class VectorSearchService {
       }
 
       // Sort by final similarity score
-      return searchResults.sort((a, b) => b.similarity - a.similarity);
+      return searchResults.sort((a: any, b: any) => b.similarity - a.similarity);
     } catch (error) {
-      this.logger.error('Search error:', error);
+      this.logger.error('Search error:', error as object);
       throw error;
     }
   }
