@@ -11,7 +11,7 @@ import {
   handleValidationError,
 } from '../utils/errorResponse';
 
-const logger = new Logger({ logFile: 'logs/common-topics-routes.log' });
+const logger = new Logger({ level: 'info', logFile: 'logs/common-topics-routes.log' });
 
 export const commonTopicsRoutes = new Hono();
 
@@ -125,7 +125,7 @@ commonTopicsRoutes.post('/api/common-topics/generate', async c => {
       throw error;
     }
   } catch (error) {
-    logger.error('Error generating common topics:', error);
+    logger.error('Error generating common topics:', error as object);
 
     // Handle insufficient data error specifically
     if (error instanceof Error && error.name === 'InsufficientDataError') {
@@ -183,7 +183,7 @@ commonTopicsRoutes.post('/api/common-topics/generate-all', async c => {
           'failed',
           error instanceof Error ? error.message : 'Unknown error'
         );
-        logger.error('Error generating topics from search logs:', error);
+        logger.error('Error generating topics from search logs:', error as object);
         // Continue with forums even if search logs fail
       }
 
@@ -191,7 +191,7 @@ commonTopicsRoutes.post('/api/common-topics/generate-all', async c => {
       const forums = Object.keys(forumConfigs);
       logger.info(`Generating topics for ${forums.length} forums`);
 
-      const results = {};
+      const results: Record<string, string> = {};
 
       for (const forum of forums) {
         const forumJobId = await jobTrackingService.recordJobStart(`generate_topics_${forum}`);
@@ -204,7 +204,7 @@ commonTopicsRoutes.post('/api/common-topics/generate-all', async c => {
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';
           await jobTrackingService.recordJobCompletion(forumJobId, 'failed', errorMessage);
-          logger.error(`Error generating topics for forum ${forum}:`, error);
+          logger.error(`Error generating topics for forum ${forum}:`, error as object);
           results[forum] = `error: ${errorMessage}`;
           // Continue with next forum
         }
@@ -229,7 +229,7 @@ commonTopicsRoutes.post('/api/common-topics/generate-all', async c => {
       throw error;
     }
   } catch (error) {
-    logger.error('Error in generate-all endpoint:', error);
+    logger.error('Error in generate-all endpoint:', error as object);
     return c.json(
       {
         error: 'Failed to generate common topics',
@@ -272,7 +272,7 @@ Please answer this question: ${message}`;
     const response = await generateLLMChatResponse(prompt);
     return c.json({ response });
   } catch (error) {
-    logger.error('Error in topic chat:', error);
+    logger.error('Error in topic chat:', error as object);
     return c.json({ error: 'Failed to process chat' }, 500);
   }
 });
