@@ -50,7 +50,7 @@ export async function evaluateUnanalyzedPostsInBatches(forumName: string): Promi
       await processBatch(batch, forumName);
     }
   } catch (error: any) {
-    console.error('Error during batch post evaluation:', error);
+    logger.error('Error during batch post evaluation:', error);
     throw error;
   }
 }
@@ -88,7 +88,7 @@ export async function processBatch(batch: any[], forumName: string) {
         const evaluation = evaluations[i];
         const post = postsToProcess[i];
         if (!post) {
-          console.error(`No corresponding post found for evaluation at index ${i}`);
+          logger.error(`No corresponding post found for evaluation at index ${i}`);
           continue;
         }
 
@@ -102,7 +102,7 @@ export async function processBatch(batch: any[], forumName: string) {
           .first();
 
         if (existingEval) {
-          console.log(`Skipping already evaluated post ${post.id}`);
+          logger.debug(`Skipping already evaluated post ${post.id}`);
           continue;
         }
 
@@ -167,10 +167,10 @@ export async function processBatch(batch: any[], forumName: string) {
           .where({ id: post.id, forum_name: forumName })
           .update({ last_analyzed: trx.fn.now() });
 
-        console.log(`Post ${post.id} evaluated, vectorized, and tags processed`);
+        logger.debug(`Post ${post.id} evaluated, vectorized, and tags processed`);
       }
     } catch (error: any) {
-      console.error('Error in batch processing:', error);
+      logger.error('Error in batch processing:', error);
       throw error;
     }
   });

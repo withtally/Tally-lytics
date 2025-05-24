@@ -5,6 +5,8 @@ import { summarizeTopicContent, evaluateTopicChunk } from './topicEvaluation';
 import { TopicChunkEvaluation } from './types';
 import db from '../../db/db';
 
+const logger = new Logger({ logFile: 'logs/topics-service.log' });
+
 const MAX_TOKENS: number = 4000;
 const CHUNK_TOKEN_LIMIT: number = MAX_TOKENS - 500; // Leave margin for metadata and response tokens
 
@@ -20,13 +22,13 @@ export async function fetchAndSummarizeTopics(forumName: string): Promise<void> 
       .select('plain_text');
 
     if (!firstPost) {
-      console.log(`No posts found for topic ID ${topic.id}`);
+      logger.debug(`No posts found for topic ID ${topic.id}`);
       continue;
     }
 
     // Summarize the content of the first post
     const { summary, tags } = await summarizeTopicContent(firstPost.plain_text);
-    console.log('Tagged summary: ', summary, tags);
+    logger.debug('Tagged summary: ', summary, tags);
     // Update the thread with the summary
     await db('topics').where({ id: topic.id }).update({
       ai_summary: summary,
@@ -56,7 +58,7 @@ export async function fetchAndSummarizeTopics(forumName: string): Promise<void> 
         .ignore();
     }
 
-    console.log(`Summarized and tagged topic ID ${topic.id}`);
+    logger.debug(`Summarized and tagged topic ID ${topic.id}`);
   }
 }
 

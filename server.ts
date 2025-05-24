@@ -6,7 +6,7 @@ import { validateEnvironment } from './config/envValidator';
 import { Logger } from './services/logging';
 import { CrawlerManager } from './services/crawling/crawlerManager';
 import { VectorSearchService } from './services/search/vectorSearchService';
-import { pgVectorClient } from './db/pgvectorClient';
+import { pgVectorClient, initializePgVectorClient } from './db/pgvectorClient';
 import { configureMiddleware } from './services/server/config';
 import { healthRoutes } from './services/server/health';
 import { crawlRoutes } from './services/server/crawl';
@@ -266,14 +266,14 @@ const findAvailablePort = async (startPort: number): Promise<number> => {
 // Start server
 const startServer = async () => {
   try {
-    console.log(`Selected environment: ${process.env.NODE_ENV}`);
+    logger.info(`Selected environment: ${process.env.NODE_ENV}`);
 
     // Validate environment variables before proceeding
     validateEnvironment();
 
-    // Initialize database connection
-    await pgVectorClient.connect();
-    logger.info('pgVectorClient connected successfully');
+    // Initialize database connection pool
+    await initializePgVectorClient();
+    logger.info('Database connection pool initialized successfully');
 
     const preferredPort = process.env.PORT ? parseInt(process.env.PORT) : 3000;
     const port = await findAvailablePort(preferredPort);

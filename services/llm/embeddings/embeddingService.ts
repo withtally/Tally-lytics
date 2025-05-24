@@ -24,7 +24,7 @@ export const generateEmbeddings = async (texts: string[]): Promise<number[][]> =
     logger.info(`Generated embeddings for ${texts.length} texts.`);
     return embeddings;
   } catch (error: any) {
-    console.log('error:', error);
+    logger.error('Embedding generation error:', error);
     logger.error('Error generating embeddings:', error.response?.data || error.message);
     throw error;
   }
