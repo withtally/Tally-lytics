@@ -1,6 +1,6 @@
 // services/utils/__tests__/errorResponse.test.ts
 
-import { describe, test, expect, beforeEach, afterEach, spyOn } from '@jest/globals';
+import { describe, test, expect, beforeEach, afterEach, jest } from '@jest/globals';
 import {
   createErrorResponse,
   createSuccessResponse,
@@ -23,14 +23,15 @@ Object.defineProperty(global, 'crypto', {
 const mockDate = '2023-12-01T10:00:00.000Z';
 
 describe('errorResponse utilities', () => {
+  let dateSpy: any;
+
   beforeEach(() => {
-    mock.restore();
     // Reset the Date mock for each test
-    spyOn(Date.prototype, 'toISOString').mockReturnValue(mockDate);
+    dateSpy = jest.spyOn(Date.prototype, 'toISOString').mockReturnValue(mockDate);
   });
 
   afterEach(() => {
-    mock.restore();
+    dateSpy?.mockRestore();
   });
 
   describe('createErrorResponse', () => {

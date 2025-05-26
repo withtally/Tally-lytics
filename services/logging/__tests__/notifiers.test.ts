@@ -4,7 +4,7 @@ import { LogMessage } from '../types';
 
 describe('notifiers', () => {
   // Mock console.log to capture output
-  let consoleSpy: jest.SpyInstance;
+  let consoleSpy: any;
 
   beforeEach(() => {
     consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});

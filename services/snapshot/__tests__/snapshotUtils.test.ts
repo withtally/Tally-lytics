@@ -1,6 +1,6 @@
 // services/snapshot/__tests__/snapshotUtils.test.ts
 
-import { describe, test, it, expect, beforeEach, afterEach, spyOn } from '@jest/globals';
+import { describe, test, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 import {
   SnapshotProposal,
   timestampToDate,
@@ -83,7 +83,7 @@ describe('snapshotUtils', () => {
 
   describe('getNewestTimestamp', () => {
     it('should return newest timestamp from proposals', () => {
-      const proposals = [mockProposalProposal2];
+      const proposals = [mockProposal2];
       const result = getNewestTimestamp(proposals, 0);
       expect(result).toBe(1641082000); // mockProposal2 has newer timestamp
     });
@@ -141,7 +141,7 @@ describe('snapshotUtils', () => {
 
   describe('filterNewProposals', () => {
     it('should filter proposals newer than last crawl time', () => {
-      const proposals = [mockProposalProposal2];
+      const proposals = [mockProposal2];
       const lastCrawlTime = new Date(1641000000 * 1000); // Between the two proposals
       const result = filterNewProposals(proposals, lastCrawlTime);
 
@@ -150,7 +150,7 @@ describe('snapshotUtils', () => {
     });
 
     it('should return all proposals if last crawl time is very old', () => {
-      const proposals = [mockProposalProposal2];
+      const proposals = [mockProposal2];
       const lastCrawlTime = new Date(0);
       const result = filterNewProposals(proposals, lastCrawlTime);
 
@@ -158,7 +158,7 @@ describe('snapshotUtils', () => {
     });
 
     it('should return empty array if all proposals are old', () => {
-      const proposals = [mockProposalProposal2];
+      const proposals = [mockProposal2];
       const lastCrawlTime = new Date(2000000000 * 1000); // Future date
       const result = filterNewProposals(proposals, lastCrawlTime);
 
@@ -295,7 +295,7 @@ describe('snapshotUtils', () => {
 
   describe('transformProposalsBatch', () => {
     it('should transform multiple proposals', () => {
-      const proposals = [mockProposalProposal2];
+      const proposals = [mockProposal2];
       const result = transformProposalsBatch(proposals, 'test-forum');
 
       expect(result).toHaveLength(2);
