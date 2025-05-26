@@ -5,9 +5,9 @@ import { ForumConfig } from '../../../config/forumConfig';
 
 // Mock DiscourseUrlHelper methods
 const mockUrlHelper = {
-  getTopicUrl: jest.fn(() => ''),
-  getPostUrl: jest.fn(() => ''),
-  getUserUrl: jest.fn(() => ''),
+  getTopicUrl: jest.fn(),
+  getPostUrl: jest.fn(),
+  getUserUrl: jest.fn(),
 };
 
 // Mock the DiscourseUrlHelper module
@@ -312,14 +312,14 @@ describe('CitationFormatter', () => {
     };
 
     beforeEach(() => {
-      mockUrlHelper.getTopicUrl.mockImplementation(
+      (mockUrlHelper.getTopicUrl as any).mockImplementation(
         (topicId: number) => `https://forum.example.com/t/topic/${topicId}`
       );
-      mockUrlHelper.getPostUrl.mockImplementation(
+      (mockUrlHelper.getPostUrl as any).mockImplementation(
         (topicId: number, postNumber: number) =>
           `https://forum.example.com/t/topic/${topicId}/${postNumber}`
       );
-      mockUrlHelper.getUserUrl.mockImplementation(
+      (mockUrlHelper.getUserUrl as any).mockImplementation(
         (username: string) => `https://forum.example.com/u/${username}`
       );
     });

@@ -15,7 +15,7 @@ describe('llmRateLimiter middleware', () => {
 
     // Mock Date.now for predictable testing
     originalDateNow = Date.now;
-    Date.now = jest.fn().mockReturnValue(1000000 + testCounter * 100000); // Unique timestamp per test
+    Date.now = jest.fn().mockReturnValue(1000000 + testCounter * 100000) as any; // Unique timestamp per test
 
     // Mock Hono context with unique IP per test
     mockContext = {
@@ -29,7 +29,7 @@ describe('llmRateLimiter middleware', () => {
     };
 
     // Mock next function
-    mockNext = jest.fn().mockResolvedValue(undefined);
+    mockNext = jest.fn().mockResolvedValue(undefined) as any;
   });
 
   afterEach(() => {

@@ -534,7 +534,7 @@ describe('snapshotUtils', () => {
       const startTime = new Date('2023-01-01T00:00:00Z');
       // Mock Date.now to return end time
       const endTimeMs = new Date('2023-01-01T00:01:00Z').getTime();
-      spyOn(Date, 'now').mockReturnValue(endTimeMs);
+      jest.spyOn(Date, 'now').mockReturnValue(endTimeMs);
 
       const totalFetched = 100;
       const newProposals = 25;
@@ -553,7 +553,7 @@ describe('snapshotUtils', () => {
 
     it('should handle zero duration', () => {
       const time = new Date('2023-01-01T00:00:00Z');
-      spyOn(Date, 'now').mockReturnValue(time.getTime());
+      jest.spyOn(Date, 'now').mockReturnValue(time.getTime());
 
       const result = calculateCrawlingStats(10, 5, time);
 
@@ -566,7 +566,7 @@ describe('snapshotUtils', () => {
     it('should handle zero proposals', () => {
       const startTime = new Date('2023-01-01T00:00:00Z');
       const endTimeMs = new Date('2023-01-01T00:01:00Z').getTime();
-      spyOn(Date, 'now').mockReturnValue(endTimeMs);
+      jest.spyOn(Date, 'now').mockReturnValue(endTimeMs);
 
       const result = calculateCrawlingStats(0, 0, startTime);
 
@@ -580,7 +580,7 @@ describe('snapshotUtils', () => {
     it('should calculate correct rate', () => {
       const startTime = new Date();
       const endTimeMs = startTime.getTime() + 1000; // 1 second later
-      spyOn(Date, 'now').mockReturnValue(endTimeMs);
+      jest.spyOn(Date, 'now').mockReturnValue(endTimeMs);
 
       const result = calculateCrawlingStats(50, 10, startTime);
 

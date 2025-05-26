@@ -156,7 +156,7 @@ class MockPostRepository implements IPostRepository {
   }
 }
 
-describe.skip('PostEvaluationService (Unit Tests)', () => {
+describe('PostEvaluationService (Unit Tests)', () => {
   let service: PostEvaluationService;
   let mockOpenAI: MockOpenAIClient;
   let mockRepository: MockPostRepository;
@@ -167,14 +167,14 @@ describe.skip('PostEvaluationService (Unit Tests)', () => {
     mockRepository = new MockPostRepository();
     mockLogger = new MockLogger();
 
-    service = new PostEvaluationService(mockOpenAIRepositoryLogger);
+    service = new PostEvaluationService(mockOpenAI, mockRepository, mockLogger);
 
     // Reset all mocks
     mockRepository.reset();
     jest.clearAllMocks();
   });
 
-  describe.skip('evaluatePost', () => {
+  describe('evaluatePost', () => {
     it('should successfully evaluate a post', async () => {
       // Given
       const post: Post = {
@@ -268,7 +268,7 @@ describe.skip('PostEvaluationService (Unit Tests)', () => {
     });
   });
 
-  describe.skip('evaluateUnanalyzedPosts', () => {
+  describe('evaluateUnanalyzedPosts', () => {
     it('should evaluate multiple unevaluated posts', async () => {
       // Given
       const posts: Post[] = [
@@ -353,7 +353,7 @@ describe.skip('PostEvaluationService (Unit Tests)', () => {
     });
   });
 
-  describe.skip('generateEvaluationPrompt', () => {
+  describe('generateEvaluationPrompt', () => {
     it('should generate appropriate evaluation prompt', () => {
       // Given
       const post: Post = {
@@ -383,7 +383,7 @@ describe.skip('PostEvaluationService (Unit Tests)', () => {
     });
   });
 
-  describe.skip('parseEvaluationResponse', () => {
+  describe('parseEvaluationResponse', () => {
     it('should parse valid evaluation response', () => {
       // Given
       const validResponse = JSON.stringify({

@@ -272,7 +272,7 @@ describe('TopicsService (Unit Tests)', () => {
     mockPostRepo = new MockPostRepository();
     mockLogger = new MockLogger();
 
-    service = new TopicsService(mockOpenAITopicRepoPostRepoLogger);
+    service = new TopicsService(mockOpenAI, mockTopicRepo, mockPostRepo, mockLogger);
 
     // Reset all mocks
     mockTopicRepo.reset();
