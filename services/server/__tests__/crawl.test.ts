@@ -1,43 +1,43 @@
 // API route tests for crawl endpoints
-import { describe, it, expect, beforeEach, afterEach, mock, spyOn } from 'bun:test';
+import { describe, it, expect, beforeEach, afterEach, spyOn } from '@jest/globals';
 
 // Create mock function references
-const mockValidateParam = mock(() => {});
-const mockCreateErrorResponse = mock(() => {});
-const mockCreateSuccessResponse = mock(() => {});
-const mockHandleValidationError = mock(() => {});
+const mockValidateParam = jest.fn(() => {});
+const mockCreateErrorResponse = jest.fn(() => {});
+const mockCreateSuccessResponse = jest.fn(() => {});
+const mockHandleValidationError = jest.fn(() => {});
 
 // Mock CrawlerManager
 class MockCrawlerManager {
-  getAllStatuses = mock(() => {});
-  getStatus = mock(() => {});
-  startCrawl = mock(() => {});
-  stopCrawl = mock(() => {});
+  getAllStatuses = jest.fn(() => {});
+  getStatus = jest.fn(() => {});
+  startCrawl = jest.fn(() => {});
+  stopCrawl = jest.fn(() => {});
 }
 
 // Mock Logger
 class MockLogger {
-  info = mock(() => {});
-  warn = mock(() => {});
-  error = mock(() => {});
+  info = jest.fn(() => {});
+  warn = jest.fn(() => {});
+  error = jest.fn(() => {});
 }
 
 // Mock all dependencies before importing
-mock.module('../../crawling/crawlerManager', () => ({
+jest.mock('../../crawling/crawlerManager', () => ({
   CrawlerManager: MockCrawlerManager,
 }));
-mock.module('../../logging', () => ({
+jest.mock('../../logging', () => ({
   Logger: MockLogger,
 }));
-mock.module('../../validation/paramValidator', () => ({
+jest.mock('../../validation/paramValidator', () => ({
   validateParam: mockValidateParam,
 }));
-mock.module('../../utils/errorResponse', () => ({
+jest.mock('../../utils/errorResponse', () => ({
   createErrorResponse: mockCreateErrorResponse,
   createSuccessResponse: mockCreateSuccessResponse,
   handleValidationError: mockHandleValidationError,
 }));
-mock.module('../../../config/forumConfig', () => ({
+jest.mock('../../../config/forumConfig', () => ({
   forumConfigs: [{ name: 'ARBITRUM' }, { name: 'COMPOUND' }, { name: 'UNISWAP' }],
 }));
 
@@ -75,7 +75,7 @@ describe('Crawl API Routes', () => {
     mockLogger = new MockLogger();
 
     // Setup crawl routes with mocked dependencies
-    crawlRoutes(app, mockCrawlerManager as any, mockLogger as any);
+    crawlRoutes(appCrawlerManager as anyLogger as any);
 
     // Reset mock implementations
 

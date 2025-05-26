@@ -1,6 +1,6 @@
 // services/user/__tests__/userService.test.ts
 
-import { expect, test, describe, beforeEach, afterEach, mock } from 'bun:test';
+import { expect, test, describe, beforeEach, afterEach } from '@jest/globals';
 
 // Mock dependencies
 const mockLogger = {
@@ -10,7 +10,7 @@ const mockLogger = {
   error: mock(),
 };
 
-const mockDb = mock();
+const mockDb = jest.fn();
 const mockQueryBuilder = {
   insert: mock().mockReturnThis(),
   onConflict: mock().mockReturnThis(),
@@ -20,15 +20,15 @@ const mockQueryBuilder = {
 };
 
 // Mock global fetch instead of node-fetch
-global.fetch = mock();
+global.fetch = jest.fn();
 
-mock.module('../../logging', () => ({
+jest.mock('../../logging', () => ({
   Logger: mock().mockImplementation(() => mockLogger),
 }));
-mock.module('../../../config/loggerConfig', () => ({
+jest.mock('../../../config/loggerConfig', () => ({
   loggerConfig: { level: 'info' },
 }));
-mock.module('../../../db/db', () => {
+jest.mock('../../../db/db', () => {
   return {
     __esModule: true,
     default: mockDb,

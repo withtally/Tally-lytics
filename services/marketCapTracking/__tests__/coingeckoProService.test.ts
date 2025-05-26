@@ -1,5 +1,5 @@
 // services/marketCapTracking/__tests__/coingeckoProService.test.ts
-import { describe, test, expect, beforeEach, afterEach, mock } from 'bun:test';
+import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
 
 // Mock dependencies
 const mockLogger = {
@@ -9,17 +9,17 @@ const mockLogger = {
   error: mock(),
 };
 
-mock.module('node-fetch', () => ({
+jest.mock('node-fetch', () => ({
   default: mock(),
 }));
 
-const MockLogger = mock(() => mockLogger);
-mock.module('../../logging', () => ({
+const MockLogger = jest.fn(() => mockLogger);
+jest.mock('../../logging', () => ({
   default: MockLogger,
   Logger: MockLogger,
 }));
 
-mock.module('../../../config/apiConfig', () => ({
+jest.mock('../../../config/apiConfig', () => ({
   apiConfig: {},
 }));
 
@@ -67,7 +67,7 @@ describe('CoingeckoProService', () => {
     test('should fetch market data successfully', async () => {
       const mockResponse = {
         ok: true,
-        json: mock(() => Promise.resolve({
+        json: jest.fn(() => Promise.resolve({
           'ethereum': {
             usd: 2000,
             usd_market_cap: 240000000000,
@@ -129,7 +129,7 @@ describe('CoingeckoProService', () => {
       
       const mockResponse = {
         ok: true,
-        json: mock(() => Promise.resolve({}))
+        json: jest.fn(() => Promise.resolve({}))
       };
       
       mockedFetch.mockResolvedValue(mockResponse);
@@ -145,7 +145,7 @@ describe('CoingeckoProService', () => {
     test('should respect rate limits', async () => {
       const mockResponse = {
         ok: true,
-        json: mock(() => Promise.resolve({}))
+        json: jest.fn(() => Promise.resolve({}))
       };
       
       mockedFetch.mockResolvedValue(mockResponse);
@@ -166,7 +166,7 @@ describe('CoingeckoProService', () => {
     test('should validate response data structure', async () => {
       const invalidResponse = {
         ok: true,
-        json: mock(() => Promise.resolve('invalid data'))
+        json: jest.fn(() => Promise.resolve('invalid data'))
       };
       
       mockedFetch.mockResolvedValue(invalidResponse);
@@ -177,7 +177,7 @@ describe('CoingeckoProService', () => {
     test('should handle missing price data', async () => {
       const partialResponse = {
         ok: true,
-        json: mock(() => Promise.resolve({
+        json: jest.fn(() => Promise.resolve({
           'ethereum': {
             usd_market_cap: 240000000000
             // Missing price data
@@ -203,7 +203,7 @@ describe('CoingeckoProService', () => {
         })
         .mockResolvedValueOnce({
           ok: true,
-          json: mock(() => Promise.resolve({ 'ethereum': { usd: 2000 } }))
+          json: jest.fn(() => Promise.resolve({ 'ethereum': { usd: 2000 } }))
         });
 
       const result = await service.getMarketData(['ethereum']);

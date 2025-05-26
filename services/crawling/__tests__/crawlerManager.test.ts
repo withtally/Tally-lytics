@@ -1,25 +1,25 @@
 // Comprehensive tests for CrawlerManager
 
-import { expect, test, describe, beforeEach, afterEach, mock } from 'bun:test';
+import { expect, test, describe, beforeEach, afterEach } from '@jest/globals';
 
 // Create mock function references
-const mockForumCrawlerStart = mock();
-const mockForumCrawlerStop = mock();
-const mockStartSnapshotCrawl = mock();
-const mockStartTallyCrawl = mock();
-const mockEvaluateTallyProposals = mock();
-const mockEvaluateSnapshotProposals = mock();
-const mockFetchAndSummarizeTopics = mock();
-const mockEvaluateUnanalyzedTopics = mock();
-const mockEvaluateUnanalyzedPostsInBatches = mock();
-const mockUpdateCrawlTime = mock();
-const mockEvaluateUnevaluatedThreads = mock();
-const mockCrawlTokenMarketData = mock();
-const mockCrawlNews = mock();
-const mockCrawlNewsArticleEvaluations = mock();
+const mockForumCrawlerStart = jest.fn();
+const mockForumCrawlerStop = jest.fn();
+const mockStartSnapshotCrawl = jest.fn();
+const mockStartTallyCrawl = jest.fn();
+const mockEvaluateTallyProposals = jest.fn();
+const mockEvaluateSnapshotProposals = jest.fn();
+const mockFetchAndSummarizeTopics = jest.fn();
+const mockEvaluateUnanalyzedTopics = jest.fn();
+const mockEvaluateUnanalyzedPostsInBatches = jest.fn();
+const mockUpdateCrawlTime = jest.fn();
+const mockEvaluateUnevaluatedThreads = jest.fn();
+const mockCrawlTokenMarketData = jest.fn();
+const mockCrawlNews = jest.fn();
+const mockCrawlNewsArticleEvaluations = jest.fn();
 
 // Mock dependencies
-mock.module('../../logging', () => ({
+jest.mock('../../logging', () => ({
   Logger: mock().mockImplementation(() => ({
     info: mock(),
     warn: mock(),
@@ -27,7 +27,7 @@ mock.module('../../logging', () => ({
   })),
 }));
 
-mock.module('../../../config/forumConfig', () => ({
+jest.mock('../../../config/forumConfig', () => ({
   forumConfigs: [
     {
       name: 'ARBITRUM',
@@ -56,55 +56,55 @@ mock.module('../../../config/forumConfig', () => ({
   ],
 }));
 
-mock.module('../forumCrawler', () => ({
+jest.mock('../forumCrawler', () => ({
   ForumCrawler: mock().mockImplementation(() => ({
     start: mockForumCrawlerStart,
     stop: mockForumCrawlerStop,
   })),
 }));
 
-mock.module('../../snapshotCrawler', () => ({
+jest.mock('../../snapshotCrawler', () => ({
   startSnapshotCrawl: mockStartSnapshotCrawl,
 }));
 
-mock.module('../../tallyCrawler', () => ({
+jest.mock('../../tallyCrawler', () => ({
   startTallyCrawl: mockStartTallyCrawl,
 }));
 
-mock.module('../../llm/tallyProposalsService', () => ({
+jest.mock('../../llm/tallyProposalsService', () => ({
   evaluateTallyProposals: mockEvaluateTallyProposals,
 }));
 
-mock.module('../../llm/snapshotProposalsService', () => ({
+jest.mock('../../llm/snapshotProposalsService', () => ({
   evaluateSnapshotProposals: mockEvaluateSnapshotProposals,
 }));
 
-mock.module('../../llm/topicsService', () => ({
+jest.mock('../../llm/topicsService', () => ({
   fetchAndSummarizeTopics: mockFetchAndSummarizeTopics,
   evaluateUnanalyzedTopics: mockEvaluateUnanalyzedTopics,
 }));
 
-mock.module('../../llm/postService', () => ({
+jest.mock('../../llm/postService', () => ({
   evaluateUnanalyzedPostsInBatches: mockEvaluateUnanalyzedPostsInBatches,
 }));
 
-mock.module('../../../utils/dbUtils', () => ({
+jest.mock('../../../utils/dbUtils', () => ({
   updateCrawlTime: mockUpdateCrawlTime,
 }));
 
-mock.module('../../llm/threadEvaluationService', () => ({
+jest.mock('../../llm/threadEvaluationService', () => ({
   evaluateUnevaluatedThreads: mockEvaluateUnevaluatedThreads,
 }));
 
-mock.module('../../marketCapTracking/tokenMarketDataCrawler', () => ({
+jest.mock('../../marketCapTracking/tokenMarketDataCrawler', () => ({
   crawlTokenMarketData: mockCrawlTokenMarketData,
 }));
 
-mock.module('../../newsAPICrawler/newsCrawler', () => ({
+jest.mock('../../newsAPICrawler/newsCrawler', () => ({
   crawlNews: mockCrawlNews,
 }));
 
-mock.module('../../newsAPICrawler/newsArticleEvaluationCrawler', () => ({
+jest.mock('../../newsAPICrawler/newsArticleEvaluationCrawler', () => ({
   crawlNewsArticleEvaluations: mockCrawlNewsArticleEvaluations,
 }));
 
@@ -138,7 +138,7 @@ describe.skip('CrawlerManager', () => {
     };
 
     // Create crawler manager instance
-    crawlerManager = new CrawlerManager(mockLogger, mockHeartbeatMonitor);
+    crawlerManager = new CrawlerManager(mockLoggerHeartbeatMonitor);
 
     // Clear all mocks
     mockForumCrawlerStart.mockClear();

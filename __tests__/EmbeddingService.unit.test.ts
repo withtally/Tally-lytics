@@ -40,7 +40,7 @@ describe('EmbeddingService (Unit Tests)', () => {
   beforeEach(() => {
     mockOpenAI = new MockOpenAIClient();
     mockLogger = new MockLogger();
-    service = new EmbeddingService(mockOpenAI, mockLogger);
+    service = new EmbeddingService(mockOpenAILogger);
 
     jest.clearAllMocks();
   });

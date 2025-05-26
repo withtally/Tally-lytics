@@ -1,6 +1,6 @@
 // services/__tests__/tags.test.ts
 
-import { describe, it, beforeEach, expect, jest } from 'bun:test';
+import { describe, it, beforeEach, expect, jest } from '@jest/globals';
 import addTags from '../tags';
 
 describe('addTags', () => {

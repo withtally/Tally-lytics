@@ -1,6 +1,6 @@
 // services/tally/__tests__/logger.test.ts
 
-import { describe, it, beforeEach, expect, jest } from 'bun:test';
+import { describe, it, beforeEach, expect, jest } from '@jest/globals';
 import { Logger } from '../logger';
 import { LogConfig } from '../types';
 

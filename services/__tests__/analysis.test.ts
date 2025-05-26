@@ -1,11 +1,11 @@
 // services/__tests__/analysis.test.ts
 
-import { describe, it, beforeEach, expect, mock } from 'bun:test';
+import { describe, it, beforeEach, expect } from '@jest/globals';
 
 // Mock the database module BEFORE importing the service
-const mockDb = mock(() => {});
+const mockDb = jest.fn(() => {});
 
-mock.module('../../db/db', () => ({
+jest.mock('../../db/db', () => ({
   default: mockDb,
 }));
 

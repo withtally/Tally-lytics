@@ -1,24 +1,24 @@
 // services/middleware/__tests__/searchLogger.test.ts
 
-import { describe, it, beforeEach, expect, mock } from 'bun:test';
+import { describe, it, beforeEach, expect } from '@jest/globals';
 
 // Mock the database module BEFORE importing the service
-const mockDb = mock(() => {});
+const mockDb = jest.fn(() => {});
 
-mock.module('../../../db/db', () => ({
+jest.mock('../../../db/db', () => ({
   default: mockDb,
 }));
 
 // Mock the Logger
 const mockLogger = {
-  info: mock(() => {}),
-  error: mock(() => {}),
-  warn: mock(() => {}),
-  debug: mock(() => {}),
+  info: jest.fn(() => {}),
+  error: jest.fn(() => {}),
+  warn: jest.fn(() => {}),
+  debug: jest.fn(() => {}),
 };
 
-mock.module('../../logging', () => ({
-  Logger: mock(() => mockLogger),
+jest.mock('../../logging', () => ({
+  Logger: jest.fn(() => mockLogger),
 }));
 
 // Import after mocking
@@ -53,7 +53,7 @@ describe('searchLogger middleware', () => {
     };
 
     // Mock next function
-    mockNext = mock().mockResolvedValue(undefined);
+    mockNext = jest.fn().mockResolvedValue(undefined);
   });
 
   describe('middleware function', () => {
@@ -64,7 +64,7 @@ describe('searchLogger middleware', () => {
     it('should be async function', async () => {
       mockContext.req.json.mockResolvedValue({ query: 'test', forum: 'test-forum' });
 
-      const result = searchLogger(mockContext, mockNext);
+      const result = searchLogger(mockContextNext);
       expect(result instanceof Promise).toBe(true);
 
       await result;
@@ -73,7 +73,7 @@ describe('searchLogger middleware', () => {
     it('should call next function first', async () => {
       mockContext.req.json.mockResolvedValue({ query: 'test', forum: 'test-forum' });
 
-      await searchLogger(mockContext, mockNext);
+      await searchLogger(mockContextNext);
 
       expect(mockNext).toHaveBeenCalled();
     });
@@ -87,21 +87,21 @@ describe('searchLogger middleware', () => {
       };
 
       // Should complete without throwing (errors are caught and logged)
-      await searchLogger(malformedContext as any, mockNext);
+      await searchLogger(malformedContext as anyNext);
       // If we get here, the function didn't throw
       expect(true).toBe(true);
     });
 
     it('should handle null context', async () => {
       // Should complete without throwing (errors are caught and logged)
-      await searchLogger(null as any, mockNext);
+      await searchLogger(null as anyNext);
       // If we get here, the function didn't throw
       expect(true).toBe(true);
     });
 
     it('should handle undefined context', async () => {
       // Should complete without throwing (errors are caught and logged)
-      await searchLogger(undefined as any, mockNext);
+      await searchLogger(undefined as anyNext);
       // If we get here, the function didn't throw
       expect(true).toBe(true);
     });
@@ -110,7 +110,7 @@ describe('searchLogger middleware', () => {
       mockContext.req.json.mockRejectedValue(new Error('JSON parse error'));
 
       // Should complete without throwing (errors are caught and logged)
-      await searchLogger(mockContext, mockNext);
+      await searchLogger(mockContextNext);
       expect(mockNext).toHaveBeenCalled();
     });
   });
@@ -119,7 +119,7 @@ describe('searchLogger middleware', () => {
     it('should only process when status is 200', async () => {
       mockContext.req.json.mockResolvedValue({ query: 'test', forum: 'test-forum' });
 
-      await searchLogger(mockContext, mockNext);
+      await searchLogger(mockContextNext);
 
       expect(mockContext.req.json).toHaveBeenCalled();
       expect(mockDb).toHaveBeenCalledWith('search_log');
@@ -129,7 +129,7 @@ describe('searchLogger middleware', () => {
       mockContext.res.status = 404;
       mockContext.req.json.mockResolvedValue({ query: 'test', forum: 'test-forum' });
 
-      await searchLogger(mockContext, mockNext);
+      await searchLogger(mockContextNext);
 
       expect(mockContext.req.json).not.toHaveBeenCalled();
       expect(mockDb).not.toHaveBeenCalled();
@@ -143,7 +143,7 @@ describe('searchLogger middleware', () => {
         mockDb.mockClear();
         mockContext.req.json.mockClear();
 
-        await searchLogger(mockContext, mockNext);
+        await searchLogger(mockContextNext);
 
         expect(mockDb).not.toHaveBeenCalled();
       }
@@ -154,7 +154,7 @@ describe('searchLogger middleware', () => {
     it('should attempt to parse JSON when status is 200', async () => {
       mockContext.req.json.mockResolvedValue({ query: 'test', forum: 'test-forum' });
 
-      await searchLogger(mockContext, mockNext);
+      await searchLogger(mockContextNext);
 
       expect(mockContext.req.json).toHaveBeenCalled();
     });
@@ -162,7 +162,7 @@ describe('searchLogger middleware', () => {
     it('should handle JSON parsing errors', async () => {
       mockContext.req.json.mockRejectedValue(new Error('Invalid JSON'));
 
-      await searchLogger(mockContext, mockNext);
+      await searchLogger(mockContextNext);
 
       // The error should be logged (we can see it in console output), 
       // but our mock might not be working properly
@@ -173,7 +173,7 @@ describe('searchLogger middleware', () => {
     it('should handle null JSON response', async () => {
       mockContext.req.json.mockResolvedValue(null);
 
-      await searchLogger(mockContext, mockNext);
+      await searchLogger(mockContextNext);
 
       expect(mockDb).not.toHaveBeenCalled();
     });
@@ -181,7 +181,7 @@ describe('searchLogger middleware', () => {
     it('should handle undefined JSON response', async () => {
       mockContext.req.json.mockResolvedValue(undefined);
 
-      await searchLogger(mockContext, mockNext);
+      await searchLogger(mockContextNext);
 
       expect(mockDb).not.toHaveBeenCalled();
     });
@@ -189,7 +189,7 @@ describe('searchLogger middleware', () => {
     it('should handle empty JSON response', async () => {
       mockContext.req.json.mockResolvedValue({});
 
-      await searchLogger(mockContext, mockNext);
+      await searchLogger(mockContextNext);
 
       expect(mockDb).not.toHaveBeenCalled();
     });
@@ -200,7 +200,7 @@ describe('searchLogger middleware', () => {
       const requestBody = { query: 'test search', forum: 'test-forum' };
       mockContext.req.json.mockResolvedValue(requestBody);
 
-      await searchLogger(mockContext, mockNext);
+      await searchLogger(mockContextNext);
 
       expect(mockDb).toHaveBeenCalledWith('search_log');
       expect(mockQuery.insert).toHaveBeenCalledWith({
@@ -215,7 +215,7 @@ describe('searchLogger middleware', () => {
     it('should skip when query is missing', async () => {
       mockContext.req.json.mockResolvedValue({ forum: 'test-forum' });
 
-      await searchLogger(mockContext, mockNext);
+      await searchLogger(mockContextNext);
 
       expect(mockDb).not.toHaveBeenCalled();
     });
@@ -223,7 +223,7 @@ describe('searchLogger middleware', () => {
     it('should skip when forum is missing', async () => {
       mockContext.req.json.mockResolvedValue({ query: 'test search' });
 
-      await searchLogger(mockContext, mockNext);
+      await searchLogger(mockContextNext);
 
       expect(mockDb).not.toHaveBeenCalled();
     });
@@ -231,7 +231,7 @@ describe('searchLogger middleware', () => {
     it('should skip when both query and forum are missing', async () => {
       mockContext.req.json.mockResolvedValue({ other: 'data' });
 
-      await searchLogger(mockContext, mockNext);
+      await searchLogger(mockContextNext);
 
       expect(mockDb).not.toHaveBeenCalled();
     });
@@ -239,7 +239,7 @@ describe('searchLogger middleware', () => {
     it('should handle empty string values', async () => {
       mockContext.req.json.mockResolvedValue({ query: '', forum: 'test-forum' });
 
-      await searchLogger(mockContext, mockNext);
+      await searchLogger(mockContextNext);
 
       expect(mockDb).not.toHaveBeenCalled();
     });
@@ -247,7 +247,7 @@ describe('searchLogger middleware', () => {
     it('should handle truthy non-string values', async () => {
       mockContext.req.json.mockResolvedValue({ query: 123, forum: true });
 
-      await searchLogger(mockContext, mockNext);
+      await searchLogger(mockContextNext);
 
       expect(mockDb).toHaveBeenCalledWith('search_log');
       expect(mockQuery.insert).toHaveBeenCalledWith({
@@ -268,7 +268,7 @@ describe('searchLogger middleware', () => {
         mockQuery.insert.mockClear();
         mockContext.req.json.mockResolvedValue(testCase);
 
-        await searchLogger(mockContext, mockNext);
+        await searchLogger(mockContextNext);
 
         expect(mockDb).toHaveBeenCalledWith('search_log');
         expect(mockQuery.insert).toHaveBeenCalledWith({
@@ -284,7 +284,7 @@ describe('searchLogger middleware', () => {
       const requestBody = { query: 'blockchain governance', forum: 'arbitrum' };
       mockContext.req.json.mockResolvedValue(requestBody);
 
-      await searchLogger(mockContext, mockNext);
+      await searchLogger(mockContextNext);
 
       expect(mockDb).toHaveBeenCalledWith('search_log');
       expect(mockQuery.insert).toHaveBeenCalledWith({
@@ -297,7 +297,7 @@ describe('searchLogger middleware', () => {
       mockContext.req.json.mockResolvedValue({ query: 'test', forum: 'test-forum' });
       mockQuery.insert.mockRejectedValue(new Error('Database error'));
 
-      await searchLogger(mockContext, mockNext);
+      await searchLogger(mockContextNext);
 
       // Logger errors are handled, just verify operation continues
     });
@@ -308,7 +308,7 @@ describe('searchLogger middleware', () => {
         throw new Error('Database connection failed');
       });
 
-      await searchLogger(mockContext, mockNext);
+      await searchLogger(mockContextNext);
 
       // Logger errors are handled, just verify operation continues
     });
@@ -318,7 +318,7 @@ describe('searchLogger middleware', () => {
     it('should log successful search operations', async () => {
       mockContext.req.json.mockResolvedValue({ query: 'test query', forum: 'test-forum' });
 
-      await searchLogger(mockContext, mockNext);
+      await searchLogger(mockContextNext);
 
       // Verify database operations occurred
       expect(mockQuery.insert).toHaveBeenCalled();
@@ -328,7 +328,7 @@ describe('searchLogger middleware', () => {
       mockContext.req.json.mockRejectedValue(new Error('Test error'));
 
       // Should complete without throwing (errors are caught and logged)
-      await searchLogger(mockContext, mockNext);
+      await searchLogger(mockContextNext);
       expect(mockNext).toHaveBeenCalled();
     });
   });
@@ -339,7 +339,7 @@ describe('searchLogger middleware', () => {
       mockQuery.insert.mockRejectedValue(new Error('DB error'));
 
       // Should complete without throwing (errors are caught and logged)
-      await searchLogger(mockContext, mockNext);
+      await searchLogger(mockContextNext);
       expect(mockNext).toHaveBeenCalled();
     });
 
@@ -347,7 +347,7 @@ describe('searchLogger middleware', () => {
       mockContext.req.json.mockRejectedValue(new Error('JSON error'));
 
       // Should complete without throwing (errors are caught and logged)
-      await searchLogger(mockContext, mockNext);
+      await searchLogger(mockContextNext);
       expect(mockNext).toHaveBeenCalled();
     });
 
@@ -360,14 +360,14 @@ describe('searchLogger middleware', () => {
       };
 
       // Should complete without throwing (errors are caught and logged)
-      await searchLogger(errorContext as any, mockNext);
+      await searchLogger(errorContext as anyNext);
       expect(mockNext).toHaveBeenCalled();
     });
 
     it('should continue execution despite errors', async () => {
       mockContext.req.json.mockRejectedValue(new Error('Test error'));
 
-      await searchLogger(mockContext, mockNext);
+      await searchLogger(mockContextNext);
 
       expect(mockNext).toHaveBeenCalled();
     });
@@ -389,7 +389,7 @@ describe('searchLogger middleware', () => {
         return Promise.resolve({ query: 'test', forum: 'test-forum' });
       });
 
-      await searchLogger(mockContext, mockNext);
+      await searchLogger(mockContextNext);
 
       expect(nextCalled).toBe(true);
       expect(jsonCalled).toBe(true);
@@ -404,7 +404,7 @@ describe('searchLogger middleware', () => {
       };
       mockContext.req.json.mockResolvedValue(searchData);
 
-      await searchLogger(mockContext, mockNext);
+      await searchLogger(mockContextNext);
 
       // Verify full workflow
       expect(mockNext).toHaveBeenCalled();

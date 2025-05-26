@@ -1,10 +1,10 @@
 // services/llm/__tests__/topicEvaluation.test.ts
 
-import { expect, test, describe, beforeEach, mock } from 'bun:test';
+import { expect, test, describe, beforeEach } from '@jest/globals';
 import { TopicEvaluationSchema, TopicSummarySchema } from '../schema';
 
 // Mock the dependencies
-const mockChatCompletionsParse = mock();
+const mockChatCompletionsParse = jest.fn();
 const mockOpenAI = {
   beta: {
     chat: {
@@ -15,38 +15,38 @@ const mockOpenAI = {
   },
 };
 
-const mockZodResponseFormat = mock();
-const mockSanitizeContent = mock();
-const mockWithLLMErrorHandling = mock();
+const mockZodResponseFormat = jest.fn();
+const mockSanitizeContent = jest.fn();
+const mockWithLLMErrorHandling = jest.fn();
 
-mock.module('openai', () => ({
-  OpenAI: mock(() => mockOpenAI),
+jest.mock('openai', () => ({
+  OpenAI: jest.fn(() => mockOpenAI),
 }));
 
-mock.module('openai/helpers/zod', () => ({
+jest.mock('openai/helpers/zod', () => ({
   zodResponseFormat: mockZodResponseFormat,
 }));
 
-mock.module('../openaiClient', () => ({
+jest.mock('../openaiClient', () => ({
   openai: mockOpenAI,
   model: 'gpt-4o-mini',
 }));
 
-mock.module('../contentProcessorService', () => ({
+jest.mock('../contentProcessorService', () => ({
   sanitizeContent: mockSanitizeContent,
 }));
 
-mock.module('../../errorHandling/llmErrors', () => ({
+jest.mock('../../errorHandling/llmErrors', () => ({
   withLLMErrorHandling: mockWithLLMErrorHandling,
 }));
 
-mock.module('../../../config/loggerConfig', () => ({
+jest.mock('../../../config/loggerConfig', () => ({
   loggerConfig: {
     level: 'info',
   },
 }));
 
-mock.module('../../logging', () => ({
+jest.mock('../../logging', () => ({
   Logger: mock().mockImplementation(() => ({
     info: mock(),
     error: mock(),

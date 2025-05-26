@@ -1,6 +1,6 @@
 // services/validation/__tests__/paramValidator.test.ts
 
-import { describe, it, expect } from 'bun:test';
+import { describe, it, expect } from '@jest/globals';
 import { validateParam, validateQueryArray, ValidationError } from '../paramValidator';
 
 describe('paramValidator', () => {

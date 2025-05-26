@@ -167,7 +167,7 @@ describe.skip('PostEvaluationService (Unit Tests)', () => {
     mockRepository = new MockPostRepository();
     mockLogger = new MockLogger();
 
-    service = new PostEvaluationService(mockOpenAI, mockRepository, mockLogger);
+    service = new PostEvaluationService(mockOpenAIRepositoryLogger);
 
     // Reset all mocks
     mockRepository.reset();

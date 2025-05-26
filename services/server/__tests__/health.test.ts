@@ -1,30 +1,30 @@
 // API route tests for health endpoints
-import { describe, test, expect, beforeEach, mock } from 'bun:test';
+import { describe, test, expect, beforeEach } from '@jest/globals';
 import { Hono } from 'hono';
 import { healthRoutes } from '../health';
 import { CrawlerManager } from '../../crawling/crawlerManager';
 import { join } from 'path';
 
 // Mock fs/promises readFile function
-const mockReadFile = mock();
-mock.module('fs/promises', () => ({
+const mockReadFile = jest.fn();
+jest.mock('fs/promises', () => ({
   readFile: mockReadFile,
 }));
 
 // Mock CrawlerManager
 class MockCrawlerManager {
-  getAllStatuses = mock(() => ({
+  getAllStatuses = jest.fn(() => ({
     arbitrum: { status: 'running', lastRun: new Date() },
     compound: { status: 'stopped', lastRun: null },
   }));
   
-  getStatus = mock(() => ({ status: 'running', lastRun: new Date() }));
-  start = mock();
-  stop = mock();
-  restart = mock();
+  getStatus = jest.fn(() => ({ status: 'running', lastRun: new Date() }));
+  start = jest.fn();
+  stop = jest.fn();
+  restart = jest.fn();
 }
 
-mock.module('../../crawling/crawlerManager', () => ({
+jest.mock('../../crawling/crawlerManager', () => ({
   CrawlerManager: MockCrawlerManager,
 }));
 

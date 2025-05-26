@@ -1,13 +1,13 @@
 // services/llm/__tests__/llmService.test.ts
 
-import { expect, test, describe, beforeEach, mock, spyOn } from 'bun:test';
+import { expect, test, describe, beforeEach, spyOn } from '@jest/globals';
 
 // Force test environment by clearing API key
 const originalApiKey = process.env.OPENAI_API_KEY;
 delete process.env.OPENAI_API_KEY;
 
 // Mock OpenAI with comprehensive implementation
-const mockChatCompletionsCreate = mock().mockResolvedValue({
+const mockChatCompletionsCreate = jest.fn().mockResolvedValue({
   choices: [
     {
       message: {
@@ -26,12 +26,12 @@ const mockOpenAI = {
 };
 
 // Mock the OpenAI module before any imports
-mock.module('openai', () => ({
+jest.mock('openai', () => ({
   OpenAI: mock().mockImplementation(() => mockOpenAI),
 }));
 
 // Mock logging to prevent file creation issues
-mock.module('../../logging', () => ({
+jest.mock('../../logging', () => ({
   Logger: mock().mockImplementation(() => ({
     error: mock(),
     info: mock(),
@@ -39,8 +39,8 @@ mock.module('../../logging', () => ({
 }));
 
 // Mock error handling
-const mockWithLLMErrorHandling = mock();
-mock.module('../../errorHandling/llmErrors', () => ({
+const mockWithLLMErrorHandling = jest.fn();
+jest.mock('../../errorHandling/llmErrors', () => ({
   withLLMErrorHandling: mockWithLLMErrorHandling,
 }));
 
@@ -414,7 +414,7 @@ How do token weights affect outcomes?
       mockChatCompletionsCreate.mockResolvedValue(mockTopicsResponse);
 
       // When
-      const result = await generateCommonTopics(forum, timeframe, mockRecentPosts);
+      const result = await generateCommonTopics(forum, timeframeRecentPosts);
 
       // Then
       expect(result).toEqual([
@@ -460,7 +460,7 @@ How do token weights affect outcomes?
       mockChatCompletionsCreate.mockResolvedValue(mockTopicsResponse);
 
       // When
-      await generateCommonTopics(forum, timeframe, mockRecentPosts);
+      await generateCommonTopics(forum, timeframeRecentPosts);
 
       // Then
       expect(mockChatCompletionsCreate).toHaveBeenCalledWith(
@@ -491,7 +491,7 @@ How do token weights affect outcomes?
       mockChatCompletionsCreate.mockResolvedValue(emptyResponse);
 
       // When/Then
-      await expect(generateCommonTopics(forum, timeframe, mockRecentPosts)).rejects.toThrow(
+      await expect(generateCommonTopics(forum, timeframeRecentPosts)).rejects.toThrow(
         'No topics generated'
       );
     });
@@ -512,7 +512,7 @@ How do token weights affect outcomes?
       mockChatCompletionsCreate.mockResolvedValue(invalidJsonResponse);
 
       // When/Then
-      await expect(generateCommonTopics(forum, timeframe, mockRecentPosts)).rejects.toThrow();
+      await expect(generateCommonTopics(forum, timeframeRecentPosts)).rejects.toThrow();
     });
 
     test('should handle response without topics array', async () => {
@@ -531,7 +531,7 @@ How do token weights affect outcomes?
       mockChatCompletionsCreate.mockResolvedValue(invalidFormatResponse);
 
       // When/Then
-      await expect(generateCommonTopics(forum, timeframe, mockRecentPosts)).rejects.toThrow(
+      await expect(generateCommonTopics(forum, timeframeRecentPosts)).rejects.toThrow(
         'Invalid topics format returned'
       );
     });
@@ -552,7 +552,7 @@ How do token weights affect outcomes?
       mockChatCompletionsCreate.mockResolvedValue(nonArrayResponse);
 
       // When/Then
-      await expect(generateCommonTopics(forum, timeframe, mockRecentPosts)).rejects.toThrow(
+      await expect(generateCommonTopics(forum, timeframeRecentPosts)).rejects.toThrow(
         'Invalid topics format returned'
       );
     });
@@ -589,7 +589,7 @@ How do token weights affect outcomes?
       mockChatCompletionsCreate.mockRejectedValue(apiError);
 
       // When/Then
-      await expect(generateCommonTopics(forum, timeframe, mockRecentPosts)).rejects.toThrow(
+      await expect(generateCommonTopics(forum, timeframeRecentPosts)).rejects.toThrow(
         'OpenAI API error'
       );
     });

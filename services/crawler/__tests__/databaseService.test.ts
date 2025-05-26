@@ -1,21 +1,21 @@
 // services/crawler/__tests__/databaseService.test.ts
 
-import { describe, test, beforeEach, expect, mock } from 'bun:test';
+import { describe, test, beforeEach, expect } from '@jest/globals';
 
 // Mock the dependencies
-mock.module('../../../db/db', () => ({
+jest.mock('../../../db/db', () => ({
   default: mock(),
 }));
-mock.module('html-to-text', () => ({
+jest.mock('html-to-text', () => ({
   htmlToText: mock(),
 }));
-mock.module('../../user/userService', () => ({
+jest.mock('../../user/userService', () => ({
   default: { upsertUser: mock() },
 }));
-mock.module('../../logging', () => ({
+jest.mock('../../logging', () => ({
   Logger: mock(),
 }));
-mock.module('../../../config/loggerConfig', () => ({
+jest.mock('../../../config/loggerConfig', () => ({
   loggerConfig: { level: 'info' },
 }));
 
@@ -68,7 +68,7 @@ describe.skip('DatabaseService', () => {
     mockHtmlToText = mock((html: string) => html.replace(/<[^>]*>/g, ''));
 
     // Assign mocks to imported modules
-    Object.assign(db, mockDb);
+    Object.assign(dbDb);
     Object.assign(
       db,
       mock().mockImplementation(() => mockDb)

@@ -1,18 +1,18 @@
 // Comprehensive tests for VectorSearchService
 
-import { describe, it, beforeEach, afterEach, expect, mock, spyOn } from 'bun:test';
+import { describe, it, beforeEach, afterEach, expect, spyOn } from '@jest/globals';
 
 // Create mock function references
-const mockGenerateEmbeddings = mock(() => Promise.resolve([[0.1, 0.2, 0.3, 0.4, 0.5]]));
-const mockGenerateQuerySimile = mock(() => Promise.resolve(''));
-const mockDbRaw = mock(() => Promise.resolve({ rows: [] }));
-const mockDbSchemaHasColumn = mock(() => Promise.resolve(true));
+const mockGenerateEmbeddings = jest.fn(() => Promise.resolve([[0.1, 0.2, 0.3, 0.4, 0.5]]));
+const mockGenerateQuerySimile = jest.fn(() => Promise.resolve(''));
+const mockDbRaw = jest.fn(() => Promise.resolve({ rows: [] }));
+const mockDbSchemaHasColumn = jest.fn(() => Promise.resolve(true));
 
 // Mock Redis
 class MockRedis {
-  on = mock(() => {});
-  disconnect = mock(() => {});
-  quit = mock(() => Promise.resolve('OK'));
+  on = jest.fn(() => {});
+  disconnect = jest.fn(() => {});
+  quit = jest.fn(() => Promise.resolve('OK'));
 }
 
 // Mock the modules before importing the service
@@ -27,13 +27,13 @@ import.meta.jest = {
 
 // Import with mocks applied
 const mockLogger = {
-  info: mock(() => {}),
-  warn: mock(() => {}),
-  error: mock(() => {}),
+  info: jest.fn(() => {}),
+  warn: jest.fn(() => {}),
+  error: jest.fn(() => {}),
 };
 
 // Mock implementations
-const Logger = mock(() => mockLogger);
+const Logger = jest.fn(() => mockLogger);
 
 const mockDb = {
   raw: mockDbRaw,

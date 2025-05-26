@@ -1,14 +1,14 @@
 // Comprehensive tests for CommonTopicsService
-import { describe, test, expect, beforeEach, mock } from 'bun:test';
+import { describe, test, expect, beforeEach } from '@jest/globals';
 
 // Create mock function references that we can control
-const mockLoggerInfo = mock();
-const mockLoggerWarn = mock();
-const mockLoggerError = mock();
+const mockLoggerInfo = jest.fn();
+const mockLoggerWarn = jest.fn();
+const mockLoggerError = jest.fn();
 
 // Mock logging
-mock.module('../../logging', () => ({
-  Logger: mock(() => ({
+jest.mock('../../logging', () => ({
+  Logger: jest.fn(() => ({
     info: mockLoggerInfo,
     warn: mockLoggerWarn,
     error: mockLoggerError,
@@ -16,17 +16,17 @@ mock.module('../../logging', () => ({
 }));
 
 // Mock database module
-const mockDb = mock();
+const mockDb = jest.fn();
 const createMockQueryBuilder = () => {
   const queryBuilder: any = {
-    select: mock(() => queryBuilder),
-    from: mock(() => queryBuilder),
-    join: mock(() => queryBuilder),
-    where: mock(() => queryBuilder),
-    orderBy: mock(() => queryBuilder),
-    limit: mock(() => queryBuilder),
-    groupBy: mock(() => queryBuilder),
-    count: mock(() => queryBuilder),
+    select: jest.fn(() => queryBuilder),
+    from: jest.fn(() => queryBuilder),
+    join: jest.fn(() => queryBuilder),
+    where: jest.fn(() => queryBuilder),
+    orderBy: jest.fn(() => queryBuilder),
+    limit: jest.fn(() => queryBuilder),
+    groupBy: jest.fn(() => queryBuilder),
+    count: jest.fn(() => queryBuilder),
     first: mock(),
     then: mock((resolve: any) => Promise.resolve(resolve ? resolve([]) : [])),
   };
@@ -36,13 +36,13 @@ const mockQueryBuilder = createMockQueryBuilder();
 
 mockDb.mockImplementation(() => mockQueryBuilder);
 
-mock.module('../../../db/db', () => ({
+jest.mock('../../../db/db', () => ({
   default: mockDb,
 }));
 
 // Mock LLM service
-const mockEvaluateSearchQueries = mock();
-mock.module('../../llm/llmService', () => ({
+const mockEvaluateSearchQueries = jest.fn();
+jest.mock('../../llm/llmService', () => ({
   evaluateSearchQueries: mockEvaluateSearchQueries,
 }));
 
@@ -102,8 +102,8 @@ describe.skip('CommonTopicsService', () => {
       
       // Mock insert operation
       const mockInsertBuilder: any = {};
-      mockInsertBuilder.insert = mock(() => mockInsertBuilder);
-      mockInsertBuilder.returning = mock(() => Promise.resolve(mockEvaluationResults));
+      mockInsertBuilder.insert = jest.fn(() => mockInsertBuilder);
+      mockInsertBuilder.returning = jest.fn(() => Promise.resolve(mockEvaluationResults));
       mockDb.mockImplementationOnce(() => mockInsertBuilder);
       
       const result = await service.getOrCreateCommonTopics();
@@ -178,8 +178,8 @@ describe.skip('CommonTopicsService', () => {
   describe.skip('updateTopicScore', () => {
     test('should update topic score successfully', async () => {
       const mockUpdateBuilder: any = {};
-      mockUpdateBuilder.where = mock(() => mockUpdateBuilder);
-      mockUpdateBuilder.update = mock(() => Promise.resolve(1));
+      mockUpdateBuilder.where = jest.fn(() => mockUpdateBuilder);
+      mockUpdateBuilder.update = jest.fn(() => Promise.resolve(1));
       mockDb.mockImplementationOnce(() => mockUpdateBuilder);
       
       await service.updateTopicScore(1, 98);
@@ -190,8 +190,8 @@ describe.skip('CommonTopicsService', () => {
 
     test('should handle non-existent topic ID', async () => {
       const mockUpdateBuilder: any = {};
-      mockUpdateBuilder.where = mock(() => mockUpdateBuilder);
-      mockUpdateBuilder.update = mock(() => Promise.resolve(0));
+      mockUpdateBuilder.where = jest.fn(() => mockUpdateBuilder);
+      mockUpdateBuilder.update = jest.fn(() => Promise.resolve(0));
       mockDb.mockImplementationOnce(() => mockUpdateBuilder);
       
       const result = await service.updateTopicScore(999, 50);
@@ -246,8 +246,8 @@ describe.skip('CommonTopicsService', () => {
       };
       
       const mockInsertBuilder: any = {
-        insert: mock(() => mockInsertBuilder),
-        returning: mock(() => Promise.resolve([{ id: 10, ...newTopic }])),
+        insert: jest.fn(() => mockInsertBuilder),
+        returning: jest.fn(() => Promise.resolve([{ id: 10, ...newTopic }])),
       };
       mockDb.mockImplementationOnce(() => mockInsertBuilder);
       
@@ -265,8 +265,8 @@ describe.skip('CommonTopicsService', () => {
       };
       
       const mockInsertBuilder: any = {
-        insert: mock(() => mockInsertBuilder),
-        returning: mock(() => Promise.reject(new Error('Duplicate key violation'))),
+        insert: jest.fn(() => mockInsertBuilder),
+        returning: jest.fn(() => Promise.reject(new Error('Duplicate key violation'))),
       };
       mockDb.mockImplementationOnce(() => mockInsertBuilder);
       
@@ -277,8 +277,8 @@ describe.skip('CommonTopicsService', () => {
   describe.skip('deleteCustomTopic', () => {
     test('should delete topic successfully', async () => {
       const mockDeleteBuilder: any = {
-        where: mock(() => mockDeleteBuilder),
-        del: mock(() => Promise.resolve(1)),
+        where: jest.fn(() => mockDeleteBuilder),
+        del: jest.fn(() => Promise.resolve(1)),
       };
       mockDb.mockImplementationOnce(() => mockDeleteBuilder);
       
@@ -290,8 +290,8 @@ describe.skip('CommonTopicsService', () => {
 
     test('should return false for non-existent topic', async () => {
       const mockDeleteBuilder: any = {
-        where: mock(() => mockDeleteBuilder),
-        del: mock(() => Promise.resolve(0)),
+        where: jest.fn(() => mockDeleteBuilder),
+        del: jest.fn(() => Promise.resolve(0)),
       };
       mockDb.mockImplementationOnce(() => mockDeleteBuilder);
       

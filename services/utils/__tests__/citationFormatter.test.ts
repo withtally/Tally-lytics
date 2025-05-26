@@ -1,18 +1,18 @@
 // services/utils/__tests__/citationFormatter.test.ts
 
-import { describe, it, beforeEach, expect, mock, spyOn } from 'bun:test';
+import { describe, it, beforeEach, expect, spyOn } from '@jest/globals';
 import { ForumConfig } from '../../../config/forumConfig';
 
 // Mock DiscourseUrlHelper methods
 const mockUrlHelper = {
-  getTopicUrl: mock(() => ''),
-  getPostUrl: mock(() => ''),
-  getUserUrl: mock(() => ''),
+  getTopicUrl: jest.fn(() => ''),
+  getPostUrl: jest.fn(() => ''),
+  getUserUrl: jest.fn(() => ''),
 };
 
 // Mock the DiscourseUrlHelper module
-mock.module('../discourseUrls', () => ({
-  DiscourseUrlHelper: mock(() => mockUrlHelper),
+jest.mock('../discourseUrls', () => ({
+  DiscourseUrlHelper: jest.fn(() => mockUrlHelper),
 }));
 
 import { CitationFormatter } from '../citationFormatter';

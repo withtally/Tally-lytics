@@ -1,22 +1,22 @@
 // API route tests for common topics endpoints
-import { describe, it, expect, beforeEach, afterEach, mock, spyOn } from 'bun:test';
+import { describe, it, expect, beforeEach, afterEach, spyOn } from '@jest/globals';
 
 // Create mock function references
-const mockGetCommonTopics = mock(() => {});
-const mockGetCommonTopicById = mock(() => {});
-const mockGenerateCommonTopics = mock(() => {});
-const mockGenerateCommonTopicsFromSearchLogs = mock(() => {});
-const mockGenerateLLMChatResponse = mock(() => {});
-const mockRecordJobStart = mock(() => {});
-const mockRecordJobCompletion = mock(() => {});
-const mockValidateParam = mock(() => {});
-const mockValidateQueryArray = mock(() => {});
-const mockCreateErrorResponse = mock(() => {});
-const mockCreateSuccessResponse = mock(() => {});
-const mockHandleValidationError = mock(() => {});
+const mockGetCommonTopics = jest.fn(() => {});
+const mockGetCommonTopicById = jest.fn(() => {});
+const mockGenerateCommonTopics = jest.fn(() => {});
+const mockGenerateCommonTopicsFromSearchLogs = jest.fn(() => {});
+const mockGenerateLLMChatResponse = jest.fn(() => {});
+const mockRecordJobStart = jest.fn(() => {});
+const mockRecordJobCompletion = jest.fn(() => {});
+const mockValidateParam = jest.fn(() => {});
+const mockValidateQueryArray = jest.fn(() => {});
+const mockCreateErrorResponse = jest.fn(() => {});
+const mockCreateSuccessResponse = jest.fn(() => {});
+const mockHandleValidationError = jest.fn(() => {});
 
 // Mock all dependencies before importing
-mock.module('../../topics/commonTopicsService', () => ({
+jest.mock('../../topics/commonTopicsService', () => ({
   commonTopicsService: {
     getCommonTopics: mockGetCommonTopics,
     getCommonTopicById: mockGetCommonTopicById,
@@ -25,26 +25,26 @@ mock.module('../../topics/commonTopicsService', () => ({
   },
 }));
 
-mock.module('../../logging', () => ({
-  Logger: mock(() => ({
-    info: mock(() => {}),
-    warn: mock(() => {}),
-    error: mock(() => {}),
+jest.mock('../../logging', () => ({
+  Logger: jest.fn(() => ({
+    info: jest.fn(() => {}),
+    warn: jest.fn(() => {}),
+    error: jest.fn(() => {}),
   })),
 }));
 
-mock.module('../../llm/llmService', () => ({
+jest.mock('../../llm/llmService', () => ({
   generateLLMChatResponse: mockGenerateLLMChatResponse,
 }));
 
-mock.module('../../cron/jobTrackingService', () => ({
+jest.mock('../../cron/jobTrackingService', () => ({
   jobTrackingService: {
     recordJobStart: mockRecordJobStart,
     recordJobCompletion: mockRecordJobCompletion,
   },
 }));
 
-mock.module('../../../config/forumConfig', () => ({
+jest.mock('../../../config/forumConfig', () => ({
   forumConfigs: {
     ARBITRUM: { name: 'ARBITRUM' },
     COMPOUND: { name: 'COMPOUND' },
@@ -52,12 +52,12 @@ mock.module('../../../config/forumConfig', () => ({
   },
 }));
 
-mock.module('../../validation/paramValidator', () => ({
+jest.mock('../../validation/paramValidator', () => ({
   validateParam: mockValidateParam,
   validateQueryArray: mockValidateQueryArray,
 }));
 
-mock.module('../../utils/errorResponse', () => ({
+jest.mock('../../utils/errorResponse', () => ({
   createErrorResponse: mockCreateErrorResponse,
   createSuccessResponse: mockCreateSuccessResponse,
   handleValidationError: mockHandleValidationError,

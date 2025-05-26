@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach, afterEach, jest } from 'bun:test';
+import { describe, expect, it, beforeEach, afterEach, jest } from '@jest/globals';
 import { consoleNotifier, smsNotifier } from '../notifiers';
 import { LogMessage } from '../types';
 

@@ -1,8 +1,8 @@
 // Comprehensive tests for postEvaluation
-import { describe, test, expect, beforeEach, mock } from 'bun:test';
+import { describe, test, expect, beforeEach } from '@jest/globals';
 
 // Mock OpenAI parse function with default implementation
-const mockChatCompletionsParse = mock(() => {
+const mockChatCompletionsParse = jest.fn(() => {
   return Promise.resolve({
     choices: [{
       message: {
@@ -24,7 +24,7 @@ const mockChatCompletionsParse = mock(() => {
 });
 
 // Mock the openaiClient module using resolved path
-mock.module('/Users/dennisonbertram/Develop/DAO-helper-tool/services/llm/openaiClient.ts', () => ({
+jest.mock('/Users/dennisonbertram/Develop/DAO-helper-tool/services/llm/openaiClient.ts', () => ({
   openai: {
     beta: {
       chat: {
@@ -38,26 +38,26 @@ mock.module('/Users/dennisonbertram/Develop/DAO-helper-tool/services/llm/openaiC
 }));
 
 // Mock other required modules
-mock.module('./schema', () => ({
+jest.mock('./schema', () => ({
   PostEvaluationSchema: {},
   BatchEvaluationSchema: {},
 }));
 
-mock.module('./prompt', () => ({
+jest.mock('./prompt', () => ({
   systemPostPrompt: 'System prompt for testing',
 }));
 
-mock.module('openai/helpers/zod', () => ({
+jest.mock('openai/helpers/zod', () => ({
   zodResponseFormat: mock((schema: any, name: string) => ({ type: 'json_schema', name })),
 }));
 
 // Mock Logger
-const mockLoggerInfo = mock();
-const mockLoggerWarn = mock();
-const mockLoggerError = mock();
+const mockLoggerInfo = jest.fn();
+const mockLoggerWarn = jest.fn();
+const mockLoggerError = jest.fn();
 
-mock.module('../../logging', () => ({
-  Logger: mock(() => ({
+jest.mock('../../logging', () => ({
+  Logger: jest.fn(() => ({
     info: mockLoggerInfo,
     warn: mockLoggerWarn,
     error: mockLoggerError,
@@ -65,7 +65,7 @@ mock.module('../../logging', () => ({
 }));
 
 // Mock LLM error handling
-mock.module('../../errorHandling/llmErrors', () => ({
+jest.mock('../../errorHandling/llmErrors', () => ({
   withLLMErrorHandling: mock(async (operation: any) => await operation()),
   handleLLMError: mock((error: any) => { throw error; }),
   LLMError: mock(function(message: string, code: string, retryable: boolean = false) {
@@ -77,15 +77,15 @@ mock.module('../../errorHandling/llmErrors', () => ({
 }));
 
 // Mock other dependencies
-mock.module('../../utils/numberUtils', () => ({
+jest.mock('../../utils/numberUtils', () => ({
   roundNumericFields: mock((obj: any) => obj),
 }));
 
-mock.module('./contentProcessorService', () => ({
+jest.mock('./contentProcessorService', () => ({
   sanitizeContent: mock((content: string) => content),
 }));
 
-mock.module('../../config/loggerConfig', () => ({
+jest.mock('../../config/loggerConfig', () => ({
   loggerConfig: {},
 }));
 

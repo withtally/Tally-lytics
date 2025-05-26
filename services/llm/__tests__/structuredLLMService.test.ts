@@ -1,10 +1,10 @@
 // Comprehensive tests for structuredLLMService
-import { describe, test, expect, beforeEach, mock } from 'bun:test';
+import { describe, test, expect, beforeEach } from '@jest/globals';
 
 // Use the proven working pattern from llmService.test.ts
 
 // Mock logging to prevent file creation issues
-mock.module('../../logging', () => ({
+jest.mock('../../logging', () => ({
   Logger: mock().mockImplementation(() => ({
     info: mock(),
     warn: mock(), 
@@ -13,7 +13,7 @@ mock.module('../../logging', () => ({
 }));
 
 // Mock LLM error handling
-mock.module('../llmErrors', () => ({
+jest.mock('../llmErrors', () => ({
   isRateLimitError: mock((error: any) => error.status === 429),
   isRetryableError: mock((error: any) => [429, 503, 500].includes(error.status)),
 }));

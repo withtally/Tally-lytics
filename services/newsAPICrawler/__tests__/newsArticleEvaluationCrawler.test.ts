@@ -1,56 +1,56 @@
 // services/newsAPICrawler/__tests__/newsArticleEvaluationCrawler.test.ts
-import { describe, it, expect, beforeEach, mock, spyOn } from 'bun:test';
+import { describe, it, expect, beforeEach, spyOn } from '@jest/globals';
 
 // Mock dependencies
 const mockLogger = {
-  debug: mock(() => {}),
-  info: mock(() => {}),
-  warn: mock(() => {}),
-  error: mock(() => {}),
+  debug: jest.fn(() => {}),
+  info: jest.fn(() => {}),
+  warn: jest.fn(() => {}),
+  error: jest.fn(() => {}),
 };
 
 const mockRateLimiter = {
-  removeTokens: mock(() => Promise.resolve(undefined)),
+  removeTokens: jest.fn(() => Promise.resolve(undefined)),
 };
 
-const mockDb = mock(() => mockQueryBuilder);
+const mockDb = jest.fn(() => mockQueryBuilder);
 const mockQueryBuilder = {
-  select: mock(() => mockQueryBuilder),
-  leftJoin: mock(() => mockQueryBuilder),
-  whereNull: mock(() => mockQueryBuilder),
-  limit: mock(() => mockQueryBuilder),
-  insert: mock(() => mockQueryBuilder),
-  onConflict: mock(() => mockQueryBuilder),
-  merge: mock(() => Promise.resolve(undefined)),
-  on: mock(() => mockQueryBuilder),
-  andOn: mock(() => mockQueryBuilder),
+  select: jest.fn(() => mockQueryBuilder),
+  leftJoin: jest.fn(() => mockQueryBuilder),
+  whereNull: jest.fn(() => mockQueryBuilder),
+  limit: jest.fn(() => mockQueryBuilder),
+  insert: jest.fn(() => mockQueryBuilder),
+  onConflict: jest.fn(() => mockQueryBuilder),
+  merge: jest.fn(() => Promise.resolve(undefined)),
+  on: jest.fn(() => mockQueryBuilder),
+  andOn: jest.fn(() => mockQueryBuilder),
 };
 
-const mockCallLLMWithRetry = mock(() => {});
-const mockCountTokens = mock(() => {});
+const mockCallLLMWithRetry = jest.fn(() => {});
+const mockCountTokens = jest.fn(() => {});
 
 // Set up mocks
-mock.module('../../logging', () => ({
-  Logger: mock(() => mockLogger),
+jest.mock('../../logging', () => ({
+  Logger: jest.fn(() => mockLogger),
 }));
 
-mock.module('../../../config/loggerConfig', () => ({
+jest.mock('../../../config/loggerConfig', () => ({
   loggerConfig: { level: 'info' },
 }));
 
-mock.module('limiter', () => ({
-  RateLimiter: mock(() => mockRateLimiter),
+jest.mock('limiter', () => ({
+  RateLimiter: jest.fn(() => mockRateLimiter),
 }));
 
-mock.module('../../../db/db', () => ({
+jest.mock('../../../db/db', () => ({
   default: mockDb,
 }));
 
-mock.module('../../llm/callLLMWithRetry', () => ({
+jest.mock('../../llm/callLLMWithRetry', () => ({
   callLLMWithRetry: mockCallLLMWithRetry,
 }));
 
-mock.module('../../llm/tokenCounter', () => ({
+jest.mock('../../llm/tokenCounter', () => ({
   countTokens: mockCountTokens,
 }));
 

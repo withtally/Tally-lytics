@@ -1,25 +1,25 @@
 // services/llm/__tests__/tokenCounter.test.ts
 
-import { describe, it, beforeEach, expect, mock } from 'bun:test';
+import { describe, it, beforeEach, expect } from '@jest/globals';
 
 // Mock the gpt-3-encoder module
-const mockEncode = mock(() => []);
+const mockEncode = jest.fn(() => []);
 
 // Mock modules before importing
-mock.module('gpt-3-encoder', () => ({
+jest.mock('gpt-3-encoder', () => ({
   encode: mockEncode,
 }));
 
 // Mock the Logger
 const mockLogger = {
-  error: mock(() => {}),
-  info: mock(() => {}),
-  warn: mock(() => {}),
-  debug: mock(() => {}),
+  error: jest.fn(() => {}),
+  info: jest.fn(() => {}),
+  warn: jest.fn(() => {}),
+  debug: jest.fn(() => {}),
 };
 
-mock.module('../../logging', () => ({
-  Logger: mock(() => mockLogger),
+jest.mock('../../logging', () => ({
+  Logger: jest.fn(() => mockLogger),
 }));
 
 // Import after mocking

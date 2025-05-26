@@ -1,6 +1,6 @@
 // services/logging/__tests__/index.test.ts
 
-import { describe, it, expect, jest } from 'bun:test';
+import { describe, it, expect, jest } from '@jest/globals';
 
 describe('logging index exports', () => {
   it('should export Logger as default from logger module', async () => {

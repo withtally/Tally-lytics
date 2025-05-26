@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach, mock } from 'bun:test';
+import { describe, test, expect, beforeEach } from '@jest/globals';
 
 // Comprehensive tests for PostRepository
 
@@ -11,10 +11,10 @@ let mockInsertResult: any = [];
 const createMockQueryBuilder = (): any => {
   const queryBuilder: any = {
     // Terminal methods that return promises
-    first: mock(() => Promise.resolve(mockFirstResult)),
-    del: mock(() => Promise.resolve(1)),
-    insert: mock(() => Promise.resolve(mockInsertResult)),
-    update: mock(() => Promise.resolve(1)),
+    first: jest.fn(() => Promise.resolve(mockFirstResult)),
+    del: jest.fn(() => Promise.resolve(1)),
+    insert: jest.fn(() => Promise.resolve(mockInsertResult)),
+    update: jest.fn(() => Promise.resolve(1)),
 
     // Make the query builder itself thenable (for `await query`)
     then: mock((resolve: any) => {
@@ -27,22 +27,22 @@ const createMockQueryBuilder = (): any => {
   };
 
   // Add chainable methods that return the query builder
-  queryBuilder.select = mock(() => queryBuilder);
-  queryBuilder.where = mock(() => queryBuilder);
-  queryBuilder.whereNull = mock(() => queryBuilder);
-  queryBuilder.whereNotNull = mock(() => queryBuilder);
-  queryBuilder.orderBy = mock(() => queryBuilder);
-  queryBuilder.limit = mock(() => queryBuilder);
-  queryBuilder.count = mock(() => queryBuilder);
-  queryBuilder.join = mock(() => queryBuilder);
-  queryBuilder.leftJoin = mock(() => queryBuilder);
+  queryBuilder.select = jest.fn(() => queryBuilder);
+  queryBuilder.where = jest.fn(() => queryBuilder);
+  queryBuilder.whereNull = jest.fn(() => queryBuilder);
+  queryBuilder.whereNotNull = jest.fn(() => queryBuilder);
+  queryBuilder.orderBy = jest.fn(() => queryBuilder);
+  queryBuilder.limit = jest.fn(() => queryBuilder);
+  queryBuilder.count = jest.fn(() => queryBuilder);
+  queryBuilder.join = jest.fn(() => queryBuilder);
+  queryBuilder.leftJoin = jest.fn(() => queryBuilder);
 
   return queryBuilder;
 };
 
 // Track all created query builders for multiple queries
 const allQueryBuilders: any[] = [];
-const mockDb = mock(() => {
+const mockDb = jest.fn(() => {
   const builder = createMockQueryBuilder();
   allQueryBuilders.push(builder);
   return builder;
@@ -50,11 +50,11 @@ const mockDb = mock(() => {
 
 // Mock transaction functionality
 (mockDb as any).transaction = mock(async (callback: any) => {
-  const trx = mock(() => createMockQueryBuilder());
+  const trx = jest.fn(() => createMockQueryBuilder());
   return await callback(trx);
 });
 
-mock.module('../../db', () => ({
+jest.mock('../../db', () => ({
   default: mockDb,
 }));
 
@@ -278,7 +278,7 @@ describe('PostRepository', () => {
       const updates = { content: 'Updated content' };
       // Mock returning null for non-existent post
       const builder = createMockQueryBuilder();
-      builder.first = mock(() => Promise.resolve(null));
+      builder.first = jest.fn(() => Promise.resolve(null));
       mockDb.mockReturnValue(builder);
 
       await expect(postRepository.update('999', updates)).rejects.toThrow();
@@ -292,7 +292,7 @@ describe('PostRepository', () => {
 
     test('should handle non-existent post', async () => {
       const builder = createMockQueryBuilder();
-      builder.del = mock(() => Promise.resolve(0));
+      builder.del = jest.fn(() => Promise.resolve(0));
       mockDb.mockReturnValue(builder);
 
       await expect(postRepository.delete('999')).resolves.toBeUndefined();
@@ -330,7 +330,7 @@ describe('PostRepository', () => {
   describe('error handling', () => {
     test('should handle database errors', async () => {
       const builder = createMockQueryBuilder();
-      builder.first = mock(() => Promise.reject(new Error('Database error')));
+      builder.first = jest.fn(() => Promise.reject(new Error('Database error')));
       mockDb.mockReturnValue(builder);
 
       await expect(postRepository.findById('1')).rejects.toThrow('Database error');

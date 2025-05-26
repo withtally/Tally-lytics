@@ -1,6 +1,6 @@
 // services/crawler/__tests__/apiService.test.ts
 
-import { describe, test, expect, beforeEach, afterEach, mock } from 'bun:test';
+import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
 import { ApiService } from '../apiService';
 import { ApiConfig } from '../types';
 import { RateLimiter } from 'limiter';
@@ -8,13 +8,13 @@ import { requestWithRetry } from '../../../utils/requestWithRetry';
 import { handleGlobalError } from '../../errorHandling/globalErrorHandler';
 
 // Mock dependencies
-mock.module('limiter', () => ({
+jest.mock('limiter', () => ({
   RateLimiter: mock(),
 }));
-mock.module('../../../utils/requestWithRetry', () => ({
+jest.mock('../../../utils/requestWithRetry', () => ({
   requestWithRetry: mock(),
 }));
-mock.module('../../errorHandling/globalErrorHandler', () => ({
+jest.mock('../../errorHandling/globalErrorHandler', () => ({
   handleGlobalError: mock(),
 }));
 

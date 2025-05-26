@@ -1,14 +1,14 @@
 // Comprehensive tests for JobTrackingService
-import { describe, test, expect, beforeEach, afterEach, mock } from 'bun:test';
+import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
 
 // Create mock logger functions that we can access
-const mockLoggerInfo = mock();
-const mockLoggerWarn = mock();
-const mockLoggerError = mock();
+const mockLoggerInfo = jest.fn();
+const mockLoggerWarn = jest.fn();
+const mockLoggerError = jest.fn();
 
 // Mock logging
-mock.module('../../logging', () => ({
-  Logger: mock(() => ({
+jest.mock('../../logging', () => ({
+  Logger: jest.fn(() => ({
     info: mockLoggerInfo,
     warn: mockLoggerWarn,
     error: mockLoggerError,
@@ -16,7 +16,7 @@ mock.module('../../logging', () => ({
 }));
 
 // Mock database module
-const mockDb = mock();
+const mockDb = jest.fn();
 const mockQueryBuilder = {
   insert: mock().mockReturnThis(),
   update: mock().mockReturnThis(),
@@ -32,7 +32,7 @@ const mockQueryBuilder = {
 
 mockDb.mockReturnValue(mockQueryBuilder);
 
-mock.module('../../../db/db', () => ({
+jest.mock('../../../db/db', () => ({
   default: mockDb,
 }));
 
@@ -58,7 +58,7 @@ describe('JobTrackingService', () => {
     
     // Mock Date.now()
     const mockDate = new Date('2024-01-01T00:00:00Z');
-    dateSpy = mock(() => mockDate.getTime());
+    dateSpy = jest.fn(() => mockDate.getTime());
     global.Date.now = dateSpy;
     
     // Create service instance

@@ -1,6 +1,6 @@
 // services/utils/__tests__/errorResponse.test.ts
 
-import { describe, test, expect, beforeEach, afterEach, mock, spyOn } from 'bun:test';
+import { describe, test, expect, beforeEach, afterEach, spyOn } from '@jest/globals';
 import {
   createErrorResponse,
   createSuccessResponse,
@@ -14,7 +14,7 @@ import {
 const mockUUID = 'test-uuid-123';
 Object.defineProperty(global, 'crypto', {
   value: {
-    randomUUID: mock(() => mockUUID),
+    randomUUID: jest.fn(() => mockUUID),
   },
   writable: true,
 });

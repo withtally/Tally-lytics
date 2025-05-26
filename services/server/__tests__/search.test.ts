@@ -1,26 +1,26 @@
 // API route tests for search endpoints
-import { describe, it, expect, beforeEach, afterEach, mock, spyOn } from 'bun:test';
+import { describe, it, expect, beforeEach, afterEach, spyOn } from '@jest/globals';
 
 // Create mock function references
-const mockSearch = mock(() => {});
-const mockSearchLogger = mock(() => {});
+const mockSearch = jest.fn(() => {});
+const mockSearchLogger = jest.fn(() => {});
 
 // Mock all dependencies before importing
-mock.module('../../search/vectorSearchService', () => ({
-  VectorSearchService: mock(() => ({
+jest.mock('../../search/vectorSearchService', () => ({
+  VectorSearchService: jest.fn(() => ({
     search: mockSearch,
   })),
 }));
 
-mock.module('../../logging', () => ({
-  Logger: mock(() => ({
-    error: mock(() => {}),
-    info: mock(() => {}),
-    warn: mock(() => {}),
+jest.mock('../../logging', () => ({
+  Logger: jest.fn(() => ({
+    error: jest.fn(() => {}),
+    info: jest.fn(() => {}),
+    warn: jest.fn(() => {}),
   })),
 }));
 
-mock.module('../../middleware/searchLogger', () => ({
+jest.mock('../../middleware/searchLogger', () => ({
   searchLogger: mockSearchLogger,
 }));
 
@@ -36,9 +36,9 @@ class MockVectorSearchService {
 
 // Mock Logger
 class MockLogger {
-  error = mock(() => {});
-  info = mock(() => {});
-  warn = mock(() => {});
+  error = jest.fn(() => {});
+  info = jest.fn(() => {});
+  warn = jest.fn(() => {});
 }
 
 describe('Search API Routes', () => {
@@ -71,7 +71,7 @@ describe('Search API Routes', () => {
     mockLogger = new MockLogger();
 
     // Setup search routes with mocked dependencies
-    searchRoutes(app, mockVectorSearchService as any, mockLogger as any);
+    searchRoutes(appVectorSearchService as anyLogger as any);
 
     // Reset mocks
 
