@@ -111,12 +111,6 @@ describe('notifiers', () => {
   });
 
   describe('smsNotifier', () => {
-    it('should create SMS notifier function with phone number', () => {
-      const phoneNumber = '+1234567890';
-      const notifier = smsNotifier(phoneNumber);
-
-      expect(typeof notifier).toBe('function');
-    });
 
     it('should log SMS notification with correct format for info level', () => {
       const phoneNumber = '+1234567890';

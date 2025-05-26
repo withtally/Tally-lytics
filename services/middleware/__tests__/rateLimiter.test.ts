@@ -38,9 +38,6 @@ describe('llmRateLimiter middleware', () => {
   });
 
   describe('middleware function', () => {
-    it('should be a function', () => {
-      expect(typeof llmRateLimiter).toBe('function');
-    });
 
     it('should call next function when under rate limit', async () => {
       await llmRateLimiter(mockContextNext);

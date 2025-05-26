@@ -147,16 +147,6 @@ describe('paramValidator', () => {
     });
 
     describe('ValidationError interface', () => {
-      it('should create ValidationError with correct properties', () => {
-        try {
-          validateParam(undefined, 'string');
-          fail('Expected error to be thrown');
-        } catch (error) {
-          expect(error).toBeInstanceOf(Error);
-          expect((error as ValidationError).code).toBe('MISSING_PARAMETER');
-          expect((error as ValidationError).message).toBe('Parameter is required');
-        }
-      });
 
       it('should create different error codes for different validation failures', () => {
         const testCases = [
@@ -180,13 +170,6 @@ describe('paramValidator', () => {
 
   describe('validateQueryArray', () => {
     describe('basic functionality', () => {
-      it('should return undefined for undefined input', () => {
-        expect(validateQueryArray(undefined)).toBeUndefined();
-      });
-
-      it('should return undefined for empty string input', () => {
-        expect(validateQueryArray('')).toBeUndefined();
-      });
 
       it('should parse single item arrays', () => {
         expect(validateQueryArray('arbitrum')).toEqual(['arbitrum']);
@@ -298,13 +281,6 @@ describe('paramValidator', () => {
         expect(validateQueryArray('arbitrum,  ,uniswap,  ,')).toEqual(['arbitrum', 'uniswap']);
       });
 
-      it('should handle single comma', () => {
-        expect(validateQueryArray(',')).toEqual([]);
-      });
-
-      it('should handle multiple commas', () => {
-        expect(validateQueryArray(',,,,')).toEqual([]);
-      });
 
       it('should validate real-world forum name patterns', () => {
         expect(

@@ -4,15 +4,7 @@ import { describe, it, beforeEach, expect, jest } from '@jest/globals';
 import addTags from '../tags';
 
 describe('addTags', () => {
-  describe('function signature and basic behavior', () => {
-    it('should be a function', () => {
-      expect(typeof addTags).toBe('function');
-    });
-
-    it('should be async function', () => {
-      expect(addTags.constructor.name).toBe('AsyncFunction');
-    });
-
+  describe('input validation and error handling', () => {
     it('should handle empty tags array', async () => {
       // Should not throw with empty array
       await expect(addTags('topic', 123, [])).resolves.toBeUndefined();

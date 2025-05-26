@@ -53,25 +53,6 @@ describe('ApiService', () => {
   });
 
   describe('constructor', () => {
-    test('should initialize with correct config and forum name', () => {
-      expect(RateLimiter).toHaveBeenCalledWith({
-        tokensPerInterval: 5,
-        interval: 'second',
-      });
-    });
-
-    test('should store config and forum name', () => {
-      const newApiService = new ApiService(mockApiConfig, 'custom-forum');
-      expect(newApiService).toBeInstanceOf(ApiService);
-    });
-
-    test('should handle different rate limit configurations', () => {
-      // Test that constructor sets up rate limiter correctly  
-      expect(RateLimiter).toHaveBeenCalledWith({
-        tokensPerInterval: 5,
-        interval: 'second',
-      });
-    });
   });
 
   describe('fetchUserDetails', () => {

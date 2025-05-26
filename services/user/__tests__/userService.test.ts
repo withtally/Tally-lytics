@@ -75,11 +75,6 @@ describe('UserService', () => {
     global.fetch = originalFetch;
   });
 
-  describe('constructor', () => {
-    test('should create service with logger', () => {
-      expect(() => new UserService()).not.toThrow();
-    });
-  });
 
   describe('fetchUserDetails', () => {
     const validParams = {

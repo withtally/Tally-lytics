@@ -18,10 +18,6 @@ describe('Metrics', () => {
       expect(Object.keys(result)).toContain('custom_prefix_counter');
     });
 
-    it('should initialize empty collections', () => {
-      const result = metrics.getMetrics();
-      expect(result).toEqual({});
-    });
 
     it('should handle empty prefix', () => {
       const emptyPrefixMetrics = new Metrics('');

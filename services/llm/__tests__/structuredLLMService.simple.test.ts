@@ -19,9 +19,6 @@ import { generateStructuredResponse } from '../structuredLLMService';
 
 describe('structuredLLMService (Simple)', () => {
   describe('generateStructuredResponse', () => {
-    test('should be a function', () => {
-      expect(typeof generateStructuredResponse).toBe('function');
-    });
 
     test('should return a string (basic signature test)', async () => {
       // This test uses real API to validate the basic service works

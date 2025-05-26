@@ -57,18 +57,7 @@ describe('searchLogger middleware', () => {
   });
 
   describe('middleware function', () => {
-    it('should be a function', () => {
-      expect(typeof searchLogger).toBe('function');
-    });
 
-    it('should be async function', async () => {
-      mockContext.req.json.mockResolvedValue({ query: 'test', forum: 'test-forum' });
-
-      const result = searchLogger(mockContextNext);
-      expect(result instanceof Promise).toBe(true);
-
-      await result;
-    });
 
     it('should call next function first', async () => {
       mockContext.req.json.mockResolvedValue({ query: 'test', forum: 'test-forum' });

@@ -39,16 +39,6 @@ describe('CitationFormatter', () => {
     formatter = new CitationFormatter(mockForumConfig);
   });
 
-  describe('constructor', () => {
-    it('should create formatter with forum config', () => {
-      expect(formatter).toBeInstanceOf(CitationFormatter);
-    });
-
-    it('should initialize DiscourseUrlHelper', () => {
-      const newFormatter = new CitationFormatter(mockForumConfig);
-      expect(newFormatter).toBeInstanceOf(CitationFormatter);
-    });
-  });
 
   describe('formatCitation', () => {
     const baseResult = {

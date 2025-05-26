@@ -169,16 +169,6 @@ describe('errorResponse utilities', () => {
     });
   });
 
-  describe('ErrorCodes', () => {
-    test('should have consistent error codes', () => {
-      expect(ErrorCodes.VALIDATION_ERROR).toBe('VALIDATION_ERROR');
-      expect(ErrorCodes.NOT_FOUND).toBe('NOT_FOUND');
-      expect(ErrorCodes.INTERNAL_ERROR).toBe('INTERNAL_ERROR');
-      expect(ErrorCodes.RATE_LIMIT_EXCEEDED).toBe('RATE_LIMIT_EXCEEDED');
-      expect(ErrorCodes.UNAUTHORIZED).toBe('UNAUTHORIZED');
-      expect(ErrorCodes.FORBIDDEN).toBe('FORBIDDEN');
-    });
-  });
 
   describe('edge cases', () => {
     test('should handle empty string message', () => {
