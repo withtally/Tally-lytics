@@ -27,7 +27,7 @@ const mockQueryBuilder = {
   from: jest.fn().mockReturnThis(),
   first: jest.fn(),
   returning: jest.fn(),
-  then: mock((resolve: any) => Promise.resolve(resolve ? resolve([]) : [])),
+  then: jest.fn((resolve: any) => Promise.resolve(resolve ? resolve([]) : [])),
 };
 
 mockDb.mockReturnValue(mockQueryBuilder);

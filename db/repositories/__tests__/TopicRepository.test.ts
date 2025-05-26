@@ -17,13 +17,13 @@ const createMockQueryBuilder = (): any => {
     update: jest.fn(() => Promise.resolve(1)),
 
     // Make the query builder itself thenable (for `await query`)
-    then: mock((resolve: any) => {
+    then: jest.fn((resolve: any) => {
       if (resolve) {
         return Promise.resolve(resolve(mockQueryResult));
       }
       return Promise.resolve(mockQueryResult);
     }),
-    catch: mock((handler: any) => Promise.resolve()),
+    catch: jest.fn((handler: any) => Promise.resolve()),
   };
 
   // Add chainable methods that return the query builder
@@ -47,7 +47,7 @@ const mockDb = jest.fn(() => {
 });
 
 // Mock transaction functionality
-(mockDb as any).transaction = mock(async (callback: any) => {
+(mockDb as any).transaction = jest.fn(async (callback: any) => {
   const trx = jest.fn(() => createMockQueryBuilder());
   return await callback(trx);
 });

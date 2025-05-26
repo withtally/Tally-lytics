@@ -17,11 +17,16 @@ module.exports = {
     '^@db/(.*)$': '<rootDir>/db/$1',
     '^@config/(.*)$': '<rootDir>/config/$1',
     '^@utils/(.*)$': '<rootDir>/utils/$1',
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+    '\\.\\.\/knexfile\\.js$': '<rootDir>/__mocks__/knexfile.js',
   },
 
   // TypeScript handling
   transform: {
-    '^.+\\.ts$': 'ts-jest',
+    '^.+\\.ts$': ['ts-jest', {
+      useESM: false,
+    }],
+    '^.+\\.js$': 'babel-jest',
   },
 
   // File extensions to consider

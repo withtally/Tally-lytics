@@ -14,8 +14,8 @@ jest.mock('../../logging', () => ({
 
 // Mock LLM error handling
 jest.mock('../llmErrors', () => ({
-  isRateLimitError: mock((error: any) => error.status === 429),
-  isRetryableError: mock((error: any) => [429, 503, 500].includes(error.status)),
+  isRateLimitError: jest.fn((error: any) => error.status === 429),
+  isRetryableError: jest.fn((error: any) => [429, 503, 500].includes(error.status)),
 }));
 
 import { generateStructuredResponse } from '../structuredLLMService';

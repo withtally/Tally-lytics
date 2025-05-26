@@ -20,7 +20,7 @@ describe('PostEvaluationService', () => {
     mockPostRepo = serviceContainer.getPostRepository() as MockPostRepository;
 
     // Create service with injected dependencies
-    service = new PostEvaluationService(openaiClientPostRepo, logger);
+    service = new PostEvaluationService(openaiClient, mockPostRepo, logger);
 
     // Reset mock repository
     mockPostRepo.reset();

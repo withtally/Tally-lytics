@@ -65,13 +65,13 @@ describe.skip('DatabaseService', () => {
     };
 
     // Mock htmlToText
-    mockHtmlToText = mock((html: string) => html.replace(/<[^>]*>/g, ''));
+    mockHtmlToText = jest.fn((html: string) => html.replace(/<[^>]*>/g, ''));
 
     // Assign mocks to imported modules
     Object.assign(dbDb);
     Object.assign(
       db,
-      mock().mockImplementation(() => mockDb)
+      jest.fn().mockImplementation(() => mockDb)
     );
     (Logger as any).mockImplementation(() => mockLogger);
     (userService as any).upsertUser = mockUserService.upsertUser;

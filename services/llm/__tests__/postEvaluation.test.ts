@@ -48,7 +48,7 @@ jest.mock('./prompt', () => ({
 }));
 
 jest.mock('openai/helpers/zod', () => ({
-  zodResponseFormat: mock((schema: any, name: string) => ({ type: 'json_schema', name })),
+  zodResponseFormat: jest.fn((schema: any, name: string) => ({ type: 'json_schema', name })),
 }));
 
 // Mock Logger
@@ -66,9 +66,9 @@ jest.mock('../../logging', () => ({
 
 // Mock LLM error handling
 jest.mock('../../errorHandling/llmErrors', () => ({
-  withLLMErrorHandling: mock(async (operation: any) => await operation()),
-  handleLLMError: mock((error: any) => { throw error; }),
-  LLMError: mock(function(message: string, code: string, retryable: boolean = false) {
+  withLLMErrorHandling: jest.fn(async (operation: any) => await operation()),
+  handleLLMError: jest.fn((error: any) => { throw error; }),
+  LLMError: jest.fn(function(message: string, code: string, retryable: boolean = false) {
     const err = new Error(message);
     (err as any).code = code;
     (err as any).retryable = retryable;
@@ -78,11 +78,11 @@ jest.mock('../../errorHandling/llmErrors', () => ({
 
 // Mock other dependencies
 jest.mock('../../utils/numberUtils', () => ({
-  roundNumericFields: mock((obj: any) => obj),
+  roundNumericFields: jest.fn((obj: any) => obj),
 }));
 
 jest.mock('./contentProcessorService', () => ({
-  sanitizeContent: mock((content: string) => content),
+  sanitizeContent: jest.fn((content: string) => content),
 }));
 
 jest.mock('../../config/loggerConfig', () => ({

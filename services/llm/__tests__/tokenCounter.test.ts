@@ -3,7 +3,7 @@
 import { describe, it, beforeEach, expect } from '@jest/globals';
 
 // Mock the gpt-3-encoder module
-const mockEncode = jest.fn(() => []);
+const mockEncode = jest.fn(() => []) as any;
 
 // Mock modules before importing
 jest.mock('gpt-3-encoder', () => ({
