@@ -1,19 +1,19 @@
 // API route tests for common topics endpoints
-import { describe, it, expect, beforeEach, afterEach, spyOn } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 
 // Create mock function references
-const mockGetCommonTopics = jest.fn(() => {});
-const mockGetCommonTopicById = jest.fn(() => {});
-const mockGenerateCommonTopics = jest.fn(() => {});
-const mockGenerateCommonTopicsFromSearchLogs = jest.fn(() => {});
-const mockGenerateLLMChatResponse = jest.fn(() => {});
-const mockRecordJobStart = jest.fn(() => {});
-const mockRecordJobCompletion = jest.fn(() => {});
-const mockValidateParam = jest.fn(() => {});
-const mockValidateQueryArray = jest.fn(() => {});
-const mockCreateErrorResponse = jest.fn(() => {});
-const mockCreateSuccessResponse = jest.fn(() => {});
-const mockHandleValidationError = jest.fn(() => {});
+const mockGetCommonTopics = jest.fn();
+const mockGetCommonTopicById = jest.fn();
+const mockGenerateCommonTopics = jest.fn();
+const mockGenerateCommonTopicsFromSearchLogs = jest.fn();
+const mockGenerateLLMChatResponse = jest.fn();
+const mockRecordJobStart = jest.fn();
+const mockRecordJobCompletion = jest.fn();
+const mockValidateParam = jest.fn();
+const mockValidateQueryArray = jest.fn();
+const mockCreateErrorResponse = jest.fn();
+const mockCreateSuccessResponse = jest.fn();
+const mockHandleValidationError = jest.fn();
 
 // Mock all dependencies before importing
 jest.mock('../../topics/commonTopicsService', () => ({
@@ -103,7 +103,7 @@ describe('Common Topics API Routes', () => {
 
     // Reset mocks
 
-    dateSpy = spyOn(Date.prototype, 'toISOString').mockReturnValue('2024-01-01T00:00:00.000Z');
+    dateSpy = jest.spyOn(Date.prototype, 'toISOString').mockReturnValue('2024-01-01T00:00:00.000Z');
 
     // Setup default mock implementations
     mockValidateParam.mockImplementation((value: any, type: any) => {

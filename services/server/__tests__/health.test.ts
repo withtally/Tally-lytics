@@ -6,10 +6,13 @@ import { CrawlerManager } from '../../crawling/crawlerManager';
 import { join } from 'path';
 
 // Mock fs/promises readFile function
-const mockReadFile = jest.fn();
 jest.mock('fs/promises', () => ({
-  readFile: mockReadFile,
+  readFile: jest.fn(),
 }));
+
+// Import the mocked readFile
+import { readFile } from 'fs/promises';
+const mockReadFile = readFile as jest.MockedFunction<typeof readFile>;
 
 // Mock CrawlerManager
 class MockCrawlerManager {
@@ -48,7 +51,7 @@ describe('Health API Routes', () => {
       const res = await app.request('/api/health');
       
       expect(res.status).toBe(200);
-      const data = await res.json();
+      const data = await res.json() as any;
       expect(data).toHaveProperty('status', 'ok');
       expect(data).toHaveProperty('timestamp');
       expect(data).toHaveProperty('services');
@@ -57,14 +60,14 @@ describe('Health API Routes', () => {
     });
 
     test('should include crawler status from manager', async () => {
-      mockCrawlerManager.getAllStatuses.mockImplementation(() => ({
+      (mockCrawlerManager.getAllStatuses as any).mockImplementation(() => ({
         arbitrum: { status: 'running', lastRun: new Date() }
       }));
 
       const res = await app.request('/api/health');
       
       expect(res.status).toBe(200);
-      const data = await res.json();
+      const data = await res.json() as any;
       expect(mockCrawlerManager.getAllStatuses).toHaveBeenCalled();
       expect(data.services.crawler).toHaveProperty('status', 'running');
       expect(data.services.crawler).toHaveProperty('activeJobs');
@@ -96,7 +99,7 @@ describe('Health API Routes', () => {
       const res = await app.request('/api/logs/nonexistent');
       
       expect(res.status).toBe(404);
-      const data = await res.json();
+      const data = await res.json() as any;
       expect(data).toHaveProperty('error', 'Log file not found');
       expect(data).toHaveProperty('details', 'No logs available for nonexistent');
     });
@@ -108,7 +111,7 @@ describe('Health API Routes', () => {
       const res = await app.request('/api/logs/arbitrum');
       
       expect(res.status).toBe(500);
-      const data = await res.json();
+      const data = await res.json() as any;
       expect(data).toHaveProperty('error', 'Failed to read logs');
       expect(data).toHaveProperty('details', 'Permission denied');
     });
@@ -119,7 +122,7 @@ describe('Health API Routes', () => {
       const res = await app.request('/api/logs/arbitrum');
       
       expect(res.status).toBe(500);
-      const data = await res.json();
+      const data = await res.json() as any;
       expect(data).toHaveProperty('error', 'Failed to read logs');
       expect(data).toHaveProperty('details', 'Unknown error');
     });

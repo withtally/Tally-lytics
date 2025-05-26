@@ -1,9 +1,9 @@
 // API route tests for search endpoints
-import { describe, it, expect, beforeEach, afterEach, spyOn } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 
 // Create mock function references
 const mockSearch = jest.fn(() => {});
-const mockSearchLogger = jest.fn(() => {});
+const mockSearchLogger = jest.fn();
 
 // Mock all dependencies before importing
 jest.mock('../../search/vectorSearchService', () => ({
@@ -75,7 +75,7 @@ describe('Search API Routes', () => {
 
     // Reset mocks
 
-    dateSpy = spyOn(Date.prototype, 'toISOString').mockReturnValue('2024-01-01T00:00:00.000Z');
+    dateSpy = jest.spyOn(Date.prototype, 'toISOString').mockReturnValue('2024-01-01T00:00:00.000Z');
 
     // Reset mock implementations
     mockSearchLogger.mockImplementation(async (c: any, next: any) => {

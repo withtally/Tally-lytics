@@ -1,6 +1,6 @@
 // Comprehensive tests for VectorSearchService
 
-import { describe, it, beforeEach, afterEach, expect, spyOn } from '@jest/globals';
+import { describe, it, beforeEach, afterEach, expect, jest } from '@jest/globals';
 
 // Create mock function references
 const mockGenerateEmbeddings = jest.fn(() => Promise.resolve([[0.1, 0.2, 0.3, 0.4, 0.5]]));
@@ -16,24 +16,31 @@ class MockRedis {
 }
 
 // Mock the modules before importing the service
-import.meta.jest = {
-  mock: (moduleName: string, moduleFactory: () => any) => {
-    // This is a placeholder for Bun's module mocking
-  },
-  doMock: (moduleName: string, moduleFactory: () => any) => {
-    // This is a placeholder for Bun's module mocking
-  },
-};
+jest.mock('../embeddings/embeddingService', () => ({
+  generateEmbeddings: mockGenerateEmbeddings,
+}));
 
-// Import with mocks applied
+jest.mock('../../llm/chatLLMService', () => ({
+  generateLLMChatResponse: mockGenerateQuerySimile,
+}));
+
+jest.mock('../../logging', () => ({
+  Logger: jest.fn(() => mockLogger),
+}));
+
+jest.mock('../../db/db', () => ({
+  db: mockDb,
+}));
+
+jest.mock('ioredis', () => {
+  return jest.fn().mockImplementation(() => mockRedisClient);
+});
+
 const mockLogger = {
   info: jest.fn(() => {}),
   warn: jest.fn(() => {}),
   error: jest.fn(() => {}),
 };
-
-// Mock implementations
-const Logger = jest.fn(() => mockLogger);
 
 const mockDb = {
   raw: mockDbRaw,

@@ -1,11 +1,11 @@
 // API route tests for crawl endpoints
-import { describe, it, expect, beforeEach, afterEach, spyOn } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 
 // Create mock function references
-const mockValidateParam = jest.fn(() => {});
-const mockCreateErrorResponse = jest.fn(() => {});
-const mockCreateSuccessResponse = jest.fn(() => {});
-const mockHandleValidationError = jest.fn(() => {});
+const mockValidateParam = jest.fn();
+const mockCreateErrorResponse = jest.fn();
+const mockCreateSuccessResponse = jest.fn();
+const mockHandleValidationError = jest.fn();
 
 // Mock CrawlerManager
 class MockCrawlerManager {
@@ -79,7 +79,7 @@ describe('Crawl API Routes', () => {
 
     // Reset mock implementations
 
-    dateSpy = spyOn(Date.prototype, 'toISOString').mockReturnValue('2024-01-01T00:00:00.000Z');
+    dateSpy = jest.spyOn(Date.prototype, 'toISOString').mockReturnValue('2024-01-01T00:00:00.000Z');
     mockValidateParam.mockImplementation((value: any, type: any) => {
       if (!value) throw { code: 'VALIDATION_ERROR', message: `${type} parameter is required` };
       return value;
