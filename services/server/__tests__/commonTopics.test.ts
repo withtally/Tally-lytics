@@ -66,7 +66,7 @@ mock.module('../../utils/errorResponse', () => ({
 import { Hono } from 'hono';
 import { commonTopicsRoutes } from '../commonTopicsRoutes';
 
-describe.skip('Common Topics API Routes', () => {
+describe('Common Topics API Routes', () => {
   let app: Hono;
   let dateSpy: any;
 
@@ -101,19 +101,7 @@ describe.skip('Common Topics API Routes', () => {
     // Mount the common topics routes
     app.route('/', commonTopicsRoutes);
 
-    // Clear all mocks
-    mockGetCommonTopics.mock.clear();
-    mockGetCommonTopicById.mock.clear();
-    mockGenerateCommonTopics.mock.clear();
-    mockGenerateCommonTopicsFromSearchLogs.mock.clear();
-    mockGenerateLLMChatResponse.mock.clear();
-    mockRecordJobStart.mock.clear();
-    mockRecordJobCompletion.mock.clear();
-    mockValidateParam.mock.clear();
-    mockValidateQueryArray.mock.clear();
-    mockCreateErrorResponse.mock.clear();
-    mockCreateSuccessResponse.mock.clear();
-    mockHandleValidationError.mock.clear();
+    // Reset mocks
 
     dateSpy = spyOn(Date.prototype, 'toISOString').mockReturnValue('2024-01-01T00:00:00.000Z');
 
@@ -150,7 +138,7 @@ describe.skip('Common Topics API Routes', () => {
     dateSpy?.mockRestore();
   });
 
-  describe.skip('GET /api/common-topics', () => {
+  describe('GET /api/common-topics', () => {
     const mockTopics = [
       {
         id: 1,
@@ -260,7 +248,7 @@ describe.skip('Common Topics API Routes', () => {
     });
   });
 
-  describe.skip('GET /api/common-topics/full', () => {
+  describe('GET /api/common-topics/full', () => {
     const mockFullTopics = [
       {
         id: 1,
@@ -303,7 +291,7 @@ describe.skip('Common Topics API Routes', () => {
     });
   });
 
-  describe.skip('GET /api/common-topics/:id', () => {
+  describe('GET /api/common-topics/:id', () => {
     const mockTopic = {
       id: 1,
       name: 'Governance Proposals',
@@ -379,7 +367,7 @@ describe.skip('Common Topics API Routes', () => {
     });
   });
 
-  describe.skip('POST /api/common-topics/generate', () => {
+  describe('POST /api/common-topics/generate', () => {
     beforeEach(() => {
       // Clear any existing environment variable
       delete process.env.CRON_API_KEY;
@@ -494,7 +482,7 @@ describe.skip('Common Topics API Routes', () => {
     });
   });
 
-  describe.skip('POST /api/common-topics/generate-all', () => {
+  describe('POST /api/common-topics/generate-all', () => {
     beforeEach(() => {
       delete process.env.CRON_API_KEY;
     });
@@ -577,7 +565,7 @@ describe.skip('Common Topics API Routes', () => {
     });
   });
 
-  describe.skip('POST /api/common-topics/:id/chat', () => {
+  describe('POST /api/common-topics/:id/chat', () => {
     const mockTopic = {
       id: 1,
       name: 'Governance Proposals',

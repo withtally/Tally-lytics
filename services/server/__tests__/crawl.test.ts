@@ -7,9 +7,28 @@ const mockCreateErrorResponse = mock(() => {});
 const mockCreateSuccessResponse = mock(() => {});
 const mockHandleValidationError = mock(() => {});
 
+// Mock CrawlerManager
+class MockCrawlerManager {
+  getAllStatuses = mock(() => {});
+  getStatus = mock(() => {});
+  startCrawl = mock(() => {});
+  stopCrawl = mock(() => {});
+}
+
+// Mock Logger
+class MockLogger {
+  info = mock(() => {});
+  warn = mock(() => {});
+  error = mock(() => {});
+}
+
 // Mock all dependencies before importing
-mock.module('../../crawling/crawlerManager');
-mock.module('../../logging');
+mock.module('../../crawling/crawlerManager', () => ({
+  CrawlerManager: MockCrawlerManager,
+}));
+mock.module('../../logging', () => ({
+  Logger: MockLogger,
+}));
 mock.module('../../validation/paramValidator', () => ({
   validateParam: mockValidateParam,
 }));
@@ -27,22 +46,7 @@ import { crawlRoutes } from '../crawl';
 import { CrawlerManager } from '../../crawling/crawlerManager';
 import { Logger } from '../../logging';
 
-// Mock CrawlerManager
-class MockCrawlerManager {
-  getAllStatuses = mock(() => {});
-  getStatus = mock(() => {});
-  startCrawl = mock(() => {});
-  stopCrawl = mock(() => {});
-}
-
-// Mock Logger
-class MockLogger {
-  info = mock(() => {});
-  warn = mock(() => {});
-  error = mock(() => {});
-}
-
-describe.skip('Crawl API Routes', () => {
+describe('Crawl API Routes', () => {
   let app: Hono;
   let mockCrawlerManager: MockCrawlerManager;
   let mockLogger: MockLogger;
@@ -73,22 +77,9 @@ describe.skip('Crawl API Routes', () => {
     // Setup crawl routes with mocked dependencies
     crawlRoutes(app, mockCrawlerManager as any, mockLogger as any);
 
-    // Clear all mocks
-    mockCrawlerManager.getAllStatuses.mock.clear();
-    mockCrawlerManager.getStatus.mock.clear();
-    mockCrawlerManager.startCrawl.mock.clear();
-    mockCrawlerManager.stopCrawl.mock.clear();
-    mockLogger.info.mock.clear();
-    mockLogger.warn.mock.clear();
-    mockLogger.error.mock.clear();
-    mockValidateParam.mock.clear();
-    mockCreateErrorResponse.mock.clear();
-    mockCreateSuccessResponse.mock.clear();
-    mockHandleValidationError.mock.clear();
+    // Reset mock implementations
 
     dateSpy = spyOn(Date.prototype, 'toISOString').mockReturnValue('2024-01-01T00:00:00.000Z');
-
-    // Reset mock implementations
     mockValidateParam.mockImplementation((value: any, type: any) => {
       if (!value) throw { code: 'VALIDATION_ERROR', message: `${type} parameter is required` };
       return value;
@@ -108,7 +99,7 @@ describe.skip('Crawl API Routes', () => {
     dateSpy?.mockRestore();
   });
 
-  describe.skip('GET /api/crawl/status', () => {
+  describe('GET /api/crawl/status', () => {
     it('should return all crawler statuses successfully', async () => {
       // Given
       const mockStatuses = [
@@ -165,7 +156,7 @@ describe.skip('Crawl API Routes', () => {
     });
   });
 
-  describe.skip('GET /api/crawl/status/:forumName', () => {
+  describe('GET /api/crawl/status/:forumName', () => {
     it('should return specific forum status', async () => {
       // Given
       const mockStatus = {
@@ -242,7 +233,7 @@ describe.skip('Crawl API Routes', () => {
     });
   });
 
-  describe.skip('POST /api/crawl/start/all', () => {
+  describe('POST /api/crawl/start/all', () => {
     it('should start crawls for all forums successfully', async () => {
       // Given
       mockCrawlerManager.getAllStatuses.mockImplementation(() => []);
@@ -336,7 +327,7 @@ describe.skip('Crawl API Routes', () => {
     });
   });
 
-  describe.skip('POST /api/crawl/start/:forumName', () => {
+  describe('POST /api/crawl/start/:forumName', () => {
     it('should start crawl for specific forum successfully', async () => {
       // Given
       const mockStatus = { forumName: 'ARBITRUM', status: 'starting' };
@@ -416,7 +407,7 @@ describe.skip('Crawl API Routes', () => {
     });
   });
 
-  describe.skip('POST /api/crawl/stop/:forumName', () => {
+  describe('POST /api/crawl/stop/:forumName', () => {
     it('should stop crawl for specific forum successfully', async () => {
       // Given
       const mockStatus = { forumName: 'ARBITRUM', status: 'stopped' };

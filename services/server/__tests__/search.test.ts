@@ -41,7 +41,7 @@ class MockLogger {
   warn = mock(() => {});
 }
 
-describe.skip('Search API Routes', () => {
+describe('Search API Routes', () => {
   let app: Hono;
   let mockVectorSearchService: MockVectorSearchService;
   let mockLogger: MockLogger;
@@ -73,12 +73,7 @@ describe.skip('Search API Routes', () => {
     // Setup search routes with mocked dependencies
     searchRoutes(app, mockVectorSearchService as any, mockLogger as any);
 
-    // Clear all mocks
-    mockSearch.mock.clear();
-    mockSearchLogger.mock.clear();
-    mockLogger.error.mock.clear();
-    mockLogger.info.mock.clear();
-    mockLogger.warn.mock.clear();
+    // Reset mocks
 
     dateSpy = spyOn(Date.prototype, 'toISOString').mockReturnValue('2024-01-01T00:00:00.000Z');
 
@@ -92,7 +87,7 @@ describe.skip('Search API Routes', () => {
     dateSpy?.mockRestore();
   });
 
-  describe.skip('POST /api/searchByType', () => {
+  describe('POST /api/searchByType', () => {
     const mockSearchResults = [
       {
         type: 'post',
@@ -268,7 +263,7 @@ describe.skip('Search API Routes', () => {
     });
   });
 
-  describe.skip('POST /api/searchAll', () => {
+  describe('POST /api/searchAll', () => {
     const mockTopicResults = [{ type: 'topic', id: 1, title: 'Topic 1', similarity: 0.85 }];
     const mockPostResults = [{ type: 'post', id: 1, title: 'Post 1', similarity: 0.8 }];
     const mockSnapshotResults = [
@@ -522,7 +517,7 @@ describe.skip('Search API Routes', () => {
     });
   });
 
-  describe.skip('Middleware Integration', () => {
+  describe('Middleware Integration', () => {
     it('should apply search logger middleware to search routes', () => {
       // The middleware is applied during route setup
       // We verify it was called during the beforeEach setup

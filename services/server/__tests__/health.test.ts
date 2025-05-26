@@ -28,14 +28,14 @@ mock.module('../../crawling/crawlerManager', () => ({
   CrawlerManager: MockCrawlerManager,
 }));
 
-describe.skip('Health API Routes', () => {
+describe('Health API Routes', () => {
   let app: Hono;
   let mockCrawlerManager: MockCrawlerManager;
 
   beforeEach(() => {
     app = new Hono();
     mockCrawlerManager = new MockCrawlerManager();
-    app.route('/health', healthRoutes);
+    healthRoutes(app, mockCrawlerManager as any);
     
     // Reset mocks
     mockReadFile.mockClear();
@@ -43,134 +43,85 @@ describe.skip('Health API Routes', () => {
     mockCrawlerManager.getStatus.mockClear();
   });
 
-  describe.skip('GET /health', () => {
+  describe('GET /api/health', () => {
     test('should return basic health status', async () => {
-      const res = await app.request('/health');
+      const res = await app.request('/api/health');
       
       expect(res.status).toBe(200);
       const data = await res.json();
-      expect(data).toHaveProperty('status', 'healthy');
+      expect(data).toHaveProperty('status', 'ok');
       expect(data).toHaveProperty('timestamp');
+      expect(data).toHaveProperty('services');
+      expect(data.services).toHaveProperty('crawler');
+      expect(data.services).toHaveProperty('search', 'running');
+    });
+
+    test('should include crawler status from manager', async () => {
+      mockCrawlerManager.getAllStatuses.mockImplementation(() => ({
+        arbitrum: { status: 'running', lastRun: new Date() }
+      }));
+
+      const res = await app.request('/api/health');
+      
+      expect(res.status).toBe(200);
+      const data = await res.json();
+      expect(mockCrawlerManager.getAllStatuses).toHaveBeenCalled();
+      expect(data.services.crawler).toHaveProperty('status', 'running');
+      expect(data.services.crawler).toHaveProperty('activeJobs');
     });
   });
 
-  describe.skip('GET /health/detailed', () => {
-    test('should return detailed health information', async () => {
-      mockReadFile.mockResolvedValue('{"version": "1.0.0"}');
-      
-      const res = await app.request('/health/detailed');
+  describe('GET /api/logs/:forum', () => {
+    test('should return log content when file exists', async () => {
+      const mockLogContent = 'Sample log content';
+      mockReadFile.mockResolvedValue(mockLogContent);
+
+      const res = await app.request('/api/logs/arbitrum');
       
       expect(res.status).toBe(200);
-      const data = await res.json();
-      expect(data).toHaveProperty('status', 'healthy');
-      expect(data).toHaveProperty('version');
-      expect(data).toHaveProperty('uptime');
-      expect(data).toHaveProperty('memory');
+      expect(res.headers.get('content-type')).toBe('text/plain');
+      const content = await res.text();
+      expect(content).toBe(mockLogContent);
+      
+      expect(mockReadFile).toHaveBeenCalledWith(
+        join(process.cwd(), 'logs', 'arbitrum-crawler.log'),
+        'utf-8'
+      );
     });
 
-    test('should handle package.json read errors', async () => {
-      mockReadFile.mockRejectedValue(new Error('File not found'));
-      
-      const res = await app.request('/health/detailed');
-      
-      expect(res.status).toBe(200);
-      const data = await res.json();
-      expect(data).toHaveProperty('status', 'healthy');
-      expect(data.version).toBe('unknown');
-    });
-  });
+    test('should return 404 when log file not found', async () => {
+      const notFoundError = new Error('ENOENT: no such file or directory');
+      mockReadFile.mockRejectedValue(notFoundError);
 
-  describe.skip('GET /health/crawlers', () => {
-    test('should return crawler status information', async () => {
-      const res = await app.request('/health/crawlers');
+      const res = await app.request('/api/logs/nonexistent');
       
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(404);
       const data = await res.json();
-      expect(data).toHaveProperty('crawlers');
-      expect(data.crawlers).toHaveProperty('arbitrum');
-      expect(data.crawlers).toHaveProperty('compound');
+      expect(data).toHaveProperty('error', 'Log file not found');
+      expect(data).toHaveProperty('details', 'No logs available for nonexistent');
     });
 
-    test('should handle crawler manager errors', async () => {
-      mockCrawlerManager.getAllStatuses.mockImplementation(() => {
-        throw new Error('Crawler error');
-      });
-      
-      const res = await app.request('/health/crawlers');
+    test('should return 500 for other file system errors', async () => {
+      const systemError = new Error('Permission denied');
+      mockReadFile.mockRejectedValue(systemError);
+
+      const res = await app.request('/api/logs/arbitrum');
       
       expect(res.status).toBe(500);
       const data = await res.json();
-      expect(data).toHaveProperty('error');
+      expect(data).toHaveProperty('error', 'Failed to read logs');
+      expect(data).toHaveProperty('details', 'Permission denied');
     });
-  });
 
-  describe.skip('GET /health/database', () => {
-    test('should return database health status', async () => {
-      const res = await app.request('/health/database');
+    test('should handle non-Error exceptions', async () => {
+      mockReadFile.mockRejectedValue('String error');
+
+      const res = await app.request('/api/logs/arbitrum');
       
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(500);
       const data = await res.json();
-      expect(data).toHaveProperty('status');
-      expect(data).toHaveProperty('connection');
-    });
-  });
-
-  describe.skip('GET /health/system', () => {
-    test('should return system resource information', async () => {
-      const res = await app.request('/health/system');
-      
-      expect(res.status).toBe(200);
-      const data = await res.json();
-      expect(data).toHaveProperty('memory');
-      expect(data).toHaveProperty('cpu');
-      expect(data).toHaveProperty('uptime');
-      expect(data.memory).toHaveProperty('used');
-      expect(data.memory).toHaveProperty('free');
-      expect(data.memory).toHaveProperty('total');
-    });
-  });
-
-  describe.skip('error handling', () => {
-    test('should handle malformed requests gracefully', async () => {
-      const res = await app.request('/health/invalid-endpoint');
-      
-      expect(res.status).toBe(404);
-    });
-
-    test('should handle system errors in health checks', async () => {
-      // This tests the error handling within the health route itself
-      const res = await app.request('/health');
-      
-      // Even with errors, basic health should respond
-      expect(res.status).toBe(200);
-    });
-  });
-
-  describe.skip('response format validation', () => {
-    test('should return consistent response format for all endpoints', async () => {
-      const endpoints = ['/health', '/health/detailed', '/health/crawlers', '/health/system'];
-      
-      for (const endpoint of endpoints) {
-        const res = await app.request(endpoint);
-        const data = await res.json();
-        
-        // All health endpoints should have a status field
-        expect(data).toHaveProperty('status');
-        
-        // Should have proper HTTP status codes
-        expect([200, 500]).toContain(res.status);
-      }
-    });
-
-    test('should include timestamp in responses', async () => {
-      const res = await app.request('/health');
-      const data = await res.json();
-      
-      expect(data).toHaveProperty('timestamp');
-      expect(typeof data.timestamp).toBe('string');
-      
-      // Should be a valid ISO date string
-      expect(() => new Date(data.timestamp)).not.toThrow();
+      expect(data).toHaveProperty('error', 'Failed to read logs');
+      expect(data).toHaveProperty('details', 'Unknown error');
     });
   });
 });

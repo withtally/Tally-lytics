@@ -46,7 +46,7 @@ const mockDb = {
 // We'll import the service and then override its dependencies
 import { VectorSearchService, SearchParams } from '../vectorSearchService';
 
-describe.skip('VectorSearchService', () => {
+describe('VectorSearchService', () => {
   let vectorSearchService: VectorSearchService;
   let originalRedisUrl: string | undefined;
 
@@ -86,7 +86,7 @@ describe.skip('VectorSearchService', () => {
     }
   });
 
-  describe.skip('initialization', () => {
+  describe('initialization', () => {
     it('should initialize without Redis when REDIS_URL is not set', () => {
       // Given
       delete process.env.REDIS_URL;
@@ -118,7 +118,7 @@ describe.skip('VectorSearchService', () => {
     });
   });
 
-  describe.skip('search functionality', () => {
+  describe('search functionality', () => {
     const mockSearchResults = {
       rows: [
         {
@@ -312,7 +312,7 @@ describe.skip('VectorSearchService', () => {
     });
   });
 
-  describe.skip('recency boost', () => {
+  describe('recency boost', () => {
     it('should apply recency boost to recent content', async () => {
       // Given
       const recentDate = new Date();
@@ -388,7 +388,7 @@ describe.skip('VectorSearchService', () => {
     });
   });
 
-  describe.skip('popularity boost', () => {
+  describe('popularity boost', () => {
     it('should apply popularity boost when column exists', async () => {
       // Given
       mockDbSchemaHasColumn.mockResolvedValue(true);
@@ -524,7 +524,7 @@ describe.skip('VectorSearchService', () => {
     });
   });
 
-  describe.skip('LLM reranking', () => {
+  describe('LLM reranking', () => {
     beforeEach(() => {
       mockGenerateQuerySimile.mockResolvedValue('related concepts');
       // Second call to generateEmbeddings for reranking
@@ -615,7 +615,7 @@ describe.skip('VectorSearchService', () => {
     });
   });
 
-  describe.skip('error handling', () => {
+  describe('error handling', () => {
     it('should handle embedding generation errors', async () => {
       // Given
       mockGenerateEmbeddings.mockClear();
@@ -661,7 +661,7 @@ describe.skip('VectorSearchService', () => {
     });
   });
 
-  describe.skip('cleanup', () => {
+  describe('cleanup', () => {
     it('should cleanup Redis connection successfully', async () => {
       // Given
       process.env.REDIS_URL = 'redis://localhost:6379';
@@ -685,7 +685,7 @@ describe.skip('VectorSearchService', () => {
     });
   });
 
-  describe.skip('result sorting', () => {
+  describe('result sorting', () => {
     it('should sort results by similarity in descending order', async () => {
       // Given
       mockDbRaw.mockResolvedValue({

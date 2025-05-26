@@ -29,7 +29,7 @@ import fetch from 'node-fetch';
 // Get the mocked fetch for use in tests
 const mockedFetch = fetch as any;
 
-describe.skip('CoingeckoProService', () => {
+describe('CoingeckoProService', () => {
   let service: CoingeckoProService;
   const originalEnv = process.env;
 
@@ -52,7 +52,7 @@ describe.skip('CoingeckoProService', () => {
     process.env = originalEnv;
   });
 
-  describe.skip('constructor', () => {
+  describe('constructor', () => {
     test('should initialize with API key from environment', () => {
       expect(service).toBeDefined();
     });
@@ -63,7 +63,7 @@ describe.skip('CoingeckoProService', () => {
     });
   });
 
-  describe.skip('getMarketData', () => {
+  describe('getMarketData', () => {
     test('should fetch market data successfully', async () => {
       const mockResponse = {
         ok: true,
@@ -141,7 +141,7 @@ describe.skip('CoingeckoProService', () => {
     });
   });
 
-  describe.skip('rate limiting', () => {
+  describe('rate limiting', () => {
     test('should respect rate limits', async () => {
       const mockResponse = {
         ok: true,
@@ -162,7 +162,7 @@ describe.skip('CoingeckoProService', () => {
     });
   });
 
-  describe.skip('data validation', () => {
+  describe('data validation', () => {
     test('should validate response data structure', async () => {
       const invalidResponse = {
         ok: true,
@@ -193,7 +193,7 @@ describe.skip('CoingeckoProService', () => {
     });
   });
 
-  describe.skip('error recovery', () => {
+  describe('error recovery', () => {
     test('should retry on temporary failures', async () => {
       mockedFetch
         .mockResolvedValueOnce({
