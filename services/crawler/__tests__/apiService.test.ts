@@ -9,13 +9,13 @@ import { handleGlobalError } from '../../errorHandling/globalErrorHandler';
 
 // Mock dependencies
 jest.mock('limiter', () => ({
-  RateLimiter: mock(),
+  RateLimiter: jest.fn(),
 }));
 jest.mock('../../../utils/requestWithRetry', () => ({
-  requestWithRetry: mock(),
+  requestWithRetry: jest.fn(),
 }));
 jest.mock('../../errorHandling/globalErrorHandler', () => ({
-  handleGlobalError: mock(),
+  handleGlobalError: jest.fn(),
 }));
 
 describe('ApiService', () => {
@@ -34,7 +34,7 @@ describe('ApiService', () => {
 
     // Mock RateLimiter
     mockLimiter = {
-      removeTokens: mock().mockResolvedValue(1),
+      removeTokens: jest.fn().mockResolvedValue(1),
     };
 
     (RateLimiter as any).mockImplementation(() => mockLimiter);
@@ -97,7 +97,7 @@ describe('ApiService', () => {
       const mockResponse = {
         ok: true,
         status: 200,
-        json: mock().mockResolvedValue(mockUserData),
+        json: jest.fn().mockResolvedValue(mockUserData),
       };
       mockRequestWithRetry.mockResolvedValue(mockResponse as any);
     });
@@ -156,7 +156,7 @@ describe('ApiService', () => {
       const mockResponse = {
         ok: true,
         status: 200,
-        json: mock().mockResolvedValue(userDataWithoutUpdatedAt),
+        json: jest.fn().mockResolvedValue(userDataWithoutUpdatedAt),
       };
       mockRequestWithRetry.mockResolvedValue(mockResponse as any);
 
@@ -176,7 +176,7 @@ describe('ApiService', () => {
       const mockResponse = {
         ok: true,
         status: 200,
-        json: mock().mockResolvedValue(userDataWithEmptyAvatar),
+        json: jest.fn().mockResolvedValue(userDataWithEmptyAvatar),
       };
       mockRequestWithRetry.mockResolvedValue(mockResponse as any);
 
@@ -196,7 +196,7 @@ describe('ApiService', () => {
       const mockResponse = {
         ok: true,
         status: 200,
-        json: mock().mockResolvedValue(userDataWithNullAvatar),
+        json: jest.fn().mockResolvedValue(userDataWithNullAvatar),
       };
       mockRequestWithRetry.mockResolvedValue(mockResponse as any);
 
@@ -217,7 +217,7 @@ describe('ApiService', () => {
       const mockResponse = {
         ok: true,
         status: 200,
-        json: mock().mockResolvedValue(adminUserData),
+        json: jest.fn().mockResolvedValue(adminUserData),
       };
       mockRequestWithRetry.mockResolvedValue(mockResponse as any);
 
@@ -290,7 +290,7 @@ describe('ApiService', () => {
       const mockResponse = {
         ok: true,
         status: 200,
-        json: mock().mockRejectedValue(new Error('Invalid JSON')),
+        json: jest.fn().mockRejectedValue(new Error('Invalid JSON')),
       };
       mockRequestWithRetry.mockResolvedValue(mockResponse as any);
 
@@ -346,7 +346,7 @@ describe('ApiService', () => {
       const mockResponse = {
         ok: true,
         status: 200,
-        json: mock().mockResolvedValue(minimalUserData),
+        json: jest.fn().mockResolvedValue(minimalUserData),
       };
       mockRequestWithRetry.mockResolvedValue(mockResponse as any);
 
@@ -414,7 +414,7 @@ describe('ApiService', () => {
       const mockResponse = {
         ok: true,
         status: 200,
-        json: mock().mockResolvedValue(userDataWithSizePlaceholder),
+        json: jest.fn().mockResolvedValue(userDataWithSizePlaceholder),
       };
       mockRequestWithRetry.mockResolvedValue(mockResponse as any);
 
@@ -437,7 +437,7 @@ describe('ApiService', () => {
       const mockResponse = {
         ok: true,
         status: 200,
-        json: mock().mockResolvedValue(userDataWithMultiplePlaceholders),
+        json: jest.fn().mockResolvedValue(userDataWithMultiplePlaceholders),
       };
       mockRequestWithRetry.mockResolvedValue(mockResponse as any);
 
@@ -460,7 +460,7 @@ describe('ApiService', () => {
       const mockResponse = {
         ok: true,
         status: 200,
-        json: mock().mockResolvedValue(userDataWithoutPlaceholder),
+        json: jest.fn().mockResolvedValue(userDataWithoutPlaceholder),
       };
       mockRequestWithRetry.mockResolvedValue(mockResponse as any);
 
@@ -563,7 +563,7 @@ describe('ApiService', () => {
       const mockResponse = {
         ok: true,
         status: 200,
-        json: mock().mockResolvedValue(fullUserData),
+        json: jest.fn().mockResolvedValue(fullUserData),
       };
       mockRequestWithRetry.mockResolvedValue(mockResponse as any);
 
@@ -604,7 +604,7 @@ describe('ApiService', () => {
       const mockResponse = {
         ok: true,
         status: 200,
-        json: mock(),
+        json: jest.fn(),
       };
 
       responses.forEach((response, index) => {
@@ -653,7 +653,7 @@ describe('ApiService', () => {
       const mockResponse = {
         ok: true,
         status: 200,
-        json: mock().mockResolvedValue(mockTopicsData),
+        json: jest.fn().mockResolvedValue(mockTopicsData),
       };
       mockRequestWithRetry.mockResolvedValue(mockResponse as any);
     });
@@ -749,7 +749,7 @@ describe('ApiService', () => {
       const mockResponse = {
         ok: true,
         status: 200,
-        json: mock().mockResolvedValue(malformedData),
+        json: jest.fn().mockResolvedValue(malformedData),
       };
       mockRequestWithRetry.mockResolvedValue(mockResponse as any);
 
@@ -787,7 +787,7 @@ describe('ApiService', () => {
       const mockResponse = {
         ok: true,
         status: 200,
-        json: mock().mockResolvedValue(mockPostsData),
+        json: jest.fn().mockResolvedValue(mockPostsData),
       };
       mockRequestWithRetry.mockResolvedValue(mockResponse as any);
     });
@@ -904,7 +904,7 @@ describe('ApiService', () => {
       const mockResponse = {
         ok: true,
         status: 200,
-        json: mock().mockResolvedValue(malformedData),
+        json: jest.fn().mockResolvedValue(malformedData),
       };
       mockRequestWithRetry.mockResolvedValue(mockResponse as any);
 
@@ -924,7 +924,7 @@ describe('ApiService', () => {
       const mockResponse = {
         ok: true,
         status: 200,
-        json: mock().mockResolvedValue(dataWithoutPosts),
+        json: jest.fn().mockResolvedValue(dataWithoutPosts),
       };
       mockRequestWithRetry.mockResolvedValue(mockResponse as any);
 

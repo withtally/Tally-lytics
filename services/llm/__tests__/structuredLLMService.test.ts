@@ -5,10 +5,10 @@ import { describe, test, expect, beforeEach } from '@jest/globals';
 
 // Mock logging to prevent file creation issues
 jest.mock('../../logging', () => ({
-  Logger: mock().mockImplementation(() => ({
-    info: mock(),
-    warn: mock(), 
-    error: mock(),
+  Logger: jest.fn().mockImplementation(() => ({
+    info: jest.fn(),
+    warn: jest.fn(), 
+    error: jest.fn(),
   })),
 }));
 

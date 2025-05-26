@@ -4,16 +4,16 @@ import { describe, test, beforeEach, expect } from '@jest/globals';
 
 // Mock the dependencies
 jest.mock('../../../db/db', () => ({
-  default: mock(),
+  default: jest.fn(),
 }));
 jest.mock('html-to-text', () => ({
-  htmlToText: mock(),
+  htmlToText: jest.fn(),
 }));
 jest.mock('../../user/userService', () => ({
-  default: { upsertUser: mock() },
+  default: { upsertUser: jest.fn() },
 }));
 jest.mock('../../logging', () => ({
-  Logger: mock(),
+  Logger: jest.fn(),
 }));
 jest.mock('../../../config/loggerConfig', () => ({
   loggerConfig: { level: 'info' },
@@ -36,13 +36,13 @@ describe.skip('DatabaseService', () => {
   beforeEach(() => {
     // Mock database with method chaining
     mockDb = {
-      raw: mock().mockResolvedValue({ rows: [{ '?column?': 1 }] }),
-      where: mock(),
-      max: mock(),
-      first: mock(),
-      insert: mock(),
-      onConflict: mock(),
-      merge: mock(),
+      raw: jest.fn().mockResolvedValue({ rows: [{ '?column?': 1 }] }),
+      where: jest.fn(),
+      max: jest.fn(),
+      first: jest.fn(),
+      insert: jest.fn(),
+      onConflict: jest.fn(),
+      merge: jest.fn(),
     };
 
     // Set up method chaining
@@ -53,15 +53,15 @@ describe.skip('DatabaseService', () => {
 
     // Mock Logger
     mockLogger = {
-      info: mock(),
-      error: mock(),
-      warn: mock(),
-      debug: mock(),
+      info: jest.fn(),
+      error: jest.fn(),
+      warn: jest.fn(),
+      debug: jest.fn(),
     };
 
     // Mock userService
     mockUserService = {
-      upsertUser: mock().mockResolvedValue(undefined),
+      upsertUser: jest.fn().mockResolvedValue(undefined),
     };
 
     // Mock htmlToText

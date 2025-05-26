@@ -36,7 +36,7 @@ describe('searchLogger middleware', () => {
 
     // Create mock query object with method chaining
     mockQuery = {
-      insert: mock().mockResolvedValue({}),
+      insert: jest.fn().mockResolvedValue({}),
     };
 
     // Setup mockDb to return the mock query object
@@ -48,7 +48,7 @@ describe('searchLogger middleware', () => {
         status: 200,
       },
       req: {
-        json: mock(),
+        json: jest.fn(),
       },
     };
 
@@ -82,7 +82,7 @@ describe('searchLogger middleware', () => {
       const malformedContext = {
         res: null,
         req: {
-          json: mock().mockResolvedValue({}),
+          json: jest.fn().mockResolvedValue({}),
         },
       };
 

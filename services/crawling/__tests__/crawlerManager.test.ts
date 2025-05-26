@@ -20,10 +20,10 @@ const mockCrawlNewsArticleEvaluations = jest.fn();
 
 // Mock dependencies
 jest.mock('../../logging', () => ({
-  Logger: mock().mockImplementation(() => ({
-    info: mock(),
-    warn: mock(),
-    error: mock(),
+  Logger: jest.fn().mockImplementation(() => ({
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
   })),
 }));
 
@@ -57,7 +57,7 @@ jest.mock('../../../config/forumConfig', () => ({
 }));
 
 jest.mock('../forumCrawler', () => ({
-  ForumCrawler: mock().mockImplementation(() => ({
+  ForumCrawler: jest.fn().mockImplementation(() => ({
     start: mockForumCrawlerStart,
     stop: mockForumCrawlerStop,
   })),
@@ -124,17 +124,17 @@ describe.skip('CrawlerManager', () => {
   beforeEach(() => {
     // Create mock logger
     mockLogger = {
-      info: mock(),
-      warn: mock(),
-      error: mock(),
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
     } as any;
 
     // Create mock heartbeat monitor
     mockHeartbeatMonitor = {
-      updateHeartbeat: mock(),
-      isStalled: mock(),
-      clear: mock(),
-      getAllStalled: mock(),
+      updateHeartbeat: jest.fn(),
+      isStalled: jest.fn(),
+      clear: jest.fn(),
+      getAllStalled: jest.fn(),
     };
 
     // Create crawler manager instance

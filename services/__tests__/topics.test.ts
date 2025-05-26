@@ -20,12 +20,12 @@ describe('topics service', () => {
 
     // Create mock query object with method chaining
     mockQuery = {
-      insert: mock().mockReturnThis(),
-      onConflict: mock().mockReturnThis(),
-      merge: mock().mockReturnThis(),
-      select: mock().mockReturnThis(),
-      max: mock().mockReturnThis(),
-      first: mock(),
+      insert: jest.fn().mockReturnThis(),
+      onConflict: jest.fn().mockReturnThis(),
+      merge: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      max: jest.fn().mockReturnThis(),
+      first: jest.fn(),
     };
 
     // Setup mockDb to return the mock query object

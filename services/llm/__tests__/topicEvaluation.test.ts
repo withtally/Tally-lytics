@@ -47,9 +47,9 @@ jest.mock('../../../config/loggerConfig', () => ({
 }));
 
 jest.mock('../../logging', () => ({
-  Logger: mock().mockImplementation(() => ({
-    info: mock(),
-    error: mock(),
+  Logger: jest.fn().mockImplementation(() => ({
+    info: jest.fn(),
+    error: jest.fn(),
   })),
 }));
 

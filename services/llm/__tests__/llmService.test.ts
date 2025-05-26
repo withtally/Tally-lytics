@@ -27,14 +27,14 @@ const mockOpenAI = {
 
 // Mock the OpenAI module before any imports
 jest.mock('openai', () => ({
-  OpenAI: mock().mockImplementation(() => mockOpenAI),
+  OpenAI: jest.fn().mockImplementation(() => mockOpenAI),
 }));
 
 // Mock logging to prevent file creation issues
 jest.mock('../../logging', () => ({
-  Logger: mock().mockImplementation(() => ({
-    error: mock(),
-    info: mock(),
+  Logger: jest.fn().mockImplementation(() => ({
+    error: jest.fn(),
+    info: jest.fn(),
   })),
 }));
 

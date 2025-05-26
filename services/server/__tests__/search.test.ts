@@ -71,7 +71,7 @@ describe('Search API Routes', () => {
     mockLogger = new MockLogger();
 
     // Setup search routes with mocked dependencies
-    searchRoutes(appVectorSearchService as anyLogger as any);
+    searchRoutes(app, mockVectorSearchService as any, mockLogger as any);
 
     // Reset mocks
 

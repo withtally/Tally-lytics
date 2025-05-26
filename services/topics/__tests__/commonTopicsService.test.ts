@@ -27,7 +27,7 @@ const createMockQueryBuilder = () => {
     limit: jest.fn(() => queryBuilder),
     groupBy: jest.fn(() => queryBuilder),
     count: jest.fn(() => queryBuilder),
-    first: mock(),
+    first: jest.fn(),
     then: mock((resolve: any) => Promise.resolve(resolve ? resolve([]) : [])),
   };
   return queryBuilder;

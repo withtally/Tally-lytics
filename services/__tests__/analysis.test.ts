@@ -21,17 +21,17 @@ describe('analysis service', () => {
 
     // Create mock query objects with method chaining
     topicQuery = {
-      where: mock().mockReturnThis(),
-      andWhere: mock().mockReturnThis(),
-      select: mock().mockReturnThis(),
-      first: mock(),
+      where: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      first: jest.fn(),
     };
 
     postsQuery = {
-      where: mock().mockReturnThis(),
-      andWhere: mock().mockReturnThis(),
-      select: mock(),
-      count: mock(),
+      where: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      select: jest.fn(),
+      count: jest.fn(),
     };
 
     // Setup mockDb to return the appropriate query object based on table name

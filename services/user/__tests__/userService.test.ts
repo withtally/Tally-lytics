@@ -4,26 +4,26 @@ import { expect, test, describe, beforeEach, afterEach } from '@jest/globals';
 
 // Mock dependencies
 const mockLogger = {
-  debug: mock(),
-  info: mock(),
-  warn: mock(),
-  error: mock(),
+  debug: jest.fn(),
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
 };
 
 const mockDb = jest.fn();
 const mockQueryBuilder = {
-  insert: mock().mockReturnThis(),
-  onConflict: mock().mockReturnThis(),
-  merge: mock().mockResolvedValue(undefined),
-  where: mock().mockReturnThis(),
-  first: mock().mockResolvedValue(null),
+  insert: jest.fn().mockReturnThis(),
+  onConflict: jest.fn().mockReturnThis(),
+  merge: jest.fn().mockResolvedValue(undefined),
+  where: jest.fn().mockReturnThis(),
+  first: jest.fn().mockResolvedValue(null),
 };
 
 // Mock global fetch instead of node-fetch
 global.fetch = jest.fn();
 
 jest.mock('../../logging', () => ({
-  Logger: mock().mockImplementation(() => mockLogger),
+  Logger: jest.fn().mockImplementation(() => mockLogger),
 }));
 jest.mock('../../../config/loggerConfig', () => ({
   loggerConfig: { level: 'info' },
@@ -110,7 +110,7 @@ describe('UserService', () => {
       const mockResponse = {
         ok: true,
         status: 200,
-        json: mock().mockResolvedValue(mockUserResponse),
+        json: jest.fn().mockResolvedValue(mockUserResponse),
       };
       mockedFetch.mockResolvedValue(mockResponse as any);
 
@@ -247,7 +247,7 @@ describe('UserService', () => {
       const mockResponse = {
         ok: true,
         status: 200,
-        json: mock().mockRejectedValue(new Error('Invalid JSON')),
+        json: jest.fn().mockRejectedValue(new Error('Invalid JSON')),
       };
       mockedFetch.mockResolvedValue(mockResponse as any);
 
@@ -283,7 +283,7 @@ describe('UserService', () => {
       const mockResponse = {
         ok: true,
         status: 200,
-        json: mock().mockResolvedValue(partialUserResponse),
+        json: jest.fn().mockResolvedValue(partialUserResponse),
       };
       mockedFetch.mockResolvedValue(mockResponse as any);
 

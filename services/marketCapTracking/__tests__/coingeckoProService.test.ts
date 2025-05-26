@@ -3,14 +3,14 @@ import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
 
 // Mock dependencies
 const mockLogger = {
-  debug: mock(),
-  info: mock(),
-  warn: mock(),
-  error: mock(),
+  debug: jest.fn(),
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
 };
 
 jest.mock('node-fetch', () => ({
-  default: mock(),
+  default: jest.fn(),
 }));
 
 const MockLogger = jest.fn(() => mockLogger);

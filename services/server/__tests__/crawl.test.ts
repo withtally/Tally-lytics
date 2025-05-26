@@ -75,7 +75,7 @@ describe('Crawl API Routes', () => {
     mockLogger = new MockLogger();
 
     // Setup crawl routes with mocked dependencies
-    crawlRoutes(appCrawlerManager as anyLogger as any);
+    crawlRoutes(app, mockCrawlerManager as any, mockLogger as any);
 
     // Reset mock implementations
 

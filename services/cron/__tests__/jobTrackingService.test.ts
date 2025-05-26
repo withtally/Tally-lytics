@@ -18,15 +18,15 @@ jest.mock('../../logging', () => ({
 // Mock database module
 const mockDb = jest.fn();
 const mockQueryBuilder = {
-  insert: mock().mockReturnThis(),
-  update: mock().mockReturnThis(),
-  where: mock().mockReturnThis(),
-  orderBy: mock().mockReturnThis(),
-  limit: mock().mockReturnThis(),
-  select: mock().mockReturnThis(),
-  from: mock().mockReturnThis(),
-  first: mock(),
-  returning: mock(),
+  insert: jest.fn().mockReturnThis(),
+  update: jest.fn().mockReturnThis(),
+  where: jest.fn().mockReturnThis(),
+  orderBy: jest.fn().mockReturnThis(),
+  limit: jest.fn().mockReturnThis(),
+  select: jest.fn().mockReturnThis(),
+  from: jest.fn().mockReturnThis(),
+  first: jest.fn(),
+  returning: jest.fn(),
   then: mock((resolve: any) => Promise.resolve(resolve ? resolve([]) : [])),
 };
 
@@ -287,9 +287,9 @@ describe('JobTrackingService', () => {
   describe('cleanupOldJobs', () => {
     test('should delete jobs older than specified days', async () => {
       const mockDeleteBuilder = {
-        where: mock().mockReturnThis(),
-        andWhere: mock().mockReturnThis(),
-        del: mock().mockResolvedValue(5),
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        del: jest.fn().mockResolvedValue(5),
       };
       mockDb.mockReturnValueOnce(mockDeleteBuilder);
       
@@ -305,9 +305,9 @@ describe('JobTrackingService', () => {
 
     test('should use default retention of 90 days', async () => {
       const mockDeleteBuilder = {
-        where: mock().mockReturnThis(),
-        andWhere: mock().mockReturnThis(),
-        del: mock().mockResolvedValue(10),
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        del: jest.fn().mockResolvedValue(10),
       };
       mockDb.mockReturnValueOnce(mockDeleteBuilder);
       
@@ -321,9 +321,9 @@ describe('JobTrackingService', () => {
 
     test('should handle cleanup errors', async () => {
       const mockDeleteBuilder = {
-        where: mock().mockReturnThis(),
-        andWhere: mock().mockReturnThis(),
-        del: mock().mockRejectedValue(new Error('Delete failed')),
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        del: jest.fn().mockRejectedValue(new Error('Delete failed')),
       };
       mockDb.mockReturnValueOnce(mockDeleteBuilder);
       
@@ -341,10 +341,10 @@ describe('JobTrackingService', () => {
       ];
       
       const mockStatsBuilder = {
-        select: mock().mockReturnThis(),
-        groupBy: mock().mockReturnThis(),
-        where: mock().mockReturnThis(),
-        then: mock().mockResolvedValue(mockStats),
+        select: jest.fn().mockReturnThis(),
+        groupBy: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        then: jest.fn().mockResolvedValue(mockStats),
       };
       mockDb.mockReturnValueOnce(mockStatsBuilder);
       
@@ -356,10 +356,10 @@ describe('JobTrackingService', () => {
 
     test('should handle empty statistics', async () => {
       const mockStatsBuilder = {
-        select: mock().mockReturnThis(),
-        groupBy: mock().mockReturnThis(),
-        where: mock().mockReturnThis(),
-        then: mock().mockResolvedValue([]),
+        select: jest.fn().mockReturnThis(),
+        groupBy: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        then: jest.fn().mockResolvedValue([]),
       };
       mockDb.mockReturnValueOnce(mockStatsBuilder);
       
@@ -388,8 +388,8 @@ describe('JobTrackingService', () => {
       
       // Then update
       const updateBuilder = {
-        where: mock().mockReturnThis(),
-        update: mock().mockResolvedValue(1),
+        where: jest.fn().mockReturnThis(),
+        update: jest.fn().mockResolvedValue(1),
       };
       mockDb.mockReturnValueOnce(updateBuilder);
       
