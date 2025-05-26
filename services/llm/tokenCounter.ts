@@ -28,9 +28,9 @@ export async function countTokens(text: string, _model: string): Promise<number>
   }
 }
 
-export function checkTokenLimit(text: string, model: string = 'gpt-4'): boolean {
+export async function checkTokenLimit(text: string, model: string = 'gpt-4'): Promise<boolean> {
   const limit = MODEL_TOKEN_LIMITS[model] || 4096; // Default to 4096 if model not found
-  const count = countTokens(text, model);
+  const count = await countTokens(text, model);
   return count <= limit;
 }
 

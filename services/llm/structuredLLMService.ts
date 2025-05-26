@@ -81,7 +81,7 @@ export async function generateCommonTopicsStructured(
 
     return topics;
   } catch (error) {
-    logger.error('Error generating common topics:', error);
+    logger.error('Error generating common topics:', error as Error);
     throw error;
   }
 }

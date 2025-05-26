@@ -55,7 +55,7 @@ export interface IOpenAIClient {
       create(params: ChatCompletionParams): Promise<ChatCompletionResponse>;
     };
   };
-  
+
   embeddings: {
     create(params: EmbeddingParams): Promise<EmbeddingResponse>;
   };

@@ -1,10 +1,10 @@
 // __tests__/mocks/MockPostRepository.ts - Mock implementation for testing
 
-import type { 
-  IPostRepository, 
-  Post, 
-  PostFilter, 
-  PostWithEvaluation 
+import type {
+  IPostRepository,
+  Post,
+  PostFilter,
+  PostWithEvaluation,
 } from '../../db/repositories/IPostRepository';
 import { createTestPost, createTestPostEvaluation } from '../factories/postFactory';
 
@@ -61,11 +61,15 @@ export class MockPostRepository implements IPostRepository {
     }
 
     if (filter.quality_score_min !== undefined) {
-      posts = posts.filter(p => p.quality_score !== undefined && p.quality_score >= filter.quality_score_min!);
+      posts = posts.filter(
+        p => p.quality_score !== undefined && p.quality_score >= filter.quality_score_min!
+      );
     }
 
     if (filter.quality_score_max !== undefined) {
-      posts = posts.filter(p => p.quality_score !== undefined && p.quality_score <= filter.quality_score_max!);
+      posts = posts.filter(
+        p => p.quality_score !== undefined && p.quality_score <= filter.quality_score_max!
+      );
     }
 
     // Sort by created_at desc
@@ -88,7 +92,7 @@ export class MockPostRepository implements IPostRepository {
 
   async findWithEvaluations(filter: PostFilter): Promise<PostWithEvaluation[]> {
     const posts = await this.find(filter);
-    
+
     return posts.map(post => ({
       ...post,
       evaluation: this.evaluations.get(post.id),
@@ -123,12 +127,15 @@ export class MockPostRepository implements IPostRepository {
     return updated;
   }
 
-  async markAsEvaluated(id: string, evaluation: {
-    quality_score: number;
-    relevance_score: number;
-    ai_summary: string;
-    ai_tags: string[];
-  }): Promise<void> {
+  async markAsEvaluated(
+    id: string,
+    evaluation: {
+      quality_score: number;
+      relevance_score: number;
+      ai_summary: string;
+      ai_tags: string[];
+    }
+  ): Promise<void> {
     const post = this.posts.get(id);
     if (!post) {
       throw new Error(`Post with id ${id} not found`);
@@ -150,9 +157,7 @@ export class MockPostRepository implements IPostRepository {
   }
 
   async getCountByForum(forumName: string): Promise<number> {
-    return Array.from(this.posts.values())
-      .filter(p => p.forum_name === forumName)
-      .length;
+    return Array.from(this.posts.values()).filter(p => p.forum_name === forumName).length;
   }
 
   async getRecent(forumName: string, limit: number = 10): Promise<Post[]> {
@@ -173,7 +178,7 @@ export class MockPostRepository implements IPostRepository {
         created_at: now,
         updated_at: now,
       };
-      
+
       this.posts.set(newPost.id, newPost);
       createdPosts.push(newPost);
     }

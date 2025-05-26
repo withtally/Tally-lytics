@@ -31,16 +31,16 @@ export class EmbeddingService {
    * Generate embeddings for a batch of texts
    */
   async generateEmbeddings(
-    texts: string[], 
+    texts: string[],
     options: EmbeddingOptions = {}
   ): Promise<EmbeddingResult> {
     const { model = this.DEFAULT_MODEL, batchSize = this.DEFAULT_BATCH_SIZE } = options;
     const startTime = Date.now();
 
-    this.logger.info('Starting embedding generation', { 
-      textCount: texts.length, 
+    this.logger.info('Starting embedding generation', {
+      textCount: texts.length,
       model,
-      batchSize 
+      batchSize,
     });
 
     try {
@@ -60,14 +60,14 @@ export class EmbeddingService {
       for (let i = 0; i < texts.length; i += batchSize) {
         const batch = texts.slice(i, i + batchSize);
         const batchResult = await this.processBatch(batch, model);
-        
+
         allEmbeddings.push(...batchResult.embeddings);
         totalTokens += batchResult.totalTokens;
 
         this.logger.debug('Processed embedding batch', {
           batchIndex: Math.floor(i / batchSize) + 1,
           batchSize: batch.length,
-          totalProcessed: allEmbeddings.length
+          totalProcessed: allEmbeddings.length,
         });
       }
 
@@ -77,20 +77,19 @@ export class EmbeddingService {
         textCount: texts.length,
         totalTokens,
         processingTimeMs: processingTime,
-        avgTokensPerText: Math.round(totalTokens / texts.length)
+        avgTokensPerText: Math.round(totalTokens / texts.length),
       });
 
       return {
         embeddings: allEmbeddings,
         totalTokens,
-        processingTime
+        processingTime,
       };
-
     } catch (error) {
       this.logger.error('Embedding generation failed', {
         textCount: texts.length,
         error: error instanceof Error ? error.message : 'Unknown error',
-        processingTimeMs: Date.now() - startTime
+        processingTimeMs: Date.now() - startTime,
       });
       throw error;
     }
@@ -99,10 +98,7 @@ export class EmbeddingService {
   /**
    * Generate embedding for a single text
    */
-  async generateSingleEmbedding(
-    text: string, 
-    options: EmbeddingOptions = {}
-  ): Promise<number[]> {
+  async generateSingleEmbedding(text: string, options: EmbeddingOptions = {}): Promise<number[]> {
     const result = await this.generateEmbeddings([text], options);
     return result.embeddings[0];
   }
@@ -126,7 +122,7 @@ export class EmbeddingService {
     }
 
     const magnitude = Math.sqrt(norm1) * Math.sqrt(norm2);
-    
+
     if (magnitude === 0) {
       return 0;
     }
@@ -138,31 +134,29 @@ export class EmbeddingService {
    * Find the most similar embeddings to a query embedding
    */
   findMostSimilar(
-    queryEmbedding: number[], 
+    queryEmbedding: number[],
     candidates: Array<{ id: string; embedding: number[] }>,
     topK: number = 5
   ): Array<{ id: string; similarity: number }> {
     const similarities = candidates.map(candidate => ({
       id: candidate.id,
-      similarity: this.calculateCosineSimilarity(queryEmbedding, candidate.embedding)
+      similarity: this.calculateCosineSimilarity(queryEmbedding, candidate.embedding),
     }));
 
-    return similarities
-      .sort((a, b) => b.similarity - a.similarity)
-      .slice(0, topK);
+    return similarities.sort((a, b) => b.similarity - a.similarity).slice(0, topK);
   }
 
   /**
    * Process a single batch of texts
    */
   private async processBatch(
-    texts: string[], 
+    texts: string[],
     model: string
   ): Promise<{ embeddings: number[][]; totalTokens: number }> {
     try {
       const response = await this.openaiClient.embeddings.create({
         model,
-        input: texts
+        input: texts,
       });
 
       const embeddings = response.data.map(item => item.embedding);
@@ -174,13 +168,12 @@ export class EmbeddingService {
       }
 
       return { embeddings, totalTokens };
-
     } catch (error: any) {
       // Handle specific OpenAI errors
       if (error.response?.status === 429) {
         throw new Error('Rate limit exceeded. Please try again later.');
       }
-      
+
       if (error.response?.status === 401) {
         throw new Error('Invalid OpenAI API key');
       }
@@ -209,18 +202,18 @@ export class EmbeddingService {
     if (!embeddings.length) return true;
 
     const firstDimension = embeddings[0].length;
-    
+
     if (expectedDimension && firstDimension !== expectedDimension) {
       this.logger.warn('Embedding dimension mismatch', {
         expected: expectedDimension,
-        actual: firstDimension
+        actual: firstDimension,
       });
       return false;
     }
 
     // Check all embeddings have the same dimension
     const allSameDimension = embeddings.every(emb => emb.length === firstDimension);
-    
+
     if (!allSameDimension) {
       this.logger.error('Inconsistent embedding dimensions detected');
       return false;

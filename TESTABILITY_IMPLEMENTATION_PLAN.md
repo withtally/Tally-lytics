@@ -1,14 +1,17 @@
 # Testability Refactoring Implementation Plan
 
 ## 🎯 **Objective**
+
 Transform the DAO helper tool from 0% test coverage to a fully testable codebase with 70%+ coverage while maintaining existing functionality.
 
 ## 📋 **Implementation Phases**
 
 ### **PHASE 1: Test Infrastructure Setup (Week 1)**
-*Goal: Set up testing foundation and tooling*
+
+_Goal: Set up testing foundation and tooling_
 
 #### 🔧 **Day 1-2: Basic Jest Configuration**
+
 - [ ] Create `jest.config.js` with TypeScript support
 - [ ] Create `jest.setup.ts` for global test configuration
 - [ ] Add test database configuration
@@ -16,6 +19,7 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 - [ ] Verify Jest can discover and run tests
 
 #### 🔧 **Day 3-4: Mock Infrastructure**
+
 - [ ] Create `__mocks__` directory structure
 - [ ] Implement OpenAI API mocks
 - [ ] Create database mock utilities
@@ -23,6 +27,7 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 - [ ] Create test data factories
 
 #### 🔧 **Day 5: Validation & Documentation**
+
 - [ ] Write sample test to verify setup works
 - [ ] Document testing conventions and patterns
 - [ ] Create test running scripts
@@ -31,9 +36,11 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 ---
 
 ### **PHASE 2: Dependency Injection Foundation (Week 2-3)**
-*Goal: Make core services injectable and testable*
+
+_Goal: Make core services injectable and testable_
 
 #### 🔧 **Week 2: Core Service Interfaces**
+
 - [ ] Define `IOpenAIClient` interface and implementation
 - [ ] Create `ILogger` interface and mock implementation
 - [ ] Define `IDatabase` interface and repository pattern
@@ -41,6 +48,7 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 - [ ] Implement basic dependency injection container
 
 #### 🔧 **Week 3: Database Layer Refactoring**
+
 - [ ] Create `IPostRepository` interface and implementation
 - [ ] Create `ITopicRepository` interface and implementation
 - [ ] Create `IUserRepository` interface and implementation
@@ -50,9 +58,11 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 ---
 
 ### **PHASE 3: Service Layer Refactoring (Week 4-5)**
-*Goal: Refactor core services to accept dependencies*
+
+_Goal: Refactor core services to accept dependencies_
 
 #### 🔧 **Week 4: LLM Services**
+
 - [ ] Refactor `PostService` to accept dependencies
 - [ ] Refactor `TopicsService` to accept dependencies
 - [ ] Refactor `EmbeddingService` to accept dependencies
@@ -60,6 +70,7 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 - [ ] Add comprehensive unit tests for LLM services
 
 #### 🔧 **Week 5: Crawling & Search Services**
+
 - [ ] Refactor `CrawlerManager` to accept dependencies
 - [ ] Refactor `VectorSearchService` to accept dependencies
 - [ ] Create mock implementations for external APIs
@@ -69,9 +80,11 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 ---
 
 ### **PHASE 4: API & Integration Testing (Week 6)**
-*Goal: Add API route tests and integration tests*
+
+_Goal: Add API route tests and integration tests_
 
 #### 🔧 **Week 6: API Testing**
+
 - [ ] Add tests for health endpoints
 - [ ] Add tests for crawl endpoints with mocked services
 - [ ] Add tests for search endpoints
@@ -81,9 +94,11 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 ---
 
 ### **PHASE 5: Final Integration & Documentation (Week 7)**
-*Goal: Complete testing suite and documentation*
+
+_Goal: Complete testing suite and documentation_
 
 #### 🔧 **Week 7: Final Steps**
+
 - [ ] Add end-to-end workflow tests
 - [ ] Achieve 70%+ test coverage
 - [ ] Update documentation with testing guidelines
@@ -97,6 +112,7 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 ### **PHASE 1: Infrastructure Setup**
 
 #### ✅ **1.1 Jest Configuration**
+
 ```bash
 # Files to create:
 - jest.config.js
@@ -106,12 +122,14 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 ```
 
 **Acceptance Criteria:**
+
 - [ ] `bun test` command runs successfully
 - [ ] TypeScript tests compile without errors
 - [ ] Test database connection works
 - [ ] Environment variables are properly mocked
 
 #### ✅ **1.2 Mock Infrastructure**
+
 ```bash
 # Files to create:
 - __mocks__/openai.ts
@@ -121,6 +139,7 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 ```
 
 **Acceptance Criteria:**
+
 - [ ] OpenAI calls are successfully mocked
 - [ ] Database operations can be mocked
 - [ ] Test data factories produce valid objects
@@ -129,6 +148,7 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 ### **PHASE 2: Dependency Injection**
 
 #### ✅ **2.1 Core Interfaces**
+
 ```bash
 # Files to create:
 - services/interfaces/IOpenAIClient.ts
@@ -138,12 +158,14 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 ```
 
 **Acceptance Criteria:**
+
 - [ ] All interfaces are properly typed
 - [ ] Mock implementations satisfy interfaces
 - [ ] Service container can resolve dependencies
 - [ ] No breaking changes to existing functionality
 
 #### ✅ **2.2 Repository Pattern**
+
 ```bash
 # Files to create:
 - db/repositories/IPostRepository.ts
@@ -154,6 +176,7 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 ```
 
 **Acceptance Criteria:**
+
 - [ ] Repository interfaces define all needed operations
 - [ ] Real repositories use connection pool properly
 - [ ] Mock repositories maintain state for testing
@@ -162,6 +185,7 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 ### **PHASE 3: Service Refactoring**
 
 #### ✅ **3.1 LLM Services Refactoring**
+
 ```bash
 # Files to modify:
 - services/llm/postService.ts
@@ -175,6 +199,7 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 ```
 
 **Acceptance Criteria:**
+
 - [x] Services accept dependencies via constructor
 - [x] Services can be instantiated with mocks
 - [x] Unit tests cover main business logic paths (46 tests passing)
@@ -182,13 +207,15 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 - [x] No external API calls in unit tests
 
 **✅ COMPLETED**: Successfully refactored 3 core LLM services:
+
 - `PostEvaluationService` - 10 tests ✅
-- `EmbeddingService` - 21 tests ✅  
+- `EmbeddingService` - 21 tests ✅
 - `TopicsService` - 15 tests ✅
 - All services integrated into ServiceContainer
 - 100% dependency injection with proper interfaces
 
 #### ✅ **3.2 Crawling Services Refactoring**
+
 ```bash
 # Files to modify:
 - services/crawling/crawlerManager.ts
@@ -200,6 +227,7 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 ```
 
 **Acceptance Criteria:**
+
 - [ ] CrawlerManager dependencies are injectable
 - [ ] Search service doesn't require real embeddings
 - [ ] Complex workflows can be tested in isolation
@@ -208,36 +236,41 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 ### **PHASE 4: API Testing**
 
 #### ✅ **4.1 Route Testing**
+
 ```bash
 # Files to create:
 - services/server/__tests__/health.test.ts       ✅ 11 tests passing
-- services/server/__tests__/crawl.test.ts        ✅ 20 tests passing  
+- services/server/__tests__/crawl.test.ts        ✅ 20 tests passing
 - services/server/__tests__/search.test.ts       ✅ 17 tests passing
 - services/server/__tests__/commonTopics.test.ts ✅ 26 tests passing
 ```
 
 **Acceptance Criteria:**
+
 - [x] API routes can be tested without starting server
-- [x] Request/response validation works 
+- [x] Request/response validation works
 - [x] Error responses are properly formatted
 - [x] Authentication scenarios are covered (API key validation)
 
-**✅ COMPLETED - Health API Routes**: 
+**✅ COMPLETED - Health API Routes**:
+
 - 11 comprehensive tests covering `/api/health` and `/api/logs/:forum` endpoints
 - Proper fs.promises mocking with Hono framework
 - Error handling validation (404, 500 status codes)
 - Content-type and response format validation
 
-**✅ COMPLETED - Crawl API Routes**: 
+**✅ COMPLETED - Crawl API Routes**:
+
 - 20 comprehensive tests covering all crawl endpoints
 - GET `/api/crawl/status` - crawler status aggregation
 - GET `/api/crawl/status/:forumName` - specific forum status with validation
 - POST `/api/crawl/start/all` - batch crawl initiation with conflict detection
-- POST `/api/crawl/start/:forumName` - individual forum crawling 
+- POST `/api/crawl/start/:forumName` - individual forum crawling
 - POST `/api/crawl/stop/:forumName` - crawl termination
 - Complex validation, error handling, and background process testing
 
-**✅ COMPLETED - Search API Routes**: 
+**✅ COMPLETED - Search API Routes**:
+
 - 17 comprehensive tests covering search functionality
 - POST `/api/searchByType` - targeted search with result validation
 - POST `/api/searchAll` - comprehensive parallel search across all content types
@@ -245,7 +278,8 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 - Request validation, empty results, and malformed JSON handling
 - Integration with VectorSearchService and searchLogger middleware
 
-**✅ COMPLETED - CommonTopics API Routes**: 
+**✅ COMPLETED - CommonTopics API Routes**:
+
 - 26 comprehensive tests covering all commonTopics endpoints
 - GET `/api/common-topics` - minimal topic listing with forum filtering
 - GET `/api/common-topics/full` - full topic details retrieval
@@ -256,9 +290,10 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 - Complex job tracking, partial failure handling, and authentication scenarios
 
 **📊 CURRENT COVERAGE ACHIEVEMENTS:**
+
 - **Total Tests**: 162 passing ✅ (120 → 162: +42 high-value service tests)
 - **Phase 3 LLM Services**: 46 tests ✅
-- **Phase 4 API Routes**: 74 tests ✅  
+- **Phase 4 API Routes**: 74 tests ✅
 - **Phase 5 Core Services**: 42 tests ✅ (CrawlerManager: 19, VectorSearchService: 23)
 - **services/server Coverage**: 77.77% ✅
 - **services/crawling Coverage**: NEW - CrawlerManager fully tested ✅
@@ -267,13 +302,16 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 ### **PHASE 5: Core Services Testing** ✅
 
 #### ✅ **5.1 High-Value Services**
+
 ```bash
 # Files created:
 - services/crawling/__tests__/crawlerManager.test.ts ✅ 19 tests passing
 - services/search/__tests__/vectorSearchService.test.ts ✅ 23 tests passing
+- services/utils/__tests__/citationFormatter.test.ts ✅ Converted to Bun
 ```
 
-**✅ COMPLETED - CrawlerManager Service**: 
+**✅ COMPLETED - CrawlerManager Service**:
+
 - 19 comprehensive tests covering core crawling orchestration
 - Full crawl lifecycle testing (start, process, evaluate, stop)
 - Multi-service integration (forum, snapshot, tally, news, token data)
@@ -282,7 +320,8 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 - Background process testing with proper cleanup
 
 **✅ COMPLETED - VectorSearchService**:
-- 23 comprehensive tests covering vector search functionality  
+
+- 23 comprehensive tests covering vector search functionality
 - Multi-content type search (topic, post, snapshot, tally)
 - Advanced search features (recency boost, popularity boost, LLM reranking)
 - Redis connection handling and error recovery
@@ -290,6 +329,7 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 - Comprehensive error handling and fallback scenarios
 
 #### ✅ **4.2 Integration Testing**
+
 ```bash
 # Files to create:
 - __tests__/integration/crawlWorkflow.test.ts
@@ -298,6 +338,7 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 ```
 
 **Acceptance Criteria:**
+
 - [ ] End-to-end workflows work with test database
 - [ ] Integration tests use real database transactions
 - [ ] Tests clean up after themselves
@@ -306,6 +347,7 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 ### **PHASE 5: Final Integration**
 
 #### ✅ **5.1 Coverage & Performance**
+
 ```bash
 # Files to create:
 - .github/workflows/test.yml
@@ -314,6 +356,7 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 ```
 
 **Acceptance Criteria:**
+
 - [ ] Test coverage is 70% or higher
 - [ ] All tests run in under 30 seconds total
 - [ ] CI/CD pipeline runs tests on PR
@@ -326,18 +369,21 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 ### **Test Categories**
 
 #### **Unit Tests** (70% of tests)
+
 - Business logic in services
 - Utility functions
 - Data transformations
 - Validation logic
 
 #### **Integration Tests** (20% of tests)
+
 - Database operations
 - API endpoints
 - Service interactions
 - External API mocking
 
 #### **End-to-End Tests** (10% of tests)
+
 - Complete workflows
 - Error handling paths
 - Performance scenarios
@@ -345,6 +391,7 @@ Transform the DAO helper tool from 0% test coverage to a fully testable codebase
 ### **Test Data Management**
 
 #### **Factories Pattern**
+
 ```typescript
 // __tests__/factories/postFactory.ts
 export const createPost = (overrides?: Partial<Post>): Post => ({
@@ -358,6 +405,7 @@ export const createPost = (overrides?: Partial<Post>): Post => ({
 ```
 
 #### **Test Database Strategy**
+
 - Use PostgreSQL with pgvector in test mode
 - Each test gets a fresh transaction
 - Rollback after each test
@@ -366,12 +414,14 @@ export const createPost = (overrides?: Partial<Post>): Post => ({
 ### **Mock Strategy**
 
 #### **External APIs**
+
 - Mock OpenAI completely
 - Mock forum APIs with realistic responses
 - Mock rate limiting behavior
 - Mock error scenarios
 
 #### **Database**
+
 - Use real database for integration tests
 - Mock repositories for unit tests
 - Test both success and failure paths
@@ -381,6 +431,7 @@ export const createPost = (overrides?: Partial<Post>): Post => ({
 ## 🚀 **Implementation Commands**
 
 ### **Get Started**
+
 ```bash
 # Switch to the branch (already done)
 git checkout testability-refactor
@@ -396,6 +447,7 @@ mkdir -p db/repositories
 ```
 
 ### **Daily Workflow**
+
 ```bash
 # Start each day
 git pull origin testability-refactor
@@ -413,6 +465,7 @@ git push origin testability-refactor
 ```
 
 ### **Phase Completion**
+
 ```bash
 # End of each phase
 bun test --coverage
@@ -429,18 +482,21 @@ git push origin testability-refactor --tags
 ## 🏆 **Success Metrics**
 
 ### **Code Quality**
+
 - [ ] 70%+ test coverage
 - [ ] 0 TypeScript errors
 - [ ] 0 ESLint errors
 - [ ] All tests pass
 
 ### **Performance**
+
 - [ ] Unit tests: < 1s each
 - [ ] Integration tests: < 10s each
 - [ ] Total test suite: < 30s
 - [ ] No regression in app performance
 
 ### **Maintainability**
+
 - [ ] Services are easily mockable
 - [ ] Tests are readable and maintainable
 - [ ] New features can be TDD'd
@@ -451,12 +507,14 @@ git push origin testability-refactor --tags
 ## 🚨 **Risk Mitigation**
 
 ### **Breaking Changes Prevention**
+
 - [ ] Run integration tests against current behavior
 - [ ] Maintain backward compatibility during refactor
 - [ ] Use feature flags for major changes
 - [ ] Keep old and new implementations side-by-side during transition
 
 ### **Rollback Plan**
+
 - [ ] Each phase is independently committable
 - [ ] Tag stable points for easy rollback
 - [ ] Maintain detailed changelog
@@ -467,11 +525,13 @@ git push origin testability-refactor --tags
 ## 📚 **Resources & Documentation**
 
 ### **Reference Materials**
+
 - [Jest Documentation](https://jestjs.io/docs/getting-started)
 - [Dependency Injection Patterns](https://martinfowler.com/articles/injection.html)
 - [Repository Pattern](https://martinfowler.com/eaaCatalog/repository.html)
 
 ### **Team Guidelines**
+
 - Test naming conventions
 - Mock creation standards
 - Factory usage patterns
@@ -479,4 +539,4 @@ git push origin testability-refactor --tags
 
 ---
 
-*This implementation plan provides a structured approach to making the DAO helper tool fully testable while maintaining system stability and functionality.*
+_This implementation plan provides a structured approach to making the DAO helper tool fully testable while maintaining system stability and functionality._

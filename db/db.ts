@@ -14,7 +14,7 @@ if (!typedKnexConfig[environment]) {
 const config = typedKnexConfig[environment];
 
 // Create the database connection
-const db = knex(config);
+const db = knex(config as any);
 
 // Export the database connection
 export default db;

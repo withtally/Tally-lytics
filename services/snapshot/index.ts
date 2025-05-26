@@ -6,25 +6,25 @@ import { Logger } from '../logging';
 import { loggerConfig } from '../../config/loggerConfig';
 import db from '../../db/db';
 import { handleGlobalError } from '../errorHandling/globalErrorHandler';
+import {
+  SnapshotProposal,
+  CrawlInfo,
+  filterNewProposals,
+  getNewestTimestamp,
+  transformProposalsBatch,
+  createBatches,
+  shouldContinuePagination,
+  validateAndFilterProposals,
+  createGraphQLVariables,
+  calculateRetryDelay,
+  createDefaultCrawlInfo,
+  formatProposalForLog,
+  calculateCrawlingStats,
+  sanitizeProposal,
+} from './snapshotUtils';
 
-export interface SnapshotProposal {
-  id: string;
-  forum_name: string;
-  title: string;
-  body: string;
-  choices: string[];
-  start: number;
-  end: number;
-  snapshot: string;
-  state: string;
-  author: string;
-  space: {
-    id: string;
-    name: string;
-  };
-  scores: number[];
-  scores_total: number;
-}
+// Re-export for backward compatibility
+export { SnapshotProposal } from './snapshotUtils';
 
 export class SnapshotCrawler extends EventEmitter {
   private client: GraphQLClient;
@@ -58,6 +58,10 @@ export class SnapshotCrawler extends EventEmitter {
   }
 
   async crawlSnapshotSpace(): Promise<void> {
+    const startTime = new Date();
+    let totalFetched = 0;
+    let totalNewProposals = 0;
+
     try {
       this.logger.info(`Starting to crawl Snapshot space: ${this.spaceId}`);
       this.emit('start', `Starting to crawl Snapshot space: ${this.spaceId}`);
@@ -70,29 +74,37 @@ export class SnapshotCrawler extends EventEmitter {
 
       while (hasMore) {
         this.resetProcessingTimeout();
-        const batch = await this.fetchProposals(skip);
+        const rawBatch = await this.fetchProposals(skip);
 
-        if (batch.length === 0) {
+        if (rawBatch.length === 0) {
           this.logger.info('No more proposals found');
           break;
         }
 
-        batch.forEach(p => {
-          newestTimestamp = Math.max(newestTimestamp, p.start);
-        });
+        // Validate and sanitize the batch
+        const batch = validateAndFilterProposals(rawBatch).map(sanitizeProposal);
+        totalFetched += batch.length;
 
-        const newProposals = batch.filter(p => p.start * 1000 > lastTimestamp.getTime());
+        // Update newest timestamp using utility function
+        newestTimestamp = getNewestTimestamp(batch, newestTimestamp);
+
+        // Filter new proposals using utility function
+        const newProposals = filterNewProposals(batch, lastTimestamp);
 
         if (newProposals.length === 0) {
           this.logger.info('No new proposals in this batch');
           break;
         }
 
+        totalNewProposals += newProposals.length;
+        this.logger.info(`Processing ${newProposals.length} new proposals`);
+
         await this.processProposalsBatch(newProposals);
 
-        if (batch.length < this.batchSize) {
-          hasMore = false;
-        } else {
+        // Determine if we should continue using utility function
+        hasMore = shouldContinuePagination(batch.length, this.batchSize, newProposals.length > 0);
+
+        if (hasMore) {
           skip += this.batchSize;
           await new Promise(resolve => setTimeout(resolve, 1000));
         }
@@ -102,7 +114,15 @@ export class SnapshotCrawler extends EventEmitter {
         await this.updateLastCrawlInfo(this.spaceId);
       }
 
-      this.logger.info(`Finished crawling Snapshot space: ${this.spaceId}`);
+      // Log crawling statistics
+      const stats = calculateCrawlingStats(totalFetched, totalNewProposals, startTime);
+      this.logger.info(
+        `Finished crawling Snapshot space: ${this.spaceId}. ` +
+          `Fetched: ${stats.totalFetched}, New: ${stats.newProposals}, ` +
+          `Duration: ${(stats.duration / 1000).toFixed(1)}s, ` +
+          `Rate: ${stats.rate.toFixed(1)} items/s`
+      );
+
       this.emit('done', `Finished crawling Snapshot space: ${this.spaceId}`);
     } catch (error: any) {
       handleGlobalError(error, 'crawlSnapshotSpace');
@@ -115,7 +135,6 @@ export class SnapshotCrawler extends EventEmitter {
 
   private async fetchProposals(skip: number): Promise<SnapshotProposal[]> {
     await this.rateLimiter.removeTokens(1);
-    const _url = 'https://hub.snapshot.org/graphql';
     const query = `
       query ($spaceId: String!, $first: Int!, $skip: Int!) {
         proposals(
@@ -143,16 +162,20 @@ export class SnapshotCrawler extends EventEmitter {
         }
       }
     `;
-    const variables = { spaceId: this.spaceId, first: this.batchSize, skip };
+
+    // Use utility function to create variables
+    const variables = createGraphQLVariables(this.spaceId, this.batchSize, skip);
+
     try {
-      // Direct use graphql client (no requestWithRetry), but if fails:
+      // Direct use graphql client with retry logic
       for (let attempt = 1; attempt <= 3; attempt++) {
         try {
           const data: any = await this.client.request(query, variables);
           return data?.proposals || [];
         } catch (error: any) {
           if (attempt < 3) {
-            await new Promise(res => setTimeout(res, Math.pow(2, attempt) * 1000));
+            const delay = calculateRetryDelay(attempt);
+            await new Promise(res => setTimeout(res, delay));
             continue;
           }
           handleGlobalError(error, 'fetchProposals(Snapshot)');
@@ -166,11 +189,11 @@ export class SnapshotCrawler extends EventEmitter {
     }
   }
 
-  private async getLastCrawlInfo(spaceId: string): Promise<{ lastTimestamp: Date }> {
+  private async getLastCrawlInfo(spaceId: string): Promise<CrawlInfo> {
     const result = await db('snapshot_crawl_status').where({ space_id: spaceId }).first();
-    return {
-      lastTimestamp: result ? new Date(result.last_crawl_timestamp) : new Date(0),
-    };
+    return result
+      ? { lastTimestamp: new Date(result.last_crawl_timestamp) }
+      : createDefaultCrawlInfo();
   }
 
   private async updateLastCrawlInfo(spaceId: string): Promise<void> {
@@ -185,30 +208,23 @@ export class SnapshotCrawler extends EventEmitter {
 
   private async processProposalsBatch(proposals: SnapshotProposal[]): Promise<void> {
     const batchSize = 30;
-    for (let i = 0; i < proposals.length; i += batchSize) {
-      const batch = proposals.slice(i, i + batchSize);
+
+    // Transform proposals to database format using utility function
+    const dbProposals = transformProposalsBatch(proposals, this.forumName);
+
+    // Create batches using utility function
+    const batches = createBatches(dbProposals, batchSize);
+
+    for (const batch of batches) {
       try {
         await db.transaction(async trx => {
           for (const proposal of batch) {
-            const proposalToInsert = {
-              id: proposal.id,
-              title: proposal.title,
-              body: proposal.body,
-              choices: JSON.stringify(proposal.choices),
-              start: new Date(proposal.start * 1000),
-              end: new Date(proposal.end * 1000),
-              snapshot: proposal.snapshot,
-              state: proposal.state,
-              author: proposal.author,
-              space_id: proposal.space.id,
-              space_name: proposal.space.name,
-              scores: JSON.stringify(proposal.scores),
-              scores_total: proposal.scores_total?.toString() || '0',
-              forum_name: this.forumName,
-            };
+            this.logger.debug(
+              `Inserting proposal: ${formatProposalForLog(proposals.find(p => p.id === proposal.id)!)}`
+            );
 
             await trx('snapshot_proposals')
-              .insert(proposalToInsert)
+              .insert(proposal)
               .onConflict(['id', 'forum_name'])
               .merge();
           }

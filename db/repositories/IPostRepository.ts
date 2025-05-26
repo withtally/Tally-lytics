@@ -63,57 +63,60 @@ export interface IPostRepository {
    * Find posts by various filters
    */
   find(filter: PostFilter): Promise<Post[]>;
-  
+
   /**
    * Find a single post by ID
    */
   findById(id: string): Promise<Post | null>;
-  
+
   /**
    * Find posts that need evaluation (not yet evaluated)
    */
   findUnevaluated(forumName?: string): Promise<Post[]>;
-  
+
   /**
    * Find posts with their evaluations
    */
   findWithEvaluations(filter: PostFilter): Promise<PostWithEvaluation[]>;
-  
+
   /**
    * Create a new post
    */
   create(post: Omit<Post, 'created_at' | 'updated_at'>): Promise<Post>;
-  
+
   /**
    * Update an existing post
    */
   update(id: string, updates: Partial<Post>): Promise<Post>;
-  
+
   /**
    * Mark a post as evaluated with scores and summary
    */
-  markAsEvaluated(id: string, evaluation: {
-    quality_score: number;
-    relevance_score: number;
-    ai_summary: string;
-    ai_tags: string[];
-  }): Promise<void>;
-  
+  markAsEvaluated(
+    id: string,
+    evaluation: {
+      quality_score: number;
+      relevance_score: number;
+      ai_summary: string;
+      ai_tags: string[];
+    }
+  ): Promise<void>;
+
   /**
    * Delete a post
    */
   delete(id: string): Promise<void>;
-  
+
   /**
    * Get posts count by forum
    */
   getCountByForum(forumName: string): Promise<number>;
-  
+
   /**
    * Get recent posts for a forum
    */
   getRecent(forumName: string, limit?: number): Promise<Post[]>;
-  
+
   /**
    * Batch operations for performance
    */

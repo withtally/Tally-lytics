@@ -45,8 +45,8 @@ export async function summarizeTopicContent(
 
     const summaryData = completion.choices[0].message.parsed;
     logger.info('Summary and Tags generated', {
-      summaryLength: summaryData?.summary.length,
-      tagsCount: summaryData?.tags.length,
+      summaryLength: summaryData?.summary?.length,
+      tagsCount: summaryData?.tags?.length,
     });
 
     return {

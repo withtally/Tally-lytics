@@ -1,12 +1,7 @@
 // db/repositories/TopicRepository.ts - Concrete implementation of ITopicRepository
 
 import type { Knex } from 'knex';
-import type { 
-  ITopicRepository, 
-  Topic, 
-  TopicFilter, 
-  TopicWithPosts 
-} from './ITopicRepository';
+import type { ITopicRepository, Topic, TopicFilter, TopicWithPosts } from './ITopicRepository';
 
 export class TopicRepository implements ITopicRepository {
   constructor(private db: Knex) {}
@@ -72,9 +67,7 @@ export class TopicRepository implements ITopicRepository {
   }
 
   async findNeedingSummary(forumName?: string): Promise<Topic[]> {
-    let query = this.db('topics')
-      .whereNull('ai_summary')
-      .where('posts_count', '>', 0); // Only topics with posts
+    let query = this.db('topics').whereNull('ai_summary').where('posts_count', '>', 0); // Only topics with posts
 
     if (forumName) {
       query = query.where('forum_name', forumName);
@@ -102,26 +95,31 @@ export class TopicRepository implements ITopicRepository {
     };
 
     await this.db('topics').where('id', id).update(updatedData);
-    
+
     const updatedTopic = await this.findById(id);
     if (!updatedTopic) {
       throw new Error(`Topic with id ${id} not found after update`);
     }
-    
+
     return updatedTopic;
   }
 
-  async updateSummary(id: string, summary: {
-    ai_summary: string;
-    ai_tags: string[];
-    quality_score?: number;
-  }): Promise<void> {
-    await this.db('topics').where('id', id).update({
-      ai_summary: summary.ai_summary,
-      ai_tags: JSON.stringify(summary.ai_tags),
-      quality_score: summary.quality_score,
-      updated_at: new Date(),
-    });
+  async updateSummary(
+    id: string,
+    summary: {
+      ai_summary: string;
+      ai_tags: string[];
+      quality_score?: number;
+    }
+  ): Promise<void> {
+    await this.db('topics')
+      .where('id', id)
+      .update({
+        ai_summary: summary.ai_summary,
+        ai_tags: JSON.stringify(summary.ai_tags),
+        quality_score: summary.quality_score,
+        updated_at: new Date(),
+      });
   }
 
   async delete(id: string): Promise<void> {
@@ -133,7 +131,7 @@ export class TopicRepository implements ITopicRepository {
       .where('forum_name', forumName)
       .count('* as count')
       .first();
-    
+
     return parseInt(result?.count as string) || 0;
   }
 
@@ -169,14 +167,16 @@ export class TopicRepository implements ITopicRepository {
 
   async updateMany(updates: Array<{ id: string; updates: Partial<Topic> }>): Promise<void> {
     const now = new Date();
-    
+
     // Use transaction for batch updates
-    await this.db.transaction(async (trx) => {
+    await this.db.transaction(async trx => {
       for (const { id, updates: topicUpdates } of updates) {
-        await trx('topics').where('id', id).update({
-          ...topicUpdates,
-          updated_at: now,
-        });
+        await trx('topics')
+          .where('id', id)
+          .update({
+            ...topicUpdates,
+            updated_at: now,
+          });
       }
     });
   }

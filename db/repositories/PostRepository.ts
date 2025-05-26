@@ -1,12 +1,12 @@
 // db/repositories/PostRepository.ts - Concrete implementation of IPostRepository
 
 import type { Knex } from 'knex';
-import type { 
-  IPostRepository, 
-  Post, 
-  PostEvaluation, 
-  PostFilter, 
-  PostWithEvaluation 
+import type {
+  IPostRepository,
+  Post,
+  PostEvaluation,
+  PostFilter,
+  PostWithEvaluation,
 } from './IPostRepository';
 
 export class PostRepository implements IPostRepository {
@@ -56,9 +56,7 @@ export class PostRepository implements IPostRepository {
   }
 
   async findUnevaluated(forumName?: string): Promise<Post[]> {
-    let query = this.db('posts')
-      .where('evaluated', false)
-      .orWhereNull('evaluated');
+    let query = this.db('posts').where('evaluated', false).orWhereNull('evaluated');
 
     if (forumName) {
       query = query.where('forum_name', forumName);
@@ -72,9 +70,7 @@ export class PostRepository implements IPostRepository {
     const postsWithEvaluations: PostWithEvaluation[] = [];
 
     for (const post of posts) {
-      const evaluation = await this.db('post_evaluations')
-        .where('post_id', post.id)
-        .first();
+      const evaluation = await this.db('post_evaluations').where('post_id', post.id).first();
 
       postsWithEvaluations.push({
         ...post,
@@ -104,29 +100,34 @@ export class PostRepository implements IPostRepository {
     };
 
     await this.db('posts').where('id', id).update(updatedData);
-    
+
     const updatedPost = await this.findById(id);
     if (!updatedPost) {
       throw new Error(`Post with id ${id} not found after update`);
     }
-    
+
     return updatedPost;
   }
 
-  async markAsEvaluated(id: string, evaluation: {
-    quality_score: number;
-    relevance_score: number;
-    ai_summary: string;
-    ai_tags: string[];
-  }): Promise<void> {
-    await this.db('posts').where('id', id).update({
-      evaluated: true,
-      quality_score: evaluation.quality_score,
-      relevance_score: evaluation.relevance_score,
-      ai_summary: evaluation.ai_summary,
-      ai_tags: JSON.stringify(evaluation.ai_tags),
-      updated_at: new Date(),
-    });
+  async markAsEvaluated(
+    id: string,
+    evaluation: {
+      quality_score: number;
+      relevance_score: number;
+      ai_summary: string;
+      ai_tags: string[];
+    }
+  ): Promise<void> {
+    await this.db('posts')
+      .where('id', id)
+      .update({
+        evaluated: true,
+        quality_score: evaluation.quality_score,
+        relevance_score: evaluation.relevance_score,
+        ai_summary: evaluation.ai_summary,
+        ai_tags: JSON.stringify(evaluation.ai_tags),
+        updated_at: new Date(),
+      });
   }
 
   async delete(id: string): Promise<void> {
@@ -138,7 +139,7 @@ export class PostRepository implements IPostRepository {
       .where('forum_name', forumName)
       .count('* as count')
       .first();
-    
+
     return parseInt(result?.count as string) || 0;
   }
 
@@ -163,14 +164,16 @@ export class PostRepository implements IPostRepository {
 
   async updateMany(updates: Array<{ id: string; updates: Partial<Post> }>): Promise<void> {
     const now = new Date();
-    
+
     // Use transaction for batch updates
-    await this.db.transaction(async (trx) => {
+    await this.db.transaction(async trx => {
       for (const { id, updates: postUpdates } of updates) {
-        await trx('posts').where('id', id).update({
-          ...postUpdates,
-          updated_at: now,
-        });
+        await trx('posts')
+          .where('id', id)
+          .update({
+            ...postUpdates,
+            updated_at: now,
+          });
       }
     });
   }

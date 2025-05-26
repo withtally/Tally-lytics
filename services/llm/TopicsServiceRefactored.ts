@@ -47,7 +47,7 @@ export class TopicsService {
     options: TopicProcessingOptions = {}
   ): Promise<TopicProcessingResult> {
     const { batchSize = this.DEFAULT_BATCH_SIZE } = options;
-    
+
     this.logger.info('Starting topic summarization', { forumName, batchSize });
 
     try {
@@ -62,19 +62,19 @@ export class TopicsService {
         try {
           await this.summarizeTopic(topic);
           processed++;
-          
-          this.logger.debug('Topic summarized successfully', { 
+
+          this.logger.debug('Topic summarized successfully', {
             topicId: topic.id,
-            forumName: topic.forum_name 
+            forumName: topic.forum_name,
           });
         } catch (error) {
           failed++;
           const errorMessage = `Topic ${topic.id} summarization failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
           errors.push(errorMessage);
-          
+
           this.logger.error('Topic summarization failed', {
             topicId: topic.id,
-            error: error instanceof Error ? error.message : 'Unknown error'
+            error: error instanceof Error ? error.message : 'Unknown error',
           });
         }
       }
@@ -83,15 +83,14 @@ export class TopicsService {
         forumName,
         processed,
         failed,
-        totalErrors: errors.length
+        totalErrors: errors.length,
       });
 
       return { processed, failed, errors };
-
     } catch (error) {
       this.logger.error('Failed to fetch and summarize topics', {
         forumName,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
@@ -105,7 +104,7 @@ export class TopicsService {
 
     // Get the first post of the topic
     const posts = await this.postRepository.find({ topic_id: topic.id });
-    
+
     if (!posts.length) {
       throw new Error(`No posts found for topic ${topic.id}`);
     }
@@ -124,7 +123,7 @@ export class TopicsService {
     this.logger.debug('Topic summarization completed', {
       topicId: topic.id,
       summaryLength: summary.length,
-      tagCount: tags.length
+      tagCount: tags.length,
     });
 
     return { summary, tags };
@@ -143,16 +142,16 @@ export class TopicsService {
           
           Respond with JSON containing:
           - summary: string (2-3 sentences)
-          - tags: array of strings (3-5 relevant tags)`
+          - tags: array of strings (3-5 relevant tags)`,
         },
         {
           role: 'user',
-          content: `Summarize this topic content and provide relevant tags:\n\n${content}`
-        }
+          content: `Summarize this topic content and provide relevant tags:\n\n${content}`,
+        },
       ],
       temperature: 0.3,
       max_tokens: 300,
-      response_format: { type: 'json_object' }
+      response_format: { type: 'json_object' },
     });
 
     const responseContent = response.choices[0]?.message?.content;
@@ -162,17 +161,19 @@ export class TopicsService {
 
     try {
       const parsed = JSON.parse(responseContent);
-      
+
       if (!parsed.summary || !Array.isArray(parsed.tags)) {
         throw new Error('Invalid response format: missing summary or tags');
       }
 
       return {
         summary: parsed.summary,
-        tags: parsed.tags.map((tag: any) => String(tag))
+        tags: parsed.tags.map((tag: any) => String(tag)),
       };
     } catch (error) {
-      throw new Error(`Failed to parse LLM response: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to parse LLM response: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -182,7 +183,7 @@ export class TopicsService {
   chunkText(text: string, maxTokens: number): string[] {
     // Simple approximation: 1 token ≈ 4 characters
     const maxChars = maxTokens * 4;
-    
+
     if (text.length <= maxChars) {
       return [text];
     }

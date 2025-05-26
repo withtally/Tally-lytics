@@ -5,7 +5,8 @@
 process.env.NODE_ENV = 'test';
 
 // Mock required environment variables
-process.env.OPENAI_API_KEY = 'test-key-sk-1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
+process.env.OPENAI_API_KEY =
+  'test-key-sk-1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
 process.env.OPENAI_ORG_ID = 'test-org-1234567890abcdef';
 
 // Test database configuration

@@ -46,7 +46,7 @@ export class PostEvaluationService {
 
     try {
       const evaluation = await this.performEvaluation(post);
-      
+
       // Update post with evaluation results
       await this.postRepository.markAsEvaluated(postId, {
         quality_score: evaluation.quality_score,
@@ -55,8 +55,8 @@ export class PostEvaluationService {
         ai_tags: evaluation.tags,
       });
 
-      this.logger.info('Post evaluation completed', { 
-        postId, 
+      this.logger.info('Post evaluation completed', {
+        postId,
         qualityScore: evaluation.quality_score,
         relevanceScore: evaluation.relevance_score,
       });
@@ -72,11 +72,11 @@ export class PostEvaluationService {
    * Evaluate all unevaluated posts for a forum
    */
   async evaluateUnanalyzedPosts(
-    forumName: string, 
+    forumName: string,
     options: EvaluationOptions = {}
   ): Promise<EvaluationResult> {
     const { batchSize = 10, maxRetries = 3 } = options;
-    
+
     this.logger.info('Starting batch post evaluation', { forumName, batchSize });
 
     const unevaluatedPosts = await this.postRepository.findUnevaluated(forumName);
@@ -98,20 +98,20 @@ export class PostEvaluationService {
         } catch (error) {
           retries++;
           const errorMessage = `Post ${post.id} evaluation failed (attempt ${retries}): ${error instanceof Error ? error.message : 'Unknown error'}`;
-          
+
           if (retries === maxRetries) {
-            this.logger.error('Post evaluation failed after all retries', { 
-              postId: post.id, 
+            this.logger.error('Post evaluation failed after all retries', {
+              postId: post.id,
               retries,
-              error 
+              error,
             });
             failed++;
             errors.push(errorMessage);
           } else {
-            this.logger.warn('Post evaluation failed, retrying', { 
-              postId: post.id, 
+            this.logger.warn('Post evaluation failed, retrying', {
+              postId: post.id,
               attempt: retries,
-              error 
+              error,
             });
             // Wait before retry
             await new Promise(resolve => setTimeout(resolve, 1000 * retries));
@@ -120,9 +120,9 @@ export class PostEvaluationService {
       }
     }
 
-    this.logger.info('Batch post evaluation completed', { 
-      forumName, 
-      processed, 
+    this.logger.info('Batch post evaluation completed', {
+      forumName,
+      processed,
       failed,
       totalErrors: errors.length,
     });
@@ -141,7 +141,8 @@ export class PostEvaluationService {
       messages: [
         {
           role: 'system',
-          content: 'You are an expert at evaluating DAO governance content. Respond only with valid JSON.',
+          content:
+            'You are an expert at evaluating DAO governance content. Respond only with valid JSON.',
         },
         {
           role: 'user',
@@ -192,7 +193,7 @@ Consider:
    */
   parseEvaluationResponse(content: string): PostEvaluation {
     let parsed: any;
-    
+
     try {
       parsed = JSON.parse(content);
     } catch (error) {
@@ -202,17 +203,25 @@ Consider:
     // Validate required fields
     const requiredFields = ['quality_score', 'relevance_score', 'summary', 'tags'];
     const missingFields = requiredFields.filter(field => !(field in parsed));
-    
+
     if (missingFields.length > 0) {
       throw new Error(`Missing required evaluation fields: ${missingFields.join(', ')}`);
     }
 
     // Validate types and ranges
-    if (typeof parsed.quality_score !== 'number' || parsed.quality_score < 0 || parsed.quality_score > 1) {
+    if (
+      typeof parsed.quality_score !== 'number' ||
+      parsed.quality_score < 0 ||
+      parsed.quality_score > 1
+    ) {
       throw new Error('quality_score must be a number between 0 and 1');
     }
 
-    if (typeof parsed.relevance_score !== 'number' || parsed.relevance_score < 0 || parsed.relevance_score > 1) {
+    if (
+      typeof parsed.relevance_score !== 'number' ||
+      parsed.relevance_score < 0 ||
+      parsed.relevance_score > 1
+    ) {
       throw new Error('relevance_score must be a number between 0 and 1');
     }
 

@@ -59,12 +59,12 @@ export const ErrorCodes = {
  * Helper to handle validation errors
  */
 export const handleValidationError = (error: any): StandardError => {
-  if (error.code) {
+  if (error && error.code) {
     return createErrorResponse(error.message, error.code);
   }
   return createErrorResponse(
     'Invalid request parameters',
     ErrorCodes.VALIDATION_ERROR,
-    error.message
+    error && error.message ? error.message : error
   );
 };

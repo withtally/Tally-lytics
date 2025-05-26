@@ -1,17 +1,32 @@
 import winston from 'winston';
-// Import chalk differently to avoid Jest ES module issues
+// Import chalk with fallback for testing environments
 let chalk: any;
-try {
-  chalk = require('chalk');
-} catch {
-  // Fallback for testing environments
+
+// Check if we're in a test environment
+const isTestEnv = process.env.NODE_ENV === 'test' || typeof jest !== 'undefined' || typeof Bun !== 'undefined';
+
+if (isTestEnv) {
+  // Use fallback in test environments
   chalk = {
     gray: (str: string) => str,
-    red: (str: string) => str,
-    yellow: (str: string) => str,
-    blue: (str: string) => str,
-    green: (str: string) => str,
+    red: { bold: (str: string) => str },
+    yellow: { bold: (str: string) => str },
+    blue: { bold: (str: string) => str },
+    green: { bold: (str: string) => str },
   };
+} else {
+  try {
+    chalk = require('chalk');
+  } catch {
+    // Fallback if chalk import fails
+    chalk = {
+      gray: (str: string) => str,
+      red: { bold: (str: string) => str },
+      yellow: { bold: (str: string) => str },
+      blue: { bold: (str: string) => str },
+      green: { bold: (str: string) => str },
+    };
+  }
 }
 import { LoggingConfig, LogLevel, LogMessage } from './types';
 

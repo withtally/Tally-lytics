@@ -1,7 +1,14 @@
 // __tests__/factories/postFactory.ts - Factory for creating test post data
 
 import { faker } from '@faker-js/faker';
-import { randomForumName, randomUUID, randomRecentDate, randomContent, randomScore, randomTags } from '../setup/testUtils';
+import {
+  randomForumName,
+  randomUUID,
+  randomRecentDate,
+  randomContent,
+  randomScore,
+  randomTags,
+} from '../setup/testUtils';
 
 export interface TestPost {
   id: string;
@@ -85,10 +92,10 @@ export const createTestPost = (overrides: Partial<TestPost> = {}): TestPost => {
     avatar_template: '/user_avatar/forum.arbitrum.foundation/{size}/123_2.png',
     username: faker.internet.username(),
     evaluated: false,
-    ai_summary: null,
-    ai_tags: null,
-    quality_score: null,
-    relevance_score: null,
+    ai_summary: undefined,
+    ai_tags: undefined,
+    quality_score: undefined,
+    relevance_score: undefined,
   };
 
   return { ...basePost, ...overrides };
@@ -111,7 +118,9 @@ export const createEvaluatedTestPost = (overrides: Partial<TestPost> = {}): Test
 /**
  * Create a test post evaluation
  */
-export const createTestPostEvaluation = (overrides: Partial<TestPostEvaluation> = {}): TestPostEvaluation => {
+export const createTestPostEvaluation = (
+  overrides: Partial<TestPostEvaluation> = {}
+): TestPostEvaluation => {
   const baseEvaluation: TestPostEvaluation = {
     id: randomUUID(),
     post_id: randomUUID(),
@@ -150,9 +159,9 @@ export const createTestTopic = (overrides: Partial<TestTopic> = {}): TestTopic =
     reply_count: faker.number.int({ min: 0, max: 99 }),
     like_count: faker.number.int({ min: 0, max: 50 }),
     last_posted_at: randomRecentDate(),
-    ai_summary: null,
-    ai_tags: null,
-    quality_score: null,
+    ai_summary: undefined,
+    ai_tags: undefined,
+    quality_score: undefined,
   };
 
   return { ...baseTopic, ...overrides };
@@ -182,10 +191,12 @@ export const createTestPostsForForum = (forumName: string, count: number = 10): 
 /**
  * Create a test post with specific content for testing LLM evaluation
  */
-export const createTestPostForEvaluation = (contentType: 'high_quality' | 'low_quality' | 'spam' = 'high_quality'): TestPost => {
+export const createTestPostForEvaluation = (
+  contentType: 'high_quality' | 'low_quality' | 'spam' = 'high_quality'
+): TestPost => {
   let content: string;
   let title: string;
-  
+
   switch (contentType) {
     case 'high_quality':
       title = 'Proposal: Improve governance voting mechanism';
@@ -205,17 +216,18 @@ Technical implementation details:
 
 I welcome feedback from the community on this proposal.`;
       break;
-      
+
     case 'low_quality':
       title = 'Question about stuff';
       content = 'hey guys, i have a question about the thing. can someone help me? thanks';
       break;
-      
+
     case 'spam':
       title = 'Amazing opportunity!!!';
-      content = 'Get rich quick with this amazing opportunity! Click here to learn more about making money fast!!! 🚀🚀🚀';
+      content =
+        'Get rich quick with this amazing opportunity! Click here to learn more about making money fast!!! 🚀🚀🚀';
       break;
-      
+
     default:
       content = randomContent();
       title = faker.lorem.sentence();

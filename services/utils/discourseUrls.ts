@@ -62,6 +62,6 @@ export class DiscourseUrlHelper {
    */
   getLatestTopicsApiUrl(page?: number): string {
     const baseUrl = `${this.discourseUrl}/latest.json`;
-    return page ? `${baseUrl}?page=${page}` : baseUrl;
+    return page !== undefined ? `${baseUrl}?page=${page}` : baseUrl;
   }
 }

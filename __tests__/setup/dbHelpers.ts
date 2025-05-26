@@ -2,7 +2,11 @@
 
 import { pgVectorClient } from '../../db/pgvectorClient';
 import db from '../../db/db';
-import { createTestPost, createTestTopic, createTestPostEvaluation } from '../factories/postFactory';
+import {
+  createTestPost,
+  createTestTopic,
+  createTestPostEvaluation,
+} from '../factories/postFactory';
 import type { TestPost, TestTopic, TestPostEvaluation } from '../factories/postFactory';
 
 /**
@@ -33,7 +37,7 @@ export async function cleanupTestDatabase() {
     await db('users').del();
     await db('common_topics').del();
     await db('search_log').del();
-    
+
     console.log('✅ Test database cleaned');
   } catch (error) {
     console.error('❌ Test database cleanup failed:', error);
@@ -45,7 +49,7 @@ export async function cleanupTestDatabase() {
  */
 export async function createTestTransaction() {
   const trx = await db.transaction();
-  
+
   // Helper to rollback and close transaction
   const cleanup = async () => {
     try {
@@ -54,25 +58,22 @@ export async function createTestTransaction() {
       // Transaction may already be rolled back
     }
   };
-  
+
   return { trx, cleanup };
 }
 
 /**
  * Seed test data in database
  */
-export async function seedTestData(options: {
-  posts?: number;
-  topics?: number;
-  forums?: string[];
-  trx?: any;
-} = {}) {
-  const {
-    posts = 5,
-    topics = 2,
-    forums = ['ARBITRUM', 'COMPOUND'],
-    trx = db
-  } = options;
+export async function seedTestData(
+  options: {
+    posts?: number;
+    topics?: number;
+    forums?: string[];
+    trx?: any;
+  } = {}
+) {
+  const { posts = 5, topics = 2, forums = ['ARBITRUM', 'COMPOUND'], trx = db } = options;
 
   const createdTopics: TestTopic[] = [];
   const createdPosts: TestPost[] = [];
@@ -81,7 +82,7 @@ export async function seedTestData(options: {
   for (const forumName of forums) {
     for (let i = 0; i < topics; i++) {
       const topic = createTestTopic({ forum_name: forumName });
-      
+
       await trx('topics').insert({
         id: topic.id,
         forum_name: topic.forum_name,
@@ -97,7 +98,7 @@ export async function seedTestData(options: {
         like_count: topic.like_count,
         last_posted_at: topic.last_posted_at,
       });
-      
+
       createdTopics.push(topic);
     }
   }
@@ -105,11 +106,11 @@ export async function seedTestData(options: {
   // Create posts for each topic
   for (const topic of createdTopics) {
     for (let i = 0; i < posts; i++) {
-      const post = createTestPost({ 
-        topic_id: topic.id, 
-        forum_name: topic.forum_name 
+      const post = createTestPost({
+        topic_id: topic.id,
+        forum_name: topic.forum_name,
       });
-      
+
       await trx('posts').insert({
         id: post.id,
         topic_id: post.topic_id,
@@ -131,7 +132,7 @@ export async function seedTestData(options: {
         username: post.username,
         evaluated: post.evaluated,
       });
-      
+
       createdPosts.push(post);
     }
   }
@@ -144,13 +145,13 @@ export async function seedTestData(options: {
  */
 export async function seedTestEvaluations(posts: TestPost[], trx: any = db) {
   const evaluations: TestPostEvaluation[] = [];
-  
+
   for (const post of posts) {
     const evaluation = createTestPostEvaluation({
       post_id: post.id,
       forum_name: post.forum_name,
     });
-    
+
     await trx('post_evaluations').insert({
       id: evaluation.id,
       post_id: evaluation.post_id,
@@ -163,10 +164,10 @@ export async function seedTestEvaluations(posts: TestPost[], trx: any = db) {
       created_at: evaluation.created_at,
       updated_at: evaluation.updated_at,
     });
-    
+
     evaluations.push(evaluation);
   }
-  
+
   return evaluations;
 }
 
@@ -175,11 +176,11 @@ export async function seedTestEvaluations(posts: TestPost[], trx: any = db) {
  */
 export async function getTestPosts(forum?: string, trx: any = db) {
   let query = trx('posts').select('*');
-  
+
   if (forum) {
     query = query.where('forum_name', forum);
   }
-  
+
   return await query;
 }
 
@@ -188,11 +189,11 @@ export async function getTestPosts(forum?: string, trx: any = db) {
  */
 export async function getTestTopics(forum?: string, trx: any = db) {
   let query = trx('topics').select('*');
-  
+
   if (forum) {
     query = query.where('forum_name', forum);
   }
-  
+
   return await query;
 }
 
@@ -205,13 +206,13 @@ export async function verifyDatabaseConnection() {
     if (!isHealthy) {
       throw new Error('Database health check failed');
     }
-    
+
     // Test basic query
     const result = await db.raw('SELECT 1 as test');
     if (result.rows[0].test !== 1) {
       throw new Error('Database query test failed');
     }
-    
+
     return true;
   } catch (error) {
     console.error('Database connection verification failed:', error);
@@ -225,17 +226,17 @@ export async function verifyDatabaseConnection() {
 export async function waitForDatabase(maxAttempts: number = 10, delayMs: number = 1000) {
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const isConnected = await verifyDatabaseConnection();
-    
+
     if (isConnected) {
       console.log(`✅ Database ready after ${attempt} attempt(s)`);
       return true;
     }
-    
+
     if (attempt < maxAttempts) {
       console.log(`⏳ Database not ready, attempt ${attempt}/${maxAttempts}, retrying...`);
       await new Promise(resolve => setTimeout(resolve, delayMs));
     }
   }
-  
+
   throw new Error(`Database not ready after ${maxAttempts} attempts`);
 }

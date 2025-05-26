@@ -1,18 +1,5 @@
-import { RateLimiter } from 'limiter';
 import { Logger } from '../logging';
 import fetch from 'node-fetch';
-import { apiConfig } from '../../config/apiConfig';
-
-const logger = new Logger({
-  logFile: 'logs/coingecko-pro.log',
-  level: 'info',
-});
-
-interface RateLimitInfo {
-  remaining: number;
-  total: number;
-  resetAt: Date;
-}
 
 export class CoingeckoProService {
   private readonly logger: Logger;

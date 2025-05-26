@@ -17,22 +17,22 @@ const replacements: LogReplacement[] = [
   {
     pattern: /console\.log\(/g,
     replacement: 'logger.info(',
-    description: 'Replace console.log with logger.info'
+    description: 'Replace console.log with logger.info',
   },
   {
     pattern: /console\.error\(/g,
     replacement: 'logger.error(',
-    description: 'Replace console.error with logger.error'
+    description: 'Replace console.error with logger.error',
   },
   {
     pattern: /console\.warn\(/g,
     replacement: 'logger.warn(',
-    description: 'Replace console.warn with logger.warn'
+    description: 'Replace console.warn with logger.warn',
   },
   {
     pattern: /console\.debug\(/g,
     replacement: 'logger.debug(',
-    description: 'Replace console.debug with logger.debug'
+    description: 'Replace console.debug with logger.debug',
   },
 ];
 
@@ -42,7 +42,7 @@ const filesToProcess = [
   'config/**/*.ts',
   'utils/**/*.ts',
   'admin/*.ts',
-  'scripts/*.ts'
+  'scripts/*.ts',
 ];
 
 // Files to skip (already have proper logging or are external)
@@ -62,7 +62,7 @@ async function fixConsoleLogsInFile(filePath: string): Promise<boolean> {
 
     // Check if file already imports Logger
     const hasLoggerImport = /import.*Logger.*from/.test(content);
-    
+
     // Apply replacements
     for (const { pattern, replacement } of replacements) {
       if (pattern.test(modifiedContent)) {
@@ -75,19 +75,20 @@ async function fixConsoleLogsInFile(filePath: string): Promise<boolean> {
       // Add logger import at the top of the file
       const logFilename = path.basename(filePath, '.ts');
       const loggerImport = `import { Logger } from '../logging';\n\nconst logger = new Logger({ logFile: 'logs/${logFilename}.log' });\n\n`;
-      
+
       // Find the last import statement
       const importRegex = /^import.*from.*['"];?$/gm;
       const imports = modifiedContent.match(importRegex);
-      
+
       if (imports && imports.length > 0) {
         const lastImport = imports[imports.length - 1];
         const lastImportIndex = modifiedContent.lastIndexOf(lastImport);
         const insertIndex = lastImportIndex + lastImport.length + 1;
-        
-        modifiedContent = 
-          modifiedContent.slice(0, insertIndex) + 
-          '\n' + loggerImport + 
+
+        modifiedContent =
+          modifiedContent.slice(0, insertIndex) +
+          '\n' +
+          loggerImport +
           modifiedContent.slice(insertIndex);
       } else {
         // No imports found, add at the beginning
@@ -116,7 +117,7 @@ async function main() {
 
   for (const pattern of filesToProcess) {
     const files = await glob(pattern);
-    
+
     for (const file of files) {
       // Skip files matching skip patterns
       if (skipPatterns.some(skipPattern => skipPattern.test(file))) {
@@ -140,7 +141,9 @@ async function main() {
     console.log(`\n✨ Next steps:`);
     console.log(`   1. Review the changes: git diff`);
     console.log(`   2. Test the application: bun start`);
-    console.log(`   3. Commit the changes: git add . && git commit -m "Replace console statements with proper logging"`);
+    console.log(
+      `   3. Commit the changes: git add . && git commit -m "Replace console statements with proper logging"`
+    );
   } else {
     console.log(`\n✅ No console statements found to replace!`);
   }

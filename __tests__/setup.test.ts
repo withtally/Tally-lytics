@@ -48,9 +48,11 @@ describe('Test Infrastructure', () => {
   describe('Test Factories', () => {
     it('should create valid test posts', () => {
       const post = createTestPost();
-      
+
       expect(post.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
-      expect(post.topic_id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+      expect(post.topic_id).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      );
       expect(post.forum_name).toBeDefined();
       expect(post.content).toBeDefined();
       expect(post.author).toBeDefined();
@@ -60,15 +62,19 @@ describe('Test Infrastructure', () => {
     it('should create test posts with overrides', () => {
       const forumName = 'ARBITRUM';
       const post = createTestPost({ forum_name: forumName });
-      
+
       expect(post.forum_name).toBe(forumName);
     });
 
     it('should create test post evaluations', () => {
       const evaluation = createTestPostEvaluation();
-      
-      expect(evaluation.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
-      expect(evaluation.post_id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+
+      expect(evaluation.id).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      );
+      expect(evaluation.post_id).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      );
       expect(evaluation.quality_score).toBeGreaterThanOrEqual(0);
       expect(evaluation.quality_score).toBeLessThanOrEqual(1);
       expect(evaluation.tags).toBeInstanceOf(Array);
@@ -76,7 +82,6 @@ describe('Test Infrastructure', () => {
   });
 
   describe('OpenAI Mocking', () => {
-
     it('should mock OpenAI chat completions', async () => {
       const response = await openai.chat.completions.create({
         model: 'gpt-3.5-turbo',
@@ -124,8 +129,12 @@ describe('Test Infrastructure', () => {
     });
 
     it('should validate UUIDs correctly', () => {
-      expect('123e4567-e89b-12d3-a456-426614174000').toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
-      expect('not-a-uuid').not.toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+      expect('123e4567-e89b-12d3-a456-426614174000').toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      );
+      expect('not-a-uuid').not.toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      );
       expect('').not.toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
     });
   });
@@ -139,5 +148,4 @@ describe('Module Mocking', () => {
     expect(openai.chat.completions.create).toEqual(expect.any(Function));
     expect(openai.embeddings.create).toEqual(expect.any(Function));
   });
-
 });

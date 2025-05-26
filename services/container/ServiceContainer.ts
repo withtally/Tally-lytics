@@ -77,7 +77,7 @@ export class ServiceContainer {
       const fullConfig = {
         level: config.level || 'info',
         logFile: config.logFile || 'logs/app.log',
-        ...config
+        ...config,
       };
       return new Logger(fullConfig);
     }
@@ -138,7 +138,7 @@ export function configureProductionServices(container: ServiceContainer): void {
     () => {
       const config = {
         level: (process.env.LOG_LEVEL as LogLevel) || 'info',
-        logFile: 'logs/app.log'
+        logFile: 'logs/app.log',
       };
       return new Logger(config);
     },
@@ -162,22 +162,20 @@ export function configureProductionServices(container: ServiceContainer): void {
   // Embedding service
   container.register(
     'embeddingService',
-    () => new EmbeddingService(
-      container.getOpenAIClient(),
-      container.getLogger()
-    ),
+    () => new EmbeddingService(container.getOpenAIClient(), container.getLogger()),
     true // singleton
   );
 
   // Topics service
   container.register(
     'topicsService',
-    () => new TopicsService(
-      container.getOpenAIClient(),
-      container.getTopicRepository(),
-      container.getPostRepository(),
-      container.getLogger()
-    ),
+    () =>
+      new TopicsService(
+        container.getOpenAIClient(),
+        container.getTopicRepository(),
+        container.getPostRepository(),
+        container.getLogger()
+      ),
     true // singleton
   );
 }
@@ -188,9 +186,9 @@ export function configureProductionServices(container: ServiceContainer): void {
 export function configureTestServices(container: ServiceContainer): void {
   // Use mocks for testing
   const { openai } = require('../../__mocks__/openai');
-  
+
   container.register('openai', () => openai, true);
-  
+
   container.register(
     'logger',
     () => ({
@@ -205,28 +203,26 @@ export function configureTestServices(container: ServiceContainer): void {
   // Use mock repositories
   const { MockPostRepository } = require('../../__tests__/mocks/MockPostRepository');
   container.register('postRepository', () => new MockPostRepository(), false);
-  
+
   // Topic repository mock would go here
   container.register('topicRepository', () => new TopicRepository(db), false);
 
   // Use real services with mocked dependencies for integration testing
   container.register(
     'embeddingService',
-    () => new EmbeddingService(
-      container.resolve('openai'),
-      container.resolve('logger')
-    ),
+    () => new EmbeddingService(container.resolve('openai'), container.resolve('logger')),
     false
   );
 
   container.register(
-    'topicsService', 
-    () => new TopicsService(
-      container.resolve('openai'),
-      container.resolve('topicRepository'),
-      container.resolve('postRepository'),
-      container.resolve('logger')
-    ),
+    'topicsService',
+    () =>
+      new TopicsService(
+        container.resolve('openai'),
+        container.resolve('topicRepository'),
+        container.resolve('postRepository'),
+        container.resolve('logger')
+      ),
     false
   );
 }

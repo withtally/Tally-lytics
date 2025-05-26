@@ -12,7 +12,7 @@ const mockDate = new Date('2024-01-01T00:00:00.000Z');
 beforeAll(async () => {
   // Note: Database setup will be handled per test file
   // to avoid conflicts between parallel tests
-  
+
   // Global mocks that should apply to all tests
   jest.useFakeTimers({ now: mockDate });
 });
@@ -25,7 +25,7 @@ afterAll(async () => {
   } catch (error) {
     console.warn('Error closing database connection:', error);
   }
-  
+
   // Restore real timers
   jest.useRealTimers();
 });
@@ -65,7 +65,7 @@ expect.extend({
       pass,
     };
   },
-  
+
   toBeValidUUID(received: any) {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     const pass = typeof received === 'string' && uuidRegex.test(received);

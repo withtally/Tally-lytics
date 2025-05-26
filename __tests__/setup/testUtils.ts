@@ -49,7 +49,7 @@ export const randomContent = (length: 'short' | 'medium' | 'long' = 'medium'): s
  * Generate a random evaluation score between 0 and 1
  */
 export const randomScore = (): number => {
-  return Math.round((Math.random() * 100)) / 100;
+  return Math.round(Math.random() * 100) / 100;
 };
 
 /**
@@ -57,10 +57,18 @@ export const randomScore = (): number => {
  */
 export const randomTags = (count: number = 3): string[] => {
   const availableTags = [
-    'governance', 'proposal', 'discussion', 'technical', 'community',
-    'treasury', 'development', 'partnerships', 'marketing', 'security'
+    'governance',
+    'proposal',
+    'discussion',
+    'technical',
+    'community',
+    'treasury',
+    'development',
+    'partnerships',
+    'marketing',
+    'security',
   ];
-  
+
   return faker.helpers.arrayElements(availableTags, { min: 1, max: count });
 };
 
@@ -96,7 +104,7 @@ export const createMockError = (message: string, status?: number): Error => {
 export const mockEnvVar = (key: string, value: string): void => {
   const originalValue = process.env[key];
   process.env[key] = value;
-  
+
   // Cleanup function
   afterEach(() => {
     if (originalValue !== undefined) {
@@ -112,7 +120,7 @@ export const mockEnvVar = (key: string, value: string): void => {
  */
 export const suppressConsole = (): void => {
   const originalConsole = global.console;
-  
+
   beforeEach(() => {
     global.console = {
       ...originalConsole,
@@ -123,7 +131,7 @@ export const suppressConsole = (): void => {
       error: jest.fn(),
     };
   });
-  
+
   afterEach(() => {
     global.console = originalConsole;
   });
@@ -134,17 +142,17 @@ export const suppressConsole = (): void => {
  */
 export const createTestTimeout = (timeoutMs: number = 5000) => {
   let timeoutId: NodeJS.Timeout;
-  
+
   const timeoutPromise = new Promise((_, reject) => {
     timeoutId = setTimeout(() => {
       reject(new Error(`Test timed out after ${timeoutMs}ms`));
     }, timeoutMs);
   });
-  
+
   const clearTestTimeout = () => {
     clearTimeout(timeoutId);
   };
-  
+
   return { timeoutPromise, clearTestTimeout };
 };
 
@@ -152,7 +160,7 @@ export const createTestTimeout = (timeoutMs: number = 5000) => {
  * Assert that a function throws an error with specific message
  */
 export const expectToThrow = async (
-  fn: () => Promise<any> | any, 
+  fn: () => Promise<any> | any,
   expectedMessage?: string
 ): Promise<Error> => {
   try {
@@ -160,7 +168,9 @@ export const expectToThrow = async (
     throw new Error('Expected function to throw an error, but it did not');
   } catch (error) {
     if (expectedMessage && !error.message.includes(expectedMessage)) {
-      throw new Error(`Expected error message to contain "${expectedMessage}", but got: ${error.message}`);
+      throw new Error(
+        `Expected error message to contain "${expectedMessage}", but got: ${error.message}`
+      );
     }
     return error as Error;
   }

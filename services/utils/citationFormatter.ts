@@ -36,8 +36,8 @@ export class CitationFormatter {
     // Add content
     parts.push(result.content);
 
-    // Add post-specific URL if we have both topic_id and post_number
-    if (result.topic_id && result.post_number) {
+    // Add post-specific URL if we have both topic_id and post_number (and post_number is positive)
+    if (result.topic_id && result.post_number && result.post_number > 0) {
       const postUrl = this.urlHelper.getPostUrl(result.topic_id, result.post_number, result.slug);
       parts.push(`[View Post](${postUrl})`);
     }

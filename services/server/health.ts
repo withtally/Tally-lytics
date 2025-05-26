@@ -42,7 +42,7 @@ export const healthRoutes = (app: Hono, crawlerManager: CrawlerManager) => {
             404
           );
         }
-        
+
         // Re-throw other errors to be caught by outer catch
         throw error;
       }

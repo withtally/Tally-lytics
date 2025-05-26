@@ -1,13 +1,13 @@
 // services/llm/OpenAIClientImpl.ts - Concrete OpenAI client implementation
 
 import OpenAI from 'openai';
-import type { 
-  IOpenAIClient, 
+import type {
+  IOpenAIClient,
   OpenAIConfig,
   ChatCompletionParams,
   ChatCompletionResponse,
   EmbeddingParams,
-  EmbeddingResponse
+  EmbeddingResponse,
 } from '../interfaces/IOpenAIClient';
 
 export class OpenAIClientImpl implements IOpenAIClient {
@@ -25,7 +25,7 @@ export class OpenAIClientImpl implements IOpenAIClient {
     completions: {
       create: async (params: ChatCompletionParams): Promise<ChatCompletionResponse> => {
         const response = await this.client.chat.completions.create(params);
-        
+
         // Transform OpenAI response to our interface
         return {
           choices: response.choices.map(choice => ({
@@ -48,7 +48,7 @@ export class OpenAIClientImpl implements IOpenAIClient {
   public embeddings = {
     create: async (params: EmbeddingParams): Promise<EmbeddingResponse> => {
       const response = await this.client.embeddings.create(params);
-      
+
       // Transform OpenAI response to our interface
       return {
         data: response.data.map((item, index) => ({
@@ -74,6 +74,6 @@ export function createOpenAIClient(config: OpenAIConfig): IOpenAIClient {
     const { openai } = require('../../__mocks__/openai');
     return openai;
   }
-  
+
   return new OpenAIClientImpl(config);
 }

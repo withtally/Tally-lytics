@@ -11,17 +11,17 @@ class MockOpenAIClient implements IOpenAIClient {
       const inputCount = Array.isArray(params.input) ? params.input.length : 1;
       return Promise.resolve({
         data: Array.from({ length: inputCount }, (_, i) => ({
-          embedding: [0.1 + i, 0.2 + i, 0.3 + i, 0.4 + i]
+          embedding: [0.1 + i, 0.2 + i, 0.3 + i, 0.4 + i],
         })),
-        usage: { total_tokens: inputCount * 25 }
+        usage: { total_tokens: inputCount * 25 },
       });
-    })
+    }),
   };
 
   chat = {
     completions: {
-      create: jest.fn()
-    }
+      create: jest.fn(),
+    },
   };
 }
 
@@ -41,7 +41,7 @@ describe('EmbeddingService (Unit Tests)', () => {
     mockOpenAI = new MockOpenAIClient();
     mockLogger = new MockLogger();
     service = new EmbeddingService(mockOpenAI, mockLogger);
-    
+
     jest.clearAllMocks();
   });
 
@@ -63,7 +63,7 @@ describe('EmbeddingService (Unit Tests)', () => {
       // Verify OpenAI was called correctly
       expect(mockOpenAI.embeddings.create).toHaveBeenCalledWith({
         model: 'text-embedding-ada-002',
-        input: texts
+        input: texts,
       });
 
       // Verify logging
@@ -71,14 +71,14 @@ describe('EmbeddingService (Unit Tests)', () => {
         'Starting embedding generation',
         expect.objectContaining({
           textCount: 2,
-          model: 'text-embedding-ada-002'
+          model: 'text-embedding-ada-002',
         })
       );
       expect(mockLogger.info).toHaveBeenCalledWith(
         'Embedding generation completed',
         expect.objectContaining({
           textCount: 2,
-          totalTokens: 50
+          totalTokens: 50,
         })
       );
     });
@@ -94,7 +94,7 @@ describe('EmbeddingService (Unit Tests)', () => {
       // Then
       expect(mockOpenAI.embeddings.create).toHaveBeenCalledWith({
         model: 'text-embedding-3-small',
-        input: texts
+        input: texts,
       });
     });
 
@@ -104,11 +104,11 @@ describe('EmbeddingService (Unit Tests)', () => {
       mockOpenAI.embeddings.create
         .mockResolvedValueOnce({
           data: Array.from({ length: 100 }, () => ({ embedding: [0.1, 0.2] })),
-          usage: { total_tokens: 100 }
+          usage: { total_tokens: 100 },
         })
         .mockResolvedValueOnce({
           data: Array.from({ length: 50 }, () => ({ embedding: [0.3, 0.4] })),
-          usage: { total_tokens: 50 }
+          usage: { total_tokens: 50 },
         });
 
       // When
@@ -125,8 +125,9 @@ describe('EmbeddingService (Unit Tests)', () => {
       const invalidTexts = ['Valid text', '', 'Another valid'];
 
       // When & Then
-      await expect(service.generateEmbeddings(invalidTexts))
-        .rejects.toThrow('All texts must be non-empty strings');
+      await expect(service.generateEmbeddings(invalidTexts)).rejects.toThrow(
+        'All texts must be non-empty strings'
+      );
     });
 
     it('should handle empty input', async () => {
@@ -134,27 +135,27 @@ describe('EmbeddingService (Unit Tests)', () => {
       const emptyTexts: string[] = [];
 
       // When & Then
-      await expect(service.generateEmbeddings(emptyTexts))
-        .rejects.toThrow('No texts provided for embedding generation');
+      await expect(service.generateEmbeddings(emptyTexts)).rejects.toThrow(
+        'No texts provided for embedding generation'
+      );
     });
 
     it('should handle OpenAI API errors', async () => {
       // Given
       const texts = ['Test text'];
-      mockOpenAI.embeddings.create.mockRejectedValueOnce(
-        new Error('OpenAI API Error')
-      );
+      mockOpenAI.embeddings.create.mockRejectedValueOnce(new Error('OpenAI API Error'));
 
       // When & Then
-      await expect(service.generateEmbeddings(texts))
-        .rejects.toThrow('Embedding generation failed: OpenAI API Error');
+      await expect(service.generateEmbeddings(texts)).rejects.toThrow(
+        'Embedding generation failed: OpenAI API Error'
+      );
 
       // Verify error logging
       expect(mockLogger.error).toHaveBeenCalledWith(
         'Embedding generation failed',
         expect.objectContaining({
           textCount: 1,
-          error: expect.stringContaining('OpenAI API Error')
+          error: expect.stringContaining('OpenAI API Error'),
         })
       );
     });
@@ -167,8 +168,9 @@ describe('EmbeddingService (Unit Tests)', () => {
       mockOpenAI.embeddings.create.mockRejectedValueOnce(rateLimitError);
 
       // When & Then
-      await expect(service.generateEmbeddings(texts))
-        .rejects.toThrow('Rate limit exceeded. Please try again later.');
+      await expect(service.generateEmbeddings(texts)).rejects.toThrow(
+        'Rate limit exceeded. Please try again later.'
+      );
     });
 
     it('should handle invalid API key errors', async () => {
@@ -179,8 +181,7 @@ describe('EmbeddingService (Unit Tests)', () => {
       mockOpenAI.embeddings.create.mockRejectedValueOnce(authError);
 
       // When & Then
-      await expect(service.generateEmbeddings(texts))
-        .rejects.toThrow('Invalid OpenAI API key');
+      await expect(service.generateEmbeddings(texts)).rejects.toThrow('Invalid OpenAI API key');
     });
   });
 
@@ -196,7 +197,7 @@ describe('EmbeddingService (Unit Tests)', () => {
       expect(embedding).toEqual([0.1, 0.2, 0.3, 0.4]);
       expect(mockOpenAI.embeddings.create).toHaveBeenCalledWith({
         model: 'text-embedding-ada-002',
-        input: [text]
+        input: [text],
       });
     });
   });
@@ -243,8 +244,9 @@ describe('EmbeddingService (Unit Tests)', () => {
       const embedding2 = [1, 2];
 
       // When & Then
-      expect(() => service.calculateCosineSimilarity(embedding1, embedding2))
-        .toThrow('Embeddings must have the same dimension');
+      expect(() => service.calculateCosineSimilarity(embedding1, embedding2)).toThrow(
+        'Embeddings must have the same dimension'
+      );
     });
   });
 
@@ -312,7 +314,7 @@ describe('EmbeddingService (Unit Tests)', () => {
       // Given
       const embeddings = [
         [0.1, 0.2, 0.3],
-        [0.4, 0.5, 0.6]
+        [0.4, 0.5, 0.6],
       ];
 
       // When
@@ -326,7 +328,7 @@ describe('EmbeddingService (Unit Tests)', () => {
       // Given
       const embeddings = [
         [0.1, 0.2, 0.3],
-        [0.4, 0.5] // Different dimension
+        [0.4, 0.5], // Different dimension
       ];
 
       // When
@@ -334,9 +336,7 @@ describe('EmbeddingService (Unit Tests)', () => {
 
       // Then
       expect(isValid).toBe(false);
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        'Inconsistent embedding dimensions detected'
-      );
+      expect(mockLogger.error).toHaveBeenCalledWith('Inconsistent embedding dimensions detected');
     });
 
     it('should validate against expected dimension', () => {
@@ -348,10 +348,10 @@ describe('EmbeddingService (Unit Tests)', () => {
 
       // Then
       expect(isValid).toBe(false);
-      expect(mockLogger.warn).toHaveBeenCalledWith(
-        'Embedding dimension mismatch',
-        { expected: 2, actual: 3 }
-      );
+      expect(mockLogger.warn).toHaveBeenCalledWith('Embedding dimension mismatch', {
+        expected: 2,
+        actual: 3,
+      });
     });
 
     it('should handle empty embeddings array', () => {

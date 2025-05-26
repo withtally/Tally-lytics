@@ -11,20 +11,23 @@ class MockOpenAIClient implements IOpenAIClient {
   chat = {
     completions: {
       create: jest.fn().mockResolvedValue({
-        choices: [{
-          message: {
-            content: JSON.stringify({
-              summary: 'This is a governance discussion about voting mechanisms and community participation.',
-              tags: ['governance', 'voting', 'community', 'mechanisms']
-            })
-          }
-        }]
-      })
-    }
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                summary:
+                  'This is a governance discussion about voting mechanisms and community participation.',
+                tags: ['governance', 'voting', 'community', 'mechanisms'],
+              }),
+            },
+          },
+        ],
+      }),
+    },
   };
 
   embeddings = {
-    create: jest.fn()
+    create: jest.fn(),
   };
 }
 
@@ -40,14 +43,14 @@ class MockTopicRepository implements ITopicRepository {
 
   async find(filter: any): Promise<Topic[]> {
     let results = Array.from(this.topics.values());
-    
+
     if (filter.forum_name) {
       results = results.filter(t => t.forum_name === filter.forum_name);
     }
     if (filter.has_summary !== undefined) {
-      results = results.filter(t => filter.has_summary ? !!t.ai_summary : !t.ai_summary);
+      results = results.filter(t => (filter.has_summary ? !!t.ai_summary : !t.ai_summary));
     }
-    
+
     return results;
   }
 
@@ -58,20 +61,20 @@ class MockTopicRepository implements ITopicRepository {
   async findWithPosts(id: string): Promise<any | null> {
     const topic = this.topics.get(id);
     if (!topic) return null;
-    
+
     return {
       ...topic,
-      posts: []
+      posts: [],
     };
   }
 
   async findNeedingSummary(forumName?: string): Promise<Topic[]> {
     let results = Array.from(this.topics.values()).filter(t => !t.ai_summary);
-    
+
     if (forumName) {
       results = results.filter(t => t.forum_name === forumName);
     }
-    
+
     return results;
   }
 
@@ -79,7 +82,7 @@ class MockTopicRepository implements ITopicRepository {
     const newTopic: Topic = {
       ...topic,
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     };
     this.topics.set(newTopic.id, newTopic);
     return newTopic;
@@ -90,7 +93,7 @@ class MockTopicRepository implements ITopicRepository {
     if (!topic) {
       throw new Error(`Topic not found: ${id}`);
     }
-    
+
     const updatedTopic = { ...topic, ...updates, updated_at: new Date() };
     this.topics.set(id, updatedTopic);
     return updatedTopic;
@@ -158,7 +161,7 @@ class MockPostRepository implements IPostRepository {
 
   async find(filter: any): Promise<Post[]> {
     let results = Array.from(this.posts.values());
-    
+
     if (filter.topic_id) {
       results = results.filter(p => p.topic_id === filter.topic_id);
     }
@@ -168,7 +171,7 @@ class MockPostRepository implements IPostRepository {
     if (filter.evaluated !== undefined) {
       results = results.filter(p => p.evaluated === filter.evaluated);
     }
-    
+
     return results;
   }
 
@@ -202,7 +205,7 @@ class MockPostRepository implements IPostRepository {
     const newPost: Post = {
       ...post,
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     };
     this.posts.set(newPost.id, newPost);
     return newPost;
@@ -213,7 +216,7 @@ class MockPostRepository implements IPostRepository {
     if (!post) {
       throw new Error(`Post not found: ${id}`);
     }
-    
+
     const updatedPost = { ...post, ...updates, updated_at: new Date() };
     this.posts.set(id, updatedPost);
     return updatedPost;
@@ -268,9 +271,9 @@ describe('TopicsService (Unit Tests)', () => {
     mockTopicRepo = new MockTopicRepository();
     mockPostRepo = new MockPostRepository();
     mockLogger = new MockLogger();
-    
+
     service = new TopicsService(mockOpenAI, mockTopicRepo, mockPostRepo, mockLogger);
-    
+
     // Reset all mocks
     mockTopicRepo.reset();
     mockPostRepo.reset();
@@ -288,7 +291,7 @@ describe('TopicsService (Unit Tests)', () => {
           posts_count: 5,
           created_at: new Date(),
           updated_at: new Date(),
-          ai_summary: undefined // Unsummarized
+          ai_summary: undefined, // Unsummarized
         },
         {
           id: 'topic-2',
@@ -297,8 +300,8 @@ describe('TopicsService (Unit Tests)', () => {
           posts_count: 3,
           created_at: new Date(),
           updated_at: new Date(),
-          ai_summary: undefined // Unsummarized
-        }
+          ai_summary: undefined, // Unsummarized
+        },
       ];
 
       const posts: Post[] = [
@@ -311,7 +314,7 @@ describe('TopicsService (Unit Tests)', () => {
           author_id: 'author-1',
           post_number: 1,
           created_at: new Date(),
-          updated_at: new Date()
+          updated_at: new Date(),
         },
         {
           id: 'post-2',
@@ -322,8 +325,8 @@ describe('TopicsService (Unit Tests)', () => {
           author_id: 'author-2',
           post_number: 1,
           created_at: new Date(),
-          updated_at: new Date()
-        }
+          updated_at: new Date(),
+        },
       ];
 
       topics.forEach(topic => mockTopicRepo.seedTopic(topic));
@@ -341,16 +344,16 @@ describe('TopicsService (Unit Tests)', () => {
       expect(mockOpenAI.chat.completions.create).toHaveBeenCalledTimes(2);
 
       // Verify logging
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        'Starting topic summarization',
-        { forumName: 'ARBITRUM', batchSize: 10 }
-      );
+      expect(mockLogger.info).toHaveBeenCalledWith('Starting topic summarization', {
+        forumName: 'ARBITRUM',
+        batchSize: 10,
+      });
       expect(mockLogger.info).toHaveBeenCalledWith(
         'Topic summarization completed',
         expect.objectContaining({
           forumName: 'ARBITRUM',
           processed: 2,
-          failed: 0
+          failed: 0,
         })
       );
     });
@@ -364,7 +367,7 @@ describe('TopicsService (Unit Tests)', () => {
         posts_count: 1,
         created_at: new Date(),
         updated_at: new Date(),
-        ai_summary: undefined
+        ai_summary: undefined,
       }));
 
       const posts: Post[] = topics.map(topic => ({
@@ -376,7 +379,7 @@ describe('TopicsService (Unit Tests)', () => {
         author_id: 'author-1',
         post_number: 1,
         created_at: new Date(),
-        updated_at: new Date()
+        updated_at: new Date(),
       }));
 
       topics.forEach(topic => mockTopicRepo.seedTopic(topic));
@@ -401,8 +404,8 @@ describe('TopicsService (Unit Tests)', () => {
           posts_count: 0,
           created_at: new Date(),
           updated_at: new Date(),
-          ai_summary: undefined
-        }
+          ai_summary: undefined,
+        },
       ];
 
       topics.forEach(topic => mockTopicRepo.seedTopic(topic));
@@ -421,7 +424,7 @@ describe('TopicsService (Unit Tests)', () => {
       expect(mockLogger.error).toHaveBeenCalledWith(
         'Topic summarization failed',
         expect.objectContaining({
-          topicId: 'topic-empty'
+          topicId: 'topic-empty',
         })
       );
     });
@@ -436,8 +439,8 @@ describe('TopicsService (Unit Tests)', () => {
           posts_count: 1,
           created_at: new Date(),
           updated_at: new Date(),
-          ai_summary: undefined
-        }
+          ai_summary: undefined,
+        },
       ];
 
       const posts: Post[] = [
@@ -450,16 +453,14 @@ describe('TopicsService (Unit Tests)', () => {
           author_id: 'author-1',
           post_number: 1,
           created_at: new Date(),
-          updated_at: new Date()
-        }
+          updated_at: new Date(),
+        },
       ];
 
       topics.forEach(topic => mockTopicRepo.seedTopic(topic));
       posts.forEach(post => mockPostRepo.seedPost(post));
 
-      mockOpenAI.chat.completions.create.mockRejectedValueOnce(
-        new Error('OpenAI API Error')
-      );
+      mockOpenAI.chat.completions.create.mockRejectedValueOnce(new Error('OpenAI API Error'));
 
       // When
       const result = await service.fetchAndSummarizeTopics('ARBITRUM');
@@ -481,7 +482,7 @@ describe('TopicsService (Unit Tests)', () => {
         title: 'Governance Discussion',
         posts_count: 1,
         created_at: new Date(),
-        updated_at: new Date()
+        updated_at: new Date(),
       };
 
       const post: Post = {
@@ -493,7 +494,7 @@ describe('TopicsService (Unit Tests)', () => {
         author_id: 'author-1',
         post_number: 1,
         created_at: new Date(),
-        updated_at: new Date()
+        updated_at: new Date(),
       };
 
       mockPostRepo.seedPost(post);
@@ -502,7 +503,9 @@ describe('TopicsService (Unit Tests)', () => {
       const result = await service.summarizeTopic(topic);
 
       // Then
-      expect(result.summary).toBe('This is a governance discussion about voting mechanisms and community participation.');
+      expect(result.summary).toBe(
+        'This is a governance discussion about voting mechanisms and community participation.'
+      );
       expect(result.tags).toEqual(['governance', 'voting', 'community', 'mechanisms']);
 
       // Verify OpenAI was called
@@ -512,9 +515,9 @@ describe('TopicsService (Unit Tests)', () => {
           messages: expect.arrayContaining([
             expect.objectContaining({
               role: 'user',
-              content: expect.stringContaining('voting mechanisms')
-            })
-          ])
+              content: expect.stringContaining('voting mechanisms'),
+            }),
+          ]),
         })
       );
     });
@@ -527,7 +530,7 @@ describe('TopicsService (Unit Tests)', () => {
         title: 'Empty Topic',
         posts_count: 1,
         created_at: new Date(),
-        updated_at: new Date()
+        updated_at: new Date(),
       };
 
       const post: Post = {
@@ -539,14 +542,13 @@ describe('TopicsService (Unit Tests)', () => {
         author_id: 'author-1',
         post_number: 1,
         created_at: new Date(),
-        updated_at: new Date()
+        updated_at: new Date(),
       };
 
       mockPostRepo.seedPost(post);
 
       // When & Then
-      await expect(service.summarizeTopic(topic))
-        .rejects.toThrow('Topic topic-1 has no content');
+      await expect(service.summarizeTopic(topic)).rejects.toThrow('Topic topic-1 has no content');
     });
   });
 
@@ -559,7 +561,9 @@ describe('TopicsService (Unit Tests)', () => {
       const result = await service.generateTopicSummary(content);
 
       // Then
-      expect(result.summary).toBe('This is a governance discussion about voting mechanisms and community participation.');
+      expect(result.summary).toBe(
+        'This is a governance discussion about voting mechanisms and community participation.'
+      );
       expect(result.tags).toEqual(['governance', 'voting', 'community', 'mechanisms']);
 
       // Verify OpenAI was called with correct parameters
@@ -568,7 +572,7 @@ describe('TopicsService (Unit Tests)', () => {
           model: 'gpt-3.5-turbo',
           temperature: 0.3,
           max_tokens: 300,
-          response_format: { type: 'json_object' }
+          response_format: { type: 'json_object' },
         })
       );
     });
@@ -577,51 +581,60 @@ describe('TopicsService (Unit Tests)', () => {
       // Given
       const content = 'Test content';
       mockOpenAI.chat.completions.create.mockResolvedValueOnce({
-        choices: [{
-          message: {
-            content: JSON.stringify({
-              summary: 'Valid summary'
-              // Missing tags
-            })
-          }
-        }]
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                summary: 'Valid summary',
+                // Missing tags
+              }),
+            },
+          },
+        ],
       });
 
       // When & Then
-      await expect(service.generateTopicSummary(content))
-        .rejects.toThrow('Invalid response format: missing summary or tags');
+      await expect(service.generateTopicSummary(content)).rejects.toThrow(
+        'Invalid response format: missing summary or tags'
+      );
     });
 
     it('should handle malformed JSON response', async () => {
       // Given
       const content = 'Test content';
       mockOpenAI.chat.completions.create.mockResolvedValueOnce({
-        choices: [{
-          message: {
-            content: 'Not valid JSON'
-          }
-        }]
+        choices: [
+          {
+            message: {
+              content: 'Not valid JSON',
+            },
+          },
+        ],
       });
 
       // When & Then
-      await expect(service.generateTopicSummary(content))
-        .rejects.toThrow('Failed to parse LLM response');
+      await expect(service.generateTopicSummary(content)).rejects.toThrow(
+        'Failed to parse LLM response'
+      );
     });
 
     it('should handle empty response from OpenAI', async () => {
       // Given
       const content = 'Test content';
       mockOpenAI.chat.completions.create.mockResolvedValueOnce({
-        choices: [{
-          message: {
-            content: null
-          }
-        }]
+        choices: [
+          {
+            message: {
+              content: null,
+            },
+          },
+        ],
       });
 
       // When & Then
-      await expect(service.generateTopicSummary(content))
-        .rejects.toThrow('No response content from OpenAI');
+      await expect(service.generateTopicSummary(content)).rejects.toThrow(
+        'No response content from OpenAI'
+      );
     });
   });
 
