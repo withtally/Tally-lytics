@@ -1,6 +1,6 @@
 // services/utils/__tests__/citationFormatter.test.ts
 
-import { describe, it, beforeEach, expect, spyOn } from '@jest/globals';
+import { describe, it, beforeEach, expect, jest } from '@jest/globals';
 import { ForumConfig } from '../../../config/forumConfig';
 
 // Mock DiscourseUrlHelper methods
