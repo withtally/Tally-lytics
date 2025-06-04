@@ -46,6 +46,7 @@ export class CrawlerManager {
   private activeCrawlers: Map<string, ForumCrawler> = new Map();
   private logger: Logger;
   private heartbeatMonitor: HeartbeatMonitor; // Added
+  private progressIntervals: Map<string, NodeJS.Timeout> = new Map();
 
   constructor(logger: Logger, heartbeatMonitor: HeartbeatMonitor) {
     this.logger = logger;
@@ -87,10 +88,70 @@ export class CrawlerManager {
     }
   }
 
+  private async updateProgressCounts(forumName: string) {
+    try {
+      const db = require('../../db/db').default;
+      
+      // Get counts from database
+      const [topicsCount, postsCount, threadsCount] = await Promise.all([
+        db('topic_evaluations')
+          .where({ forum_name: forumName })
+          .count('* as count')
+          .first(),
+        db('post_evaluations')
+          .where({ forum_name: forumName })
+          .count('* as count')
+          .first(),
+        db('topics')
+          .where({ forum_name: forumName })
+          .whereNotNull('thread_quality')
+          .count('* as count')
+          .first()
+      ]);
+
+      this.updateStatus(forumName, {
+        progress: {
+          ...this.getStatus(forumName)?.progress,
+          evaluations: {
+            topics: topicsCount?.count || 0,
+            posts: postsCount?.count || 0,
+            threads: threadsCount?.count || 0,
+          },
+        },
+      });
+    } catch (error) {
+      this.logger.debug(`Error updating progress counts for ${forumName}:`, error);
+    }
+  }
+
+  private startProgressUpdates(forumName: string) {
+    // Update progress every 10 seconds
+    const interval = setInterval(() => {
+      if (this.getStatus(forumName)?.status === 'running') {
+        this.updateProgressCounts(forumName);
+      } else {
+        this.stopProgressUpdates(forumName);
+      }
+    }, 10000);
+    
+    this.progressIntervals.set(forumName, interval);
+  }
+
+  private stopProgressUpdates(forumName: string) {
+    const interval = this.progressIntervals.get(forumName);
+    if (interval) {
+      clearInterval(interval);
+      this.progressIntervals.delete(forumName);
+    }
+  }
+
   private async processContent(forumName: string): Promise<void> {
     try {
       this.logger.info(`Starting content processing for ${forumName}`);
-
+      
+      // Get counts before processing
+      const db = require('../../db/db').default;
+      
       // Summarize topics
       this.logger.info(`Starting topic summarization for ${forumName}`);
       await fetchAndSummarizeTopics(forumName);
@@ -98,12 +159,18 @@ export class CrawlerManager {
       // Evaluate topics
       this.logger.info(`Starting topic evaluation for ${forumName}`);
       await evaluateUnanalyzedTopics(forumName);
+      
+      // Get actual count of evaluated topics
+      const evaluatedTopicsCount = await db('topic_evaluations')
+        .where({ forum_name: forumName })
+        .count('* as count')
+        .first();
 
       this.updateStatus(forumName, {
         progress: {
           ...this.getStatus(forumName)?.progress,
           evaluations: {
-            topics: (this.getStatus(forumName)?.progress.evaluations?.topics || 0) + 1,
+            topics: evaluatedTopicsCount?.count || 0,
             posts: this.getStatus(forumName)?.progress.evaluations?.posts || 0,
             threads: this.getStatus(forumName)?.progress.evaluations?.threads || 0,
           },
@@ -113,13 +180,19 @@ export class CrawlerManager {
       // Evaluate posts
       this.logger.info(`Starting post evaluation for ${forumName}`);
       await evaluateUnanalyzedPostsInBatches(forumName);
+      
+      // Get actual count of evaluated posts
+      const evaluatedPostsCount = await db('post_evaluations')
+        .where({ forum_name: forumName })
+        .count('* as count')
+        .first();
 
       this.updateStatus(forumName, {
         progress: {
           ...this.getStatus(forumName)?.progress,
           evaluations: {
             topics: this.getStatus(forumName)?.progress.evaluations?.topics || 0,
-            posts: (this.getStatus(forumName)?.progress.evaluations?.posts || 0) + 1,
+            posts: evaluatedPostsCount?.count || 0,
             threads: this.getStatus(forumName)?.progress.evaluations?.threads || 0,
           },
         },
@@ -147,6 +220,9 @@ export class CrawlerManager {
       startTime: new Date(),
       lastError: undefined,
     });
+    
+    // Start periodic progress updates
+    this.startProgressUpdates(forumName);
 
     try {
       // Start forum crawler
@@ -193,6 +269,14 @@ export class CrawlerManager {
       // Evaluate entire threads
       this.logger.info(`Starting thread evaluation for ${forumName}`);
       await evaluateUnevaluatedThreads(forumName);
+      
+      // Get actual count of evaluated threads/topics
+      const db = require('../../db/db').default;
+      const evaluatedThreadsCount = await db('topics')
+        .where({ forum_name: forumName })
+        .whereNotNull('thread_quality')
+        .count('* as count')
+        .first();
 
       // Snapshot proposals (if configured)
       if (config.snapshotSpaceId) {
@@ -213,14 +297,14 @@ export class CrawlerManager {
         await evaluateTallyProposals(forumName);
       }
 
-      // Update evaluations progress
+      // Update evaluations progress with actual counts
       this.updateStatus(forumName, {
         progress: {
           ...this.getStatus(forumName)?.progress,
           evaluations: {
             topics: this.getStatus(forumName)?.progress.evaluations?.topics || 0,
-            posts: (this.getStatus(forumName)?.progress.evaluations?.posts || 0) + 1,
-            threads: (this.getStatus(forumName)?.progress.evaluations?.threads || 0) + 1,
+            posts: this.getStatus(forumName)?.progress.evaluations?.posts || 0,
+            threads: evaluatedThreadsCount?.count || 0,
           },
         },
       });
@@ -243,6 +327,9 @@ export class CrawlerManager {
       });
       throw error;
     } finally {
+      // Stop progress updates
+      this.stopProgressUpdates(forumName);
+      
       const crawler = this.activeCrawlers.get(forumName);
       if (crawler) {
         await crawler.stop();

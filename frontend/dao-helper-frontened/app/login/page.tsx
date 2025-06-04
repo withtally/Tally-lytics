@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Button } from '../../components/common/Button';
 import {
@@ -24,16 +23,21 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const result = await signIn('credentials', {
-        password,
-        redirect: false,
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
       });
 
-      if (result?.error) {
-        setError('Invalid password');
-      } else {
+      const data = await response.json();
+
+      if (response.ok) {
         router.push('/');
         router.refresh();
+      } else {
+        setError(data.error || 'Invalid password');
       }
     } catch (error) {
       setError('An error occurred. Please try again.');

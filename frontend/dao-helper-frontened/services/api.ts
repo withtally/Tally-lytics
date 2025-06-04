@@ -1,7 +1,24 @@
 import axios from 'axios';
 
-// Use environment variable for API URL, fallback to empty string for relative URLs
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+// Determine the API base URL
+// In production, use the full URL from environment variable
+// In development, use empty string for relative URLs (Next.js rewrites will handle it)
+const getApiBaseUrl = () => {
+  // If we have a full URL in the environment, use it
+  if (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.startsWith('http')) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  
+  // In development or when using Next.js rewrites, use relative URLs
+  return '';
+};
+
+const API_BASE_URL = getApiBaseUrl();
+
+// Log the API URL for debugging
+if (typeof window !== 'undefined') {
+  console.log('API Base URL:', API_BASE_URL || 'Using relative URLs (Next.js rewrites)');
+}
 
 // Define common interfaces for API responses
 export interface ApiResponse<T> {

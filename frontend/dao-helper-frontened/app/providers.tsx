@@ -1,7 +1,6 @@
 'use client';
 
-import { SessionProvider } from 'next-auth/react';
-
 export function Providers({ children }: { children: React.ReactNode }) {
-  return <SessionProvider>{children}</SessionProvider>;
+  // We can add other providers here in the future (like React Query)
+  return <>{children}</>;
 }

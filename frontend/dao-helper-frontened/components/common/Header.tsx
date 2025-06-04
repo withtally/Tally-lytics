@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { cn } from '../../utils/cn';
 import { Button } from './Button';
 
@@ -11,6 +11,13 @@ interface HeaderProps {
 }
 
 export function Header({ className }: HeaderProps) {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/login');
+    router.refresh();
+  };
   return (
     <header className={cn('border-b bg-background sticky top-0 z-40', className)}>
       <div className="container flex h-16 items-center px-4 sm:px-6">
@@ -60,7 +67,7 @@ export function Header({ className }: HeaderProps) {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => signOut()}
+              onClick={handleLogout}
             >
               Logout
             </Button>
