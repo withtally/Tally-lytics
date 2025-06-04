@@ -197,6 +197,96 @@ bun run server.ts
 
 This will start the server on a specified port (default: 3000). Visit `http://localhost:3000/health` to check the health status.
 
+## Running the Indexer
+
+The indexer (crawler) processes forum data, generates embeddings, and evaluates content quality. It can be run in multiple ways:
+
+### Development Environment
+
+1. **Via HTTP API (Recommended for Development):**
+   ```bash
+   # Start a crawl for a specific forum
+   curl -X POST http://localhost:3006/api/crawl/start/ARBITRUM
+   
+   # Check crawl status
+   curl http://localhost:3006/api/crawl/status/ARBITRUM
+   
+   # Stop a crawl
+   curl -X POST http://localhost:3006/api/crawl/stop/ARBITRUM
+   ```
+
+2. **Via Admin Scripts:**
+   ```bash
+   # Process recent posts (with optional batch size and max batches)
+   bun admin/processRecentPosts.ts ARBITRUM 50 10
+   
+   # Run historical crawler for older content
+   bun admin/historicalCrawler.ts ARBITRUM
+   
+   # Process posts by date range
+   bun admin/historicalPostEvalsByDate.ts
+   ```
+
+3. **Via Cron Endpoints (for scheduled runs):**
+   ```bash
+   # Start scheduled crawls
+   curl -X POST http://localhost:3006/api/cron/start
+   
+   # Trigger manual cron run
+   curl -X POST http://localhost:3006/cron
+   ```
+
+### Production Environment
+
+In production (Railway deployment), indexing is handled automatically:
+
+1. **Automatic Cron Jobs:**
+   - Configured in `railway.json` for scheduled runs
+   - Common topics generation runs daily at midnight UTC
+   - Health checks run every 4 hours
+
+2. **Manual Triggers via API:**
+   ```bash
+   # Trigger indexing with API key authentication
+   curl -X POST https://your-app.railway.app/api/crawl/start/ARBITRUM \
+     -H "X-API-Key: ${CRON_API_KEY}"
+   
+   # Generate common topics
+   curl -X POST https://your-app.railway.app/api/cron/run-topic-generation \
+     -H "X-API-Key: ${CRON_API_KEY}" \
+     -H "Content-Type: application/json" \
+     -d '{"timeframe": "7d"}'
+   ```
+
+3. **Railway CLI:**
+   ```bash
+   # Run one-off indexing job
+   railway run bun admin/processRecentPosts.ts ARBITRUM
+   ```
+
+### Indexing Process Overview
+
+The indexer performs these steps:
+1. **Fetches forum data** (topics, posts, users) from Discourse API
+2. **Stores raw data** in PostgreSQL database
+3. **Generates embeddings** using OpenAI's text-embedding-ada-002
+4. **Evaluates content** quality using GPT-4 for scoring and summarization
+5. **Updates search indices** for semantic search functionality
+6. **Processes market data** and news mentions (if configured)
+
+### Monitoring Indexing Progress
+
+- **Development:** Check logs in `logs/` directory
+  - `logs/ARBITRUM-forum-crawler.log` - Forum crawling activity
+  - `logs/generate_embeddings.log` - Embedding generation
+  - `logs/user-service.log` - User data processing
+  - `logs/server.log` - Overall server activity
+
+- **Production:** 
+  - Railway dashboard logs
+  - `/api/crawl/status` endpoint
+  - `/api/cron/job-history` for historical runs
+
 ## API Endpoints
 
 - **Health Check:** `GET /health`
