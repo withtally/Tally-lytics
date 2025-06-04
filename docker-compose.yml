@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: dao-helper-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: dao_helper
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: .
+    container_name: dao-helper-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: 3004
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/dao_helper
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ARBITRUM_API_KEY: ${ARBITRUM_API_KEY}
+      OPTIMISM_API_KEY: ${OPTIMISM_API_KEY}
+      APECOIN_API_KEY: ${APECOIN_API_KEY}
+      PENDLE_API_KEY: ${PENDLE_API_KEY}
+      COMPOUND_API_KEY: ${COMPOUND_API_KEY}
+      COINGECKO_PRO_API_KEY: ${COINGECKO_PRO_API_KEY}
+      NEWS_API_KEY: ${NEWS_API_KEY}
+      LOG_LEVEL: info
+    ports:
+      - "3004:3004"
+    volumes:
+      - ./:/app
+      - /app/node_modules
+      - /app/bun.lockb
+    command: ["sh", "-c", "bun migrate && bun start"]
+    stdin_open: true
+    tty: true
+
+  frontend:
+    build: 
+      context: ./frontend/dao-helper-frontened
+      dockerfile: Dockerfile
+    container_name: dao-helper-frontend
+    depends_on:
+      - backend
+    environment:
+      NEXT_PUBLIC_API_URL: http://backend:3004
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/dao-helper-frontened:/app
+      - /app/node_modules
+      - /app/.next
+    stdin_open: true
+    tty: true
+
+volumes:
+  postgres_data:

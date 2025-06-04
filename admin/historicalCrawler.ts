@@ -1,13 +1,13 @@
 import { EventEmitter } from 'events';
 import { RateLimiter } from 'limiter';
-import { Logger } from './services/logging';
-import { loggerConfig } from './config/loggerConfig';
-import { ApiService } from './services/crawler/apiService';
-import { DatabaseService } from './services/crawler/databaseService';
-import { CrawlerConfig } from './services/crawler/types';
-import { forumConfigs } from './config/forumConfig';
-import { vectorizeContent } from './services/llm/embeddings/hybridVectorizer';
-import db from './db/db';
+import { Logger } from '../services/logging';
+import { loggerConfig } from '../config/loggerConfig';
+import { ApiService } from '../services/crawler/apiService';
+import { DatabaseService } from '../services/crawler/databaseService';
+import { CrawlerConfig } from '../services/crawler/types';
+import { forumConfigs } from '../config/forumConfig';
+import { vectorizeContent } from '../services/llm/embeddings/hybridVectorizer';
+import db from '../db/db';
 
 class HistoricalCrawler extends EventEmitter {
   private apiService: ApiService;

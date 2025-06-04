@@ -24,7 +24,7 @@ import {
 } from './snapshotUtils';
 
 // Re-export for backward compatibility
-export { SnapshotProposal } from './snapshotUtils';
+export type { SnapshotProposal } from './snapshotUtils';
 
 export class SnapshotCrawler extends EventEmitter {
   private client: GraphQLClient;

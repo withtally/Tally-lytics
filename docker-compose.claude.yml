@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  claude-code:
+    build:
+      context: .
+      dockerfile: claude-code.Dockerfile
+    container_name: claude-code-env
+    volumes:
+      # Mount your project directory
+      - .:/workspace
+      # Mount your Claude config (if you have one)
+      - ~/.claude:/root/.claude
+      # Share docker socket if you want to run docker commands from inside
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      # Pass through your API key
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+    stdin_open: true
+    tty: true
+    network_mode: host  # This allows accessing localhost services

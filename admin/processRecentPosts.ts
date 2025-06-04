@@ -1,17 +1,17 @@
 // processRecentPosts.ts
 
-import { Logger } from './services/logging';
-import { loggerConfig } from './config/loggerConfig';
-import db from './db/db';
-import { Post } from './db/models/types';
+import { Logger } from '../services/logging';
+import { loggerConfig } from '../config/loggerConfig';
+import db from '../db/db';
+import { Post } from '../db/models/types';
 import { chunk } from 'lodash';
-import { openai, model } from './services/llm/openaiClient';
+import { openai, model } from '../services/llm/openaiClient';
 import { zodResponseFormat } from 'openai/helpers/zod';
-import { BatchEvaluationSchema } from './services/llm/schema';
-import { sanitizeContent } from './services/llm/contentProcessorService';
-import { withLLMErrorHandling } from './services/errorHandling/llmErrors';
-import { roundNumericFields } from './utils/numberUtils';
-import { systemPostPrompt } from './services/llm/prompt';
+import { BatchEvaluationSchema } from '../services/llm/schema';
+import { sanitizeContent } from '../services/llm/contentProcessorService';
+import { withLLMErrorHandling } from '../services/errorHandling/llmErrors';
+import { roundNumericFields } from '../utils/numberUtils';
+import { systemPostPrompt } from '../services/llm/prompt';
 
 const logger = new Logger({
   ...loggerConfig,

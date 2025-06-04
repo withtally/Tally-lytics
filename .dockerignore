@@ -1,35 +1,40 @@
-# Version control
-.git
-.gitignore
-
-# Dependencies
 node_modules
+bun.lockb
 npm-debug.log
-yarn-debug.log
-yarn-error.log
-
-# Environment
 .env
 .env.*
 !.env.example
-
-# Development
+.git
+.gitignore
+.DS_Store
 *.log
-logs
-*.sqlite
-*.db
 coverage
 .vscode
 .idea
-
-# Build
+*.swp
+*.swo
+*~
 dist
 build
 .next
 out
-
-# Temporary files
-.DS_Store
-Thumbs.db
-*.swp
-*.swo 
+dev.sqlite3
+*.sqlite3
+postgres_data
+docker-compose.override.yml
+Dockerfile*
+.dockerignore
+repomix-output.txt
+clean-repo.txt
+failing-tests.txt
+__tests__
+__mocks__
+*.test.ts
+*.test.js
+jest.config.*
+.github
+docs
+experiments
+PRDS
+instructions
+managementFrontend
