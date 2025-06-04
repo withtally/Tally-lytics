@@ -173,6 +173,13 @@ export const crawlerApi = {
     );
     return response.data;
   },
+
+  stopAllCrawlers: async () => {
+    const response = await api.post<ApiResponse<{ message: string; results?: any[] }>>(
+      '/api/crawl/stop-all'
+    );
+    return response.data;
+  },
 };
 
 // Search API

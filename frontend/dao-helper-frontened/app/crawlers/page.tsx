@@ -79,6 +79,19 @@ export default function CrawlersPage() {
     }
   };
 
+  const handleStopAll = async () => {
+    setActionLoading('stop-all');
+    try {
+      await crawlerApi.stopAllCrawlers();
+      await fetchCrawlerStatus();
+    } catch (err) {
+      console.error('Failed to stop all crawlers:', err);
+      setError('Failed to stop all crawlers');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'running':
@@ -117,12 +130,21 @@ export default function CrawlersPage() {
       <div className="container mx-auto py-10">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold">Forum Crawlers</h1>
-          <Button
-            onClick={handleStartAll}
-            disabled={actionLoading === 'all'}
-          >
-            {actionLoading === 'all' ? 'Starting...' : 'Start All Crawlers'}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="destructive"
+              onClick={handleStopAll}
+              disabled={actionLoading === 'stop-all'}
+            >
+              {actionLoading === 'stop-all' ? 'Stopping...' : 'Stop All Crawlers'}
+            </Button>
+            <Button
+              onClick={handleStartAll}
+              disabled={actionLoading === 'all'}
+            >
+              {actionLoading === 'all' ? 'Starting...' : 'Start All Crawlers'}
+            </Button>
+          </div>
         </div>
 
         {error && (

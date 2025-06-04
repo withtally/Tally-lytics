@@ -213,4 +213,57 @@ export const crawlRoutes = (app: Hono, crawlerManager: CrawlerManager, logger: L
       );
     }
   });
+
+  // Stop all crawlers
+  app.post('/api/crawl/stop-all', async (c: Context) => {
+    logger.info('Stopping all crawlers');
+
+    try {
+      // Get all running crawlers
+      const runningCrawlers = crawlerManager
+        .getAllStatuses()
+        .filter(status => status.status === 'running');
+
+      if (runningCrawlers.length === 0) {
+        return c.json({
+          message: 'No crawlers are currently running',
+          timestamp: new Date().toISOString(),
+        });
+      }
+
+      // Stop each running crawler
+      const stopResults = [];
+      for (const crawler of runningCrawlers) {
+        try {
+          await crawlerManager.stopCrawl(crawler.forumName);
+          stopResults.push({ forum: crawler.forumName, status: 'stopped' });
+          logger.info(`Stopped crawler for ${crawler.forumName}`);
+        } catch (error: any) {
+          stopResults.push({ 
+            forum: crawler.forumName, 
+            status: 'failed', 
+            error: error.message 
+          });
+          logger.error(`Failed to stop crawler for ${crawler.forumName}:`, error);
+        }
+      }
+
+      return c.json({
+        message: `Stopped ${stopResults.filter(r => r.status === 'stopped').length} crawlers`,
+        results: stopResults,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      logger.error('Failed to stop all crawlers', { error: errorMessage });
+      return c.json(
+        {
+          error: 'Failed to stop crawlers',
+          details: errorMessage,
+          timestamp: new Date().toISOString(),
+        },
+        500
+      );
+    }
+  });
 };
