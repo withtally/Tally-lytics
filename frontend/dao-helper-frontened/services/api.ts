@@ -1,8 +1,7 @@
 import axios from 'axios';
 
-// For local development, we'll use relative URLs which will be proxied through Next.js
-// This helps avoid CORS issues when running locally
-const API_BASE_URL = '';
+// Use environment variable for API URL, fallback to empty string for relative URLs
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 // Define common interfaces for API responses
 export interface ApiResponse<T> {
@@ -362,6 +361,42 @@ export const aiApi = {
   },
 };
 
+// Posts API
+export const postsApi = {
+  getPosts: async (params: {
+    page?: number;
+    limit?: number;
+    forum?: string;
+    orderBy?: string;
+  }) => {
+    const response = await api.get('/api/posts', { params });
+    return response.data;
+  },
+
+  getPostById: async (id: string) => {
+    const response = await api.get(`/api/posts/${id}`);
+    return response.data;
+  },
+};
+
+// Topics API
+export const topicsApi = {
+  getTopics: async (params: {
+    page?: number;
+    limit?: number;
+    forum?: string;
+    orderBy?: string;
+  }) => {
+    const response = await api.get('/api/topics', { params });
+    return response.data;
+  },
+
+  getTopicById: async (id: string) => {
+    const response = await api.get(`/api/topics/${id}`);
+    return response.data;
+  },
+};
+
 // Create a variable for the default export to fix the lint error
 const apiServices = {
   api,
@@ -373,6 +408,8 @@ const apiServices = {
   newsApi,
   commonTopicsApi,
   aiApi,
+  postsApi,
+  topicsApi,
 };
 
 export default apiServices;

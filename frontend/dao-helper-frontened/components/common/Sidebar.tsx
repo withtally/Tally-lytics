@@ -9,34 +9,30 @@ interface SidebarProps {
 export function Sidebar({ className }: SidebarProps) {
   const navItems = [
     {
-      section: 'Dashboard',
+      section: 'Main',
       items: [
-        { name: 'Overview', href: '/dashboard' },
-        { name: 'Analytics', href: '/dashboard/analytics' },
+        { name: 'Dashboard', href: '/' },
+        { name: 'Explore Records', href: '/explore' },
       ],
     },
     {
-      section: 'Data Collection',
+      section: 'Indexing',
       items: [
-        { name: 'Forum Crawlers', href: '/data-collection/forums' },
-        { name: 'Market Data', href: '/data-collection/market' },
-        { name: 'News', href: '/data-collection/news' },
+        { name: 'Forum Crawlers', href: '/crawlers' },
+        { name: 'Common Topics', href: '/topics' },
       ],
     },
     {
       section: 'Search & Analysis',
       items: [
         { name: 'Universal Search', href: '/search' },
-        { name: 'Common Topics', href: '/search/topics' },
-        { name: 'AI Assistant', href: '/search/assistant' },
       ],
     },
     {
-      section: 'System Management',
+      section: 'System',
       items: [
-        { name: 'Health Monitor', href: '/system/health' },
-        { name: 'Cron Jobs', href: '/system/cron' },
-        { name: 'Logs', href: '/system/logs' },
+        { name: 'Health Status', href: '/system' },
+        { name: 'Job History', href: '/system/jobs' },
       ],
     },
   ];

@@ -1,6 +1,10 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
+import { signOut } from 'next-auth/react';
 import { cn } from '../../utils/cn';
+import { Button } from './Button';
 
 interface HeaderProps {
   className?: string;
@@ -18,22 +22,34 @@ export function Header({ className }: HeaderProps) {
         <div className="flex flex-1 justify-end space-x-4">
           <nav className="flex items-center space-x-4">
             <Link
-              href="/dashboard"
+              href="/"
               className="text-sm font-medium transition-colors hover:text-primary"
             >
               Dashboard
             </Link>
             <Link
-              href="/data-collection"
+              href="/explore"
               className="text-sm font-medium transition-colors hover:text-primary"
             >
-              Data Collection
+              Explore
+            </Link>
+            <Link
+              href="/crawlers"
+              className="text-sm font-medium transition-colors hover:text-primary"
+            >
+              Crawlers
             </Link>
             <Link
               href="/search"
               className="text-sm font-medium transition-colors hover:text-primary"
             >
-              Search & Analysis
+              Search
+            </Link>
+            <Link
+              href="/topics"
+              className="text-sm font-medium transition-colors hover:text-primary"
+            >
+              Topics
             </Link>
             <Link
               href="/system"
@@ -41,6 +57,13 @@ export function Header({ className }: HeaderProps) {
             >
               System
             </Link>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => signOut()}
+            >
+              Logout
+            </Button>
           </nav>
         </div>
       </div>
