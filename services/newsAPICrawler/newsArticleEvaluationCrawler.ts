@@ -190,6 +190,50 @@ async function insertEvaluation(articleId: number, article: any, evaluation: any
     .merge();
 }
 
+async function getUnevaluatedArticlesForForum(forumName: string, limit = 50) {
+  const rows = await db('news_articles')
+    .select('news_articles.*')
+    .leftJoin('news_article_evaluations', function () {
+      this.on('news_articles.id', 'news_article_evaluations.news_article_id').andOn(
+        'news_articles.forum_name',
+        'news_article_evaluations.forum_name'
+      );
+    })
+    .where('news_articles.forum_name', forumName)
+    .whereNull('news_article_evaluations.id')
+    .limit(limit);
+
+  return rows;
+}
+
+export async function crawlNewsArticleEvaluationsForForum(forumName: string): Promise<void> {
+  logger.info(`Starting news article evaluations for ${forumName}...`);
+  let processedCount = 0;
+  let hasMoreArticles = true;
+
+  while (hasMoreArticles) {
+    const articles = await getUnevaluatedArticlesForForum(forumName, 50);
+    if (articles.length === 0) {
+      logger.info(`No more unevaluated articles found for ${forumName}.`);
+      hasMoreArticles = false;
+      break;
+    }
+
+    for (const article of articles) {
+      try {
+        const evaluation = await evaluateArticle(article);
+        await insertEvaluation(article.id, article, evaluation);
+        processedCount++;
+      } catch (err: any) {
+        logger.error(`Error evaluating article ID ${article.id}: ${err.message}`);
+        // continue with next article
+      }
+    }
+  }
+
+  logger.info(`Completed news article evaluations for ${forumName}. Processed: ${processedCount} articles.`);
+}
+
 export async function crawlNewsArticleEvaluations(): Promise<void> {
   logger.info('Starting news article evaluations...');
   let processedCount = 0;

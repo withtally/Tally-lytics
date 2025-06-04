@@ -195,7 +195,36 @@ async function fetchAndInsertAllDays(
   logger.info(`All available days processed for ${forumName}/${coingeckoId}.`);
 }
 
-// Public crawl function
+// Public crawl function for a specific forum
+export async function crawlTokenMarketDataForForum(forumName: string, forceRefresh = false): Promise<void> {
+  logger.info(`Starting token market data crawl for ${forumName}...`, { forceRefresh });
+
+  // Check if we have a global CoinGecko PRO API key
+  if (!apiConfig.coingecko.proApiKey) {
+    logger.error('No CoinGecko PRO API key found in global configuration');
+    return;
+  }
+
+  const config = forumConfigs.find(c => c.name === forumName);
+  if (!config) {
+    logger.error(`Forum configuration not found for ${forumName}`);
+    return;
+  }
+
+  if (!config.tokenConfig?.coingeckoId) {
+    logger.info(`Skipping ${config.name} as no coingeckoId found.`);
+    return;
+  }
+
+  const coingeckoId = config.tokenConfig.coingeckoId;
+  const apiKey = apiConfig.coingecko.proApiKey;
+
+  logger.info(`Processing market data for ${forumName}/${coingeckoId} day-by-day...`);
+  await fetchAndInsertAllDays(forumName, coingeckoId, apiKey, forceRefresh);
+  logger.info(`Token market data crawl completed for ${forumName}.`);
+}
+
+// Public crawl function for all forums
 export async function crawlTokenMarketData(forceRefresh = false): Promise<void> {
   logger.info('Starting incremental token market data crawl...', { forceRefresh });
   let processedCount = 0;

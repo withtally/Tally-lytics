@@ -96,6 +96,18 @@ async function fetchArticlesForDAO(daoName: string) {
   logger.info(`Inserted/updated articles for ${daoName}. Count: ${insertedCount}`);
 }
 
+export async function crawlNewsForForum(forumName: string): Promise<void> {
+  logger.info(`Starting news crawl for ${forumName}...`);
+
+  try {
+    await fetchArticlesForDAO(forumName);
+    logger.info(`News crawl completed for ${forumName}.`);
+  } catch (error: any) {
+    logger.error(`Failed to fetch articles for ${forumName}: ${error.message}`);
+    throw error;
+  }
+}
+
 export async function crawlNews(): Promise<void> {
   logger.info('Starting news crawl...');
 

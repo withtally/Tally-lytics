@@ -10,7 +10,13 @@ echo "🚀 Starting DAO Helper Tool Backend Indexer"
 echo "   Port: $BACKEND_PORT"
 
 # Kill any existing process on this port
-lsof -ti:$BACKEND_PORT | xargs kill -9 2>/dev/null || true
+echo "🔄 Checking for existing processes on port $BACKEND_PORT..."
+if lsof -ti:$BACKEND_PORT > /dev/null 2>&1; then
+    echo "   Killing existing process on port $BACKEND_PORT"
+    lsof -ti:$BACKEND_PORT | xargs kill -9 2>/dev/null || true
+    sleep 1
+fi
 
 # Start backend
+echo "🟢 Starting backend server..."
 PORT=$BACKEND_PORT bun server.ts

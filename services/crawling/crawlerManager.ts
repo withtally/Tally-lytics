@@ -231,16 +231,21 @@ export class CrawlerManager {
 
       await forumCrawler.start();
       await updateCrawlTime(forumName);
+      
+      // Update progress after forum crawl
+      await this.updateProgressCounts(forumName);
 
       // Start token market data crawling if token config exists
       if (config.tokenConfig?.coingeckoId) {
         this.logger.info(`Starting token market data crawl for ${forumName}`);
         try {
-          const { crawlTokenMarketData } = await import(
+          const { crawlTokenMarketDataForForum } = await import(
             '../marketCapTracking/tokenMarketDataCrawler'
           );
-          await crawlTokenMarketData();
+          await crawlTokenMarketDataForForum(forumName);
           this.logger.info(`Completed token market data crawl for ${forumName}`);
+          // Update progress after market data crawl
+          await this.updateProgressCounts(forumName);
         } catch (error: any) {
           this.logger.error(`Error during token market data crawl for ${forumName}:`, error);
           // Continue with other tasks even if token crawl fails
@@ -250,14 +255,16 @@ export class CrawlerManager {
       // Start news/media mentions crawl
       this.logger.info(`Starting news/media mentions crawl for ${forumName}`);
       try {
-        const { crawlNews } = await import('../newsAPICrawler/newsCrawler');
-        const { crawlNewsArticleEvaluations } = await import(
+        const { crawlNewsForForum } = await import('../newsAPICrawler/newsCrawler');
+        const { crawlNewsArticleEvaluationsForForum } = await import(
           '../newsAPICrawler/newsArticleEvaluationCrawler'
         );
 
-        await crawlNews();
-        await crawlNewsArticleEvaluations();
+        await crawlNewsForForum(forumName);
+        await crawlNewsArticleEvaluationsForForum(forumName);
         this.logger.info(`Completed news/media mentions crawl for ${forumName}`);
+        // Update progress after news crawl
+        await this.updateProgressCounts(forumName);
       } catch (error: any) {
         this.logger.error(`Error during news crawl for ${forumName}:`, error);
         // Continue with other tasks even if news crawl fails

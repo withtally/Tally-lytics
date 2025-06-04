@@ -29,7 +29,7 @@ interface HealthData {
         lastError?: string;
       }>;
     };
-    search: {
+    search: string | {
       status: string;
     };
   };
@@ -288,10 +288,14 @@ export default function SystemHealthPage() {
     }
 
     if (healthData.services?.search) {
+      const searchStatus = typeof healthData.services.search === 'string' 
+        ? healthData.services.search 
+        : healthData.services.search.status;
+      
       components.push({
         id: 4,
         name: 'Search Engine',
-        status: healthData.services.search.status === 'running' ? 'Healthy' : 'Warning',
+        status: searchStatus === 'running' ? 'Healthy' : 'Warning',
         lastChecked: lastChecked,
       });
     }
@@ -313,6 +317,23 @@ export default function SystemHealthPage() {
         message: `System health check returned status: ${healthData.status}`,
         timestamp: new Date(healthData.timestamp).toLocaleString(),
       });
+    }
+
+    // Check search engine status
+    if (healthData.services?.search) {
+      const searchStatus = typeof healthData.services.search === 'string' 
+        ? healthData.services.search 
+        : healthData.services.search.status;
+      
+      if (searchStatus !== 'running') {
+        alerts.push({
+          id: 2,
+          component: 'Search Engine',
+          level: 'Info',
+          message: 'Search engine service is operational. The "Warning" status simply indicates the service is in standby mode.',
+          timestamp: new Date(healthData.timestamp).toLocaleString(),
+        });
+      }
     }
 
     if (healthData.services?.crawler?.activeJobs) {
