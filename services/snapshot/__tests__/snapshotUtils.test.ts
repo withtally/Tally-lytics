@@ -141,7 +141,7 @@ describe('snapshotUtils', () => {
 
   describe('filterNewProposals', () => {
     it('should filter proposals newer than last crawl time', () => {
-      const proposals = [mockProposal2];
+      const proposals = [mockProposal, mockProposal2];
       const lastCrawlTime = new Date(1641000000 * 1000); // Between the two proposals
       const result = filterNewProposals(proposals, lastCrawlTime);
 
@@ -150,7 +150,7 @@ describe('snapshotUtils', () => {
     });
 
     it('should return all proposals if last crawl time is very old', () => {
-      const proposals = [mockProposal2];
+      const proposals = [mockProposal, mockProposal2];
       const lastCrawlTime = new Date(0);
       const result = filterNewProposals(proposals, lastCrawlTime);
 
@@ -158,7 +158,7 @@ describe('snapshotUtils', () => {
     });
 
     it('should return empty array if all proposals are old', () => {
-      const proposals = [mockProposal2];
+      const proposals = [mockProposal, mockProposal2];
       const lastCrawlTime = new Date(2000000000 * 1000); // Future date
       const result = filterNewProposals(proposals, lastCrawlTime);
 
@@ -295,7 +295,7 @@ describe('snapshotUtils', () => {
 
   describe('transformProposalsBatch', () => {
     it('should transform multiple proposals', () => {
-      const proposals = [mockProposal2];
+      const proposals = [mockProposal, mockProposal2];
       const result = transformProposalsBatch(proposals, 'test-forum');
 
       expect(result).toHaveLength(2);
@@ -547,8 +547,6 @@ describe('snapshotUtils', () => {
         duration: 60000, // 1 minute
         rate: expect.closeTo(1.67, 1), // 100/60
       });
-
-      mock.restore();
     });
 
     it('should handle zero duration', () => {
@@ -559,8 +557,6 @@ describe('snapshotUtils', () => {
 
       expect(result.duration).toBe(0);
       expect(result.rate).toBe(Infinity); // 10/0
-
-      mock.restore();
     });
 
     it('should handle zero proposals', () => {
@@ -573,8 +569,6 @@ describe('snapshotUtils', () => {
       expect(result.totalFetched).toBe(0);
       expect(result.newProposals).toBe(0);
       expect(result.rate).toBe(0);
-
-      mock.restore();
     });
 
     it('should calculate correct rate', () => {
@@ -585,21 +579,19 @@ describe('snapshotUtils', () => {
       const result = calculateCrawlingStats(50, 10, startTime);
 
       expect(result.rate).toBe(50); // 50 items per second
-
-      mock.restore();
     });
   });
 
   describe('shouldStopCrawling', () => {
     it('should return true when newest timestamp is older than last crawl', () => {
-      const newestTimestamp = 1640995200;
+      const newestTimestamp = 1640995200 * 1000; // Convert to milliseconds
       const lastCrawl = new Date(1641081600 * 1000);
 
       expect(shouldStopCrawling(newestTimestamp, lastCrawl)).toBe(true);
     });
 
     it('should return false when newest timestamp is newer than last crawl', () => {
-      const newestTimestamp = 1641081600 * 1000; // Convert to milliseconds for comparison
+      const newestTimestamp = 1641081600 * 1000; // Convert to milliseconds
       const lastCrawl = new Date(1640995200 * 1000);
 
       expect(shouldStopCrawling(newestTimestamp, lastCrawl)).toBe(false);

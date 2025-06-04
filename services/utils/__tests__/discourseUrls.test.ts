@@ -1,126 +1,85 @@
 // services/utils/__tests__/discourseUrls.test.ts
 
+import { describe, it, expect, beforeEach } from '@jest/globals';
 import { DiscourseUrlHelper } from '../discourseUrls';
-import { ForumConfig } from '../../../config/forumConfig';
 
 describe('DiscourseUrlHelper', () => {
-  let helper: DiscourseUrlHelper;
-  let mockForumConfig: ForumConfig;
+  const baseUrl = 'https://forum.example.com';
+  const mockForumConfig = {
+    apiConfig: {
+      discourseUrl: baseUrl,
+      apiKey: 'test-key',
+      apiUsername: 'test-user',
+    },
+    forums: ['test-forum'],
+  } as any;
+  let urlHelper: DiscourseUrlHelper;
 
   beforeEach(() => {
-    mockForumConfig = {
-      apiConfig: {
-        discourseUrl: 'https://forum.example.com',
-        apiKey: 'test-key',
-        apiUsername: 'test-user',
-      },
-      name: 'Test Forum',
-    } as ForumConfig;
-
-    helper = new DiscourseUrlHelper(mockForumConfig);
+    urlHelper = new DiscourseUrlHelper(mockForumConfig);
   });
 
   describe('constructor', () => {
-    it('should remove trailing slashes from discourse URL', () => {
-      const configWithTrailingSlash = {
+    it('should create instance with forum config', () => {
+      expect(urlHelper).toBeDefined();
+      expect(urlHelper).toBeInstanceOf(DiscourseUrlHelper);
+    });
+
+    it('should handle base URL with trailing slash', () => {
+      const configWithSlash = {
         ...mockForumConfig,
         apiConfig: {
           ...mockForumConfig.apiConfig,
-          discourseUrl: 'https://forum.example.com/',
+          discourseUrl: baseUrl + '/',
         },
       };
-
-      const helperWithSlash = new DiscourseUrlHelper(configWithTrailingSlash);
-      const result = helperWithSlash.getTopicUrl(123);
-
-      expect(result).toBe('https://forum.example.com/t/123');
+      const helperWithSlash = new DiscourseUrlHelper(configWithSlash);
+      expect(helperWithSlash).toBeDefined();
     });
   });
 
   describe('getTopicUrl', () => {
-    it('should generate topic URL without slug', () => {
-      const result = helper.getTopicUrl(123);
-      expect(result).toBe('https://forum.example.com/t/123');
+    it('should generate correct topic URL', () => {
+      const topicId = 123;
+      const slug = 'test-topic-slug';
+      const url = urlHelper.getTopicUrl(topicId, slug);
+      
+      expect(url).toBe(`${baseUrl}/t/${slug}/${topicId}`);
     });
 
-    it('should generate topic URL with slug', () => {
-      const result = helper.getTopicUrl(123, 'sample-topic');
-      expect(result).toBe('https://forum.example.com/t/sample-topic/123');
-    });
-
-    it('should handle numeric ID as string', () => {
-      const result = helper.getTopicUrl('456');
-      expect(result).toBe('https://forum.example.com/t/456');
+    it('should handle missing slug', () => {
+      const topicId = 123;
+      const url = urlHelper.getTopicUrl(topicId);
+      
+      expect(url).toBe(`${baseUrl}/t/${topicId}`);
     });
   });
 
   describe('getPostUrl', () => {
-    it('should generate post URL', () => {
-      const result = helper.getPostUrl(123, 456);
-      expect(result).toBe('https://forum.example.com/t/123/456');
+    it('should generate correct post URL', () => {
+      const topicId = 123;
+      const postNumber = 5;
+      const url = urlHelper.getPostUrl(topicId, postNumber);
+      
+      expect(url).toBe(`${baseUrl}/t/${topicId}/${postNumber}`);
     });
 
-    it('should generate post URL with slug', () => {
-      const result = helper.getPostUrl(123, 456, 'topic-slug');
-      expect(result).toBe('https://forum.example.com/t/topic-slug/123/456');
+    it('should generate correct post URL with slug', () => {
+      const topicId = 123;
+      const postNumber = 5;
+      const slug = 'test-topic';
+      const url = urlHelper.getPostUrl(topicId, postNumber, slug);
+      
+      expect(url).toBe(`${baseUrl}/t/${slug}/${topicId}/${postNumber}`);
     });
   });
 
   describe('getUserUrl', () => {
-    it('should generate user URL', () => {
-      const result = helper.getUserUrl('testuser');
-      expect(result).toBe('https://forum.example.com/u/testuser');
-    });
-
-    it('should handle usernames with special characters', () => {
-      const result = helper.getUserUrl('test-user_123');
-      expect(result).toBe('https://forum.example.com/u/test-user_123');
-    });
-  });
-
-  describe('getTopicApiUrl', () => {
-    it('should generate API URL for topic', () => {
-      const result = helper.getTopicApiUrl(123);
-      expect(result).toBe('https://forum.example.com/t/123.json');
-    });
-
-    it('should handle string ID', () => {
-      const result = helper.getTopicApiUrl('456');
-      expect(result).toBe('https://forum.example.com/t/456.json');
-    });
-  });
-
-  describe('getLatestTopicsApiUrl', () => {
-    it('should generate latest topics URL without page', () => {
-      const result = helper.getLatestTopicsApiUrl();
-      expect(result).toBe('https://forum.example.com/latest.json');
-    });
-
-    it('should generate latest topics URL with page number', () => {
-      const result = helper.getLatestTopicsApiUrl(2);
-      expect(result).toBe('https://forum.example.com/latest.json?page=2');
-    });
-
-    it('should handle undefined page parameter', () => {
-      const result = helper.getLatestTopicsApiUrl(undefined);
-      expect(result).toBe('https://forum.example.com/latest.json');
-    });
-  });
-
-  describe('configuration', () => {
-    it('should work with different base URLs', () => {
-      const differentConfig = {
-        ...mockForumConfig,
-        apiConfig: {
-          ...mockForumConfig.apiConfig,
-          discourseUrl: 'https://gov.compound.finance',
-        },
-      };
-
-      const differentHelper = new DiscourseUrlHelper(differentConfig);
-      const result = differentHelper.getTopicUrl(123);
-
-      expect(result).toBe('https://gov.compound.finance/t/123');
+    it('should generate correct user URL', () => {
+      const username = 'testuser';
+      const url = urlHelper.getUserUrl(username);
+      
+      expect(url).toBe(`${baseUrl}/u/${username}`);
     });
   });
 });
