@@ -96,8 +96,13 @@ export class VectorSearchService {
     }
   }
 
-  private buildSearchQuery(type: string): string {
+  private buildSearchQuery(type: string, forum?: string): string {
     const config = this.getTableConfig(type);
+
+    // Build WHERE clause based on forum parameter
+    const forumFilter = forum && forum.toLowerCase() !== 'all' 
+      ? 'AND LOWER(v.forum_name) = LOWER(?)' 
+      : '';
 
     return `
       SELECT 
@@ -106,8 +111,8 @@ export class VectorSearchService {
         1 / (1 + (v.vector <-> ?::vector)) as similarity
       FROM ${config.vectorTable} v
       JOIN ${config.table} t ON t.id = v.${config.idColumn} AND LOWER(t.forum_name) = LOWER(v.forum_name)
-      WHERE LOWER(v.forum_name) = LOWER(?)
-      AND 1 / (1 + (v.vector <-> ?::vector)) >= ?
+      WHERE 1 / (1 + (v.vector <-> ?::vector)) >= ?
+      ${forumFilter}
       ORDER BY similarity DESC
       LIMIT ?
     `;
@@ -180,13 +185,12 @@ export class VectorSearchService {
       const vectorString = `[${queryVector.join(',')}]`;
 
       // Use existing search logic with new vector
-      const rerankedResults = await db.raw(this.buildSearchQuery(results[0].type), [
-        vectorString,
-        results[0].forum_name,
-        vectorString,
-        0.5,
-        results.length,
-      ]);
+      const forumName = results[0].forum_name;
+      const queryParams = forumName && forumName.toLowerCase() !== 'all'
+        ? [vectorString, vectorString, 0.5, forumName, results.length]
+        : [vectorString, vectorString, 0.5, results.length];
+
+      const rerankedResults = await db.raw(this.buildSearchQuery(results[0].type, forumName), queryParams);
 
       return rerankedResults.rows.map((row: any) => ({
         type: row.type,
@@ -221,13 +225,12 @@ export class VectorSearchService {
       const [queryVector] = await generateEmbeddings([query]);
       const vectorString = `[${queryVector.join(',')}]`;
 
-      const results = await db.raw(this.buildSearchQuery(type), [
-        vectorString,
-        forum,
-        vectorString,
-        threshold,
-        limit,
-      ]);
+      // Build query parameters based on whether forum filtering is used
+      const queryParams = forum && forum.toLowerCase() !== 'all'
+        ? [vectorString, vectorString, threshold, forum, limit]
+        : [vectorString, vectorString, threshold, limit];
+
+      const results = await db.raw(this.buildSearchQuery(type, forum), queryParams);
 
       let searchResults = results.rows.map((row: any) => ({
         type,

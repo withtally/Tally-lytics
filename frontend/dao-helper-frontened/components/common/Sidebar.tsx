@@ -29,9 +29,10 @@ export function Sidebar({ className }: SidebarProps) {
     {
       section: 'System',
       items: [
-        { name: 'Health Status', href: '/system' },
-        { name: 'Cron Management', href: '/system/cron-management' },
-        { name: 'Job History', href: '/system/jobs' },
+        { name: 'System Overview', href: '/system' },
+        { name: '⏰ Cron Jobs', href: '/system/cron-management' },
+        { name: 'Health Status', href: '/system/health' },
+        { name: 'Logs Viewer', href: '/system/logs-viewer' },
       ],
     },
   ];

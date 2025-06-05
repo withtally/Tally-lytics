@@ -41,18 +41,23 @@ export default function SystemPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Cron Management</CardTitle>
-              <CardDescription>Manage scheduled tasks and distributed locks</CardDescription>
+              <CardTitle>⏰ Cron Management</CardTitle>
+              <CardDescription>Easy-to-use scheduler for automated tasks</CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Configure and monitor cron jobs, view distributed locks, and manage automated 
-                crawling and data processing tasks.
+                Schedule and monitor automated tasks with preset schedules, visual timelines, 
+                and quick actions. View upcoming runs and manage distributed locks.
               </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Preset Schedules</span>
+                <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Visual Timeline</span>
+                <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">Quick Actions</span>
+              </div>
             </CardContent>
             <CardFooter>
               <Button onClick={() => router.push('/system/cron-management')} className="w-full">
-                Manage Cron Jobs
+                Open Cron Manager
               </Button>
             </CardFooter>
           </Card>

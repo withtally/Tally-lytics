@@ -140,11 +140,29 @@ export class CronManager {
     this.logger.info('Scheduled crawls disabled');
   }
 
+  /**
+   * Get next run date as string from cron job
+   */
+  private getNextRunDateString(job: CronJob): string | null {
+    try {
+      // The cron library's nextDates() method returns an array of Luxon DateTime objects
+      const nextDates = job.nextDates(1);
+      if (nextDates && nextDates.length > 0) {
+        const nextDate = nextDates[0];
+        // Convert Luxon DateTime to JS Date and then to string
+        return nextDate.toJSDate().toString();
+      }
+    } catch (error) {
+      this.logger.error(`Error getting next run date: ${error}`);
+    }
+    return null;
+  }
+
   getStatus() {
     return {
       enabled: this.isEnabled,
       schedule: this.schedule,
-      nextRun: this.crawlJob ? this.crawlJob.nextDate().toString() : null,
+      nextRun: this.crawlJob ? this.getNextRunDateString(this.crawlJob) : null,
       lastRun: this.lastRunTime?.toISOString() || null,
       isExecuting: this.executionTimeout !== null,
       retryCount: this.retryCount,

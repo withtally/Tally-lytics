@@ -55,10 +55,13 @@ export default function UniversalSearchPage() {
   // Forum options
   const forumOptions = [
     { id: 'all', label: 'All Forums' },
-    { id: 'uniswap', label: 'Uniswap' },
-    { id: 'aave', label: 'Aave' },
-    { id: 'compound', label: 'Compound' },
-    { id: 'makerdao', label: 'MakerDAO' },
+    { id: 'COMPOUND', label: 'Compound' },
+    { id: 'ZKSYNC', label: 'zkSync' },
+    { id: 'GITCOIN', label: 'Gitcoin' },
+    { id: 'CABIN', label: 'Cabin' },
+    { id: 'SAFE', label: 'Safe' },
+    { id: 'UNISWAP', label: 'Uniswap' },
+    { id: 'ARBITRUM', label: 'Arbitrum' },
   ];
 
   // Handle search
@@ -95,47 +98,104 @@ export default function UniversalSearchPage() {
         throw new Error(response.error);
       }
 
-      if (response.data && Array.isArray(response.data)) {
-        // Transform API response to match our UI format
-        const formattedResults: SearchResult[] = response.data.map(
-          (item: SearchResult, index: number) => ({
+      // Handle searchAll response format
+      if (activeFilter === 'all' && response.topics) {
+        // searchAll returns separate arrays for each type
+        const allResults: SearchResult[] = [];
+        
+        // Process topics
+        if (response.topics && Array.isArray(response.topics)) {
+          response.topics.forEach((item: any, index: number) => {
+            allResults.push({
+              id: item.id || `topic-${index}`,
+              type: 'topic',
+              title: item.title || item.name || 'Untitled Topic',
+              source: item.forum_name || item.forum || 'Unknown Forum',
+              date: item.created_at || item.created || new Date().toISOString(),
+              excerpt: item.description || item.content?.substring(0, 150) + '...' || 'No description available',
+              url: item.url || '#',
+              relevance: item.score || item.relevance || 0.7,
+              forum: item.forum_name || item.forum,
+            });
+          });
+        }
+        
+        // Process posts
+        if (response.posts && Array.isArray(response.posts)) {
+          response.posts.forEach((item: any, index: number) => {
+            allResults.push({
+              id: item.id || `post-${index}`,
+              type: 'post',
+              title: item.title || 'Untitled Post',
+              source: item.forum_name || item.forum || 'Unknown Forum',
+              date: item.created_at || item.created || new Date().toISOString(),
+              excerpt: item.content?.substring(0, 150) + '...' || item.cooked?.substring(0, 150) + '...' || 'No content available',
+              url: item.url || '#',
+              relevance: item.score || item.relevance || 0.7,
+              forum: item.forum_name || item.forum,
+            });
+          });
+        }
+        
+        // Process snapshots
+        if (response.snapshot && Array.isArray(response.snapshot)) {
+          response.snapshot.forEach((item: any, index: number) => {
+            allResults.push({
+              id: item.id || `snapshot-${index}`,
+              type: 'snapshot',
+              title: item.title || 'Untitled Snapshot',
+              source: item.forum_name || item.forum || 'Unknown Forum',
+              date: item.created_at || item.created || new Date().toISOString(),
+              excerpt: item.body?.substring(0, 150) + '...' || 'No content available',
+              url: item.url || '#',
+              relevance: item.score || item.relevance || 0.7,
+              forum: item.forum_name || item.forum,
+            });
+          });
+        }
+        
+        // Process tally
+        if (response.tally && Array.isArray(response.tally)) {
+          response.tally.forEach((item: any, index: number) => {
+            allResults.push({
+              id: item.id || `tally-${index}`,
+              type: 'tally',
+              title: item.title || 'Untitled Tally',
+              source: item.forum_name || item.forum || 'Unknown Forum',
+              date: item.created_at || item.created || new Date().toISOString(),
+              excerpt: item.description?.substring(0, 150) + '...' || 'No description available',
+              url: item.url || '#',
+              relevance: item.score || item.relevance || 0.7,
+              forum: item.forum_name || item.forum,
+            });
+          });
+        }
+        
+        // Sort by relevance
+        allResults.sort((a, b) => b.relevance - a.relevance);
+        setSearchResults(allResults);
+        
+      } else if (response.results && Array.isArray(response.results)) {
+        // searchByType returns results array
+        const formattedResults: SearchResult[] = response.results.map(
+          (item: any, index: number) => ({
             id: item.id || `result-${index}`,
-            type: item.type || 'unknown',
+            type: activeFilter,
             title: item.title || item.name || 'Untitled',
-            source: item.forum || item.source || 'Unknown Source',
-            date: item.date || item.created || new Date().toISOString(),
+            source: item.forum_name || item.forum || 'Unknown Forum',
+            date: item.created_at || item.created || new Date().toISOString(),
             excerpt:
-              item.excerpt ||
-              item.content?.substring(0, 150) + '...' ||
               item.description ||
+              item.content?.substring(0, 150) + '...' ||
+              item.body?.substring(0, 150) + '...' ||
               'No content available',
             url: item.url || '#',
-            relevance: item.relevance || item.score || 0.7,
-            forum: item.forum,
+            relevance: item.score || item.relevance || 0.7,
+            forum: item.forum_name || item.forum,
           })
         );
 
         setSearchResults(formattedResults);
-      } else if (response.data) {
-        // Single result or non-array response
-        const item = response.data;
-        setSearchResults([
-          {
-            id: item.id || 'result-single',
-            type: item.type || 'unknown',
-            title: item.title || item.name || 'Untitled',
-            source: item.forum || item.source || 'Unknown Source',
-            date: item.date || item.created || new Date().toISOString(),
-            excerpt:
-              item.excerpt ||
-              item.content?.substring(0, 150) + '...' ||
-              item.description ||
-              'No content available',
-            url: item.url || '#',
-            relevance: item.relevance || item.score || 0.7,
-            forum: item.forum,
-          },
-        ]);
       } else {
         // Empty response
         setSearchResults([]);

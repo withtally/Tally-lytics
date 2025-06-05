@@ -259,6 +259,24 @@ export class CronScheduler {
   }
 
   /**
+   * Get next run date from cron job
+   */
+  private getNextRunDate(job: CronJob): string | null {
+    try {
+      // The cron library's nextDates() method returns an array of Luxon DateTime objects
+      const nextDates = job.nextDates(1);
+      if (nextDates && nextDates.length > 0) {
+        const nextDate = nextDates[0];
+        // Convert Luxon DateTime to JS Date and then to ISO string
+        return nextDate.toJSDate().toISOString();
+      }
+    } catch (error) {
+      this.logger.error(`Error getting next run date: ${error}`);
+    }
+    return null;
+  }
+
+  /**
    * Get status of all tasks
    */
   async getStatus(): Promise<Record<string, any>> {
@@ -273,7 +291,7 @@ export class CronScheduler {
         name: taskName,
         description: task.description,
         isRunning: job?.running || false,
-        nextRun: job ? job.nextDate().toISOString() : null,
+        nextRun: job ? this.getNextRunDate(job) : null,
         retryCount,
         maxRetries: this.MAX_RETRIES,
         isExecuting,
