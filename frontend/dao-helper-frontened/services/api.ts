@@ -416,6 +416,84 @@ export const topicsApi = {
   },
 };
 
+// Unified Cron API
+export const unifiedCronApi = {
+  // Get overall status including tasks and distributed locks
+  getStatus: async () => {
+    const response = await api.get<ApiResponse<any>>('/api/cron/status');
+    return response.data;
+  },
+
+  // Get list of all available tasks
+  getTasks: async () => {
+    const response = await api.get<ApiResponse<any>>('/api/cron/tasks');
+    return response.data;
+  },
+
+  // Start all tasks
+  startAll: async () => {
+    const response = await api.post<ApiResponse<{ message: string }>>('/api/cron/start/all');
+    return response.data;
+  },
+
+  // Stop all tasks
+  stopAll: async () => {
+    const response = await api.post<ApiResponse<{ message: string }>>('/api/cron/stop/all');
+    return response.data;
+  },
+
+  // Start specific task
+  startTask: async (taskName: string, schedule?: string) => {
+    const response = await api.post<ApiResponse<{ message: string }>>(
+      `/api/cron/start/${taskName}`,
+      schedule ? { schedule } : {}
+    );
+    return response.data;
+  },
+
+  // Stop specific task
+  stopTask: async (taskName: string) => {
+    const response = await api.post<ApiResponse<{ message: string }>>(
+      `/api/cron/stop/${taskName}`
+    );
+    return response.data;
+  },
+
+  // Execute task immediately
+  executeTask: async (taskName: string) => {
+    const response = await api.post<ApiResponse<{ message: string }>>(
+      `/api/cron/execute/${taskName}`,
+      {},
+      {
+        headers: process.env.NEXT_PUBLIC_CRON_API_KEY
+          ? { 'X-API-Key': process.env.NEXT_PUBLIC_CRON_API_KEY }
+          : {},
+      }
+    );
+    return response.data;
+  },
+
+  // Distributed lock management
+  getLocks: async () => {
+    const response = await api.get<ApiResponse<any>>('/api/cron/locks');
+    return response.data;
+  },
+
+  // Force release all locks (emergency)
+  forceReleaseAllLocks: async () => {
+    const response = await api.post<ApiResponse<{ message: string }>>(
+      '/api/cron/locks/force-release',
+      {},
+      {
+        headers: process.env.NEXT_PUBLIC_CRON_API_KEY
+          ? { 'X-API-Key': process.env.NEXT_PUBLIC_CRON_API_KEY }
+          : {},
+      }
+    );
+    return response.data;
+  },
+};
+
 // Create a variable for the default export to fix the lint error
 const apiServices = {
   api,
@@ -429,6 +507,7 @@ const apiServices = {
   aiApi,
   postsApi,
   topicsApi,
+  unifiedCronApi,
 };
 
 export default apiServices;

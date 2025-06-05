@@ -30,6 +30,7 @@ export function Sidebar({ className }: SidebarProps) {
       section: 'System',
       items: [
         { name: 'Health Status', href: '/system' },
+        { name: 'Cron Management', href: '/system/cron-management' },
         { name: 'Job History', href: '/system/jobs' },
       ],
     },

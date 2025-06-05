@@ -41,16 +41,17 @@ export default function SystemPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Cron Jobs</CardTitle>
-              <CardDescription>Manage scheduled tasks</CardDescription>
+              <CardTitle>Cron Management</CardTitle>
+              <CardDescription>Manage scheduled tasks and distributed locks</CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Configure and monitor cron jobs for automated crawling and data processing.
+                Configure and monitor cron jobs, view distributed locks, and manage automated 
+                crawling and data processing tasks.
               </p>
             </CardContent>
             <CardFooter>
-              <Button onClick={() => router.push('/system/cron')} className="w-full">
+              <Button onClick={() => router.push('/system/cron-management')} className="w-full">
                 Manage Cron Jobs
               </Button>
             </CardFooter>
