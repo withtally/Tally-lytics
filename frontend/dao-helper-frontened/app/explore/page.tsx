@@ -51,6 +51,12 @@ export default function ExplorePage() {
   const [hasMore, setHasMore] = useState(true);
   const [selectedForum, setSelectedForum] = useState<string>('all');
   const [forums, setForums] = useState<string[]>([]);
+  const [isConnected, setIsConnected] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    // Check backend connection on mount
+    checkConnection();
+  }, []);
 
   useEffect(() => {
     fetchRecords();
@@ -62,91 +68,83 @@ export default function ExplorePage() {
     setRecords([]);
   }, [activeTab, selectedForum]);
 
+  const checkConnection = async () => {
+    try {
+      // Try to fetch a small amount of data to check connection
+      await postsApi.getPosts({ page: 1, limit: 1 });
+      setIsConnected(true);
+    } catch (err) {
+      setIsConnected(false);
+    }
+  };
+
   const fetchRecords = async () => {
     setIsLoading(true);
     setError(null);
 
     try {
-      let data;
+      let response;
       
-      // Try to fetch real data from API
-      try {
-        if (activeTab === 'posts') {
-          const response = await postsApi.getPosts({
-            page,
-            limit: 20,
-            forum: selectedForum === 'all' ? undefined : selectedForum
-          });
-          data = response.data || response;
-        } else {
-          const response = await topicsApi.getTopics({
-            page,
-            limit: 20,
-            forum: selectedForum === 'all' ? undefined : selectedForum
-          });
-          data = response.data || response;
-        }
-      } catch (apiError) {
-        console.log('API not available, using mock data');
-        // Fallback to mock data if API is not available
-        data = activeTab === 'posts' 
-          ? generateMockPosts(page)
-          : generateMockTopics(page);
+      if (activeTab === 'posts') {
+        response = await postsApi.getPosts({
+          page,
+          limit: 20,
+          forum: selectedForum === 'all' ? undefined : selectedForum,
+          orderBy: 'created_at'
+        });
+      } else {
+        response = await topicsApi.getTopics({
+          page,
+          limit: 20,
+          forum: selectedForum === 'all' ? undefined : selectedForum,
+          orderBy: 'created_at'
+        });
       }
 
-      // Handle the data whether it's from API or mock
-      const recordsArray = Array.isArray(data) ? data : data.records || [];
-      setRecords(prev => page === 1 ? recordsArray : [...prev, ...recordsArray]);
-      setHasMore(recordsArray.length === 20);
+      // Check if response contains an error
+      if (response.error) {
+        setError(`${response.error}${response.details ? ': ' + response.details : ''}`);
+        if (page === 1) {
+          setRecords([]);
+        }
+        setHasMore(false);
+        return;
+      }
+
+      // Handle the response - check if it has data property
+      const recordsArray = response.data || [];
+      const pagination = response.pagination;
+      
+      if (page === 1) {
+        setRecords(recordsArray);
+      } else {
+        setRecords(prev => [...prev, ...recordsArray]);
+      }
+      
+      // Use pagination info if available, otherwise check array length
+      setHasMore(pagination ? pagination.hasMore : recordsArray.length === 20);
       
       // Extract unique forums from data
       if (recordsArray.length > 0) {
-        const uniqueForums = [...new Set(recordsArray.map(item => item.forum_name))];
+        const uniqueForums = [...new Set(recordsArray.map(item => item.forum_name).filter(Boolean))];
         setForums(prev => [...new Set([...prev, ...uniqueForums])]);
       }
-    } catch (err) {
-      setError('Failed to fetch records');
-      console.error(err);
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to fetch records';
+      const errorDetails = err.response?.data?.details || '';
+      setError(`${errorMessage}${errorDetails ? ': ' + errorDetails : ''}`);
+      console.error('Fetch error:', err);
+      
+      // Don't clear existing records on error if we're paginating
+      if (page === 1) {
+        setRecords([]);
+      }
+      setHasMore(false);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const generateMockPosts = (page: number): Post[] => {
-    // This is placeholder data - replace with actual API call
-    return Array.from({ length: 20 }, (_, i) => ({
-      id: (page - 1) * 20 + i + 1,
-      title: `Post ${(page - 1) * 20 + i + 1}: Discussion about governance proposal`,
-      content: 'This is a sample post content discussing various aspects of DAO governance...',
-      author: `user${Math.floor(Math.random() * 100)}`,
-      created_at: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
-      forum_name: ['ARBITRUM', 'OPTIMISM', 'POLYGON'][Math.floor(Math.random() * 3)],
-      topic_id: Math.floor(Math.random() * 1000),
-      post_evaluation: {
-        quality_score: Math.random() * 10,
-        relevance_score: Math.random() * 10,
-        sentiment: ['positive', 'neutral', 'negative'][Math.floor(Math.random() * 3)],
-        summary: 'AI-generated summary of the post content...'
-      }
-    }));
-  };
-
-  const generateMockTopics = (page: number): Topic[] => {
-    // This is placeholder data - replace with actual API call
-    return Array.from({ length: 20 }, (_, i) => ({
-      id: (page - 1) * 20 + i + 1,
-      title: `Topic ${(page - 1) * 20 + i + 1}: Governance Proposal Discussion`,
-      created_at: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
-      forum_name: ['ARBITRUM', 'OPTIMISM', 'POLYGON'][Math.floor(Math.random() * 3)],
-      posts_count: Math.floor(Math.random() * 100),
-      views: Math.floor(Math.random() * 1000),
-      topic_evaluation: {
-        quality_score: Math.random() * 10,
-        relevance_score: Math.random() * 10,
-        summary: 'AI-generated summary of the topic discussion...'
-      }
-    }));
-  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -240,6 +238,18 @@ export default function ExplorePage() {
       <div className="container mx-auto py-10">
         <h1 className="text-4xl font-bold mb-8">Explore Indexed Records</h1>
 
+        {/* Connection Status Banner */}
+        {isConnected === false && (
+          <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded mb-6">
+            <div className="flex items-center">
+              <svg className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              <span>Backend server is not connected. Please ensure the server is running on port 3004.</span>
+            </div>
+          </div>
+        )}
+
         {/* Filters and Tabs */}
         <div className="mb-6 space-y-4">
           <div className="flex gap-4 items-center">
@@ -274,16 +284,36 @@ export default function ExplorePage() {
         {/* Error State */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
-            {error}
+            <div className="flex justify-between items-center">
+              <span>{error}</span>
+              <Button 
+                onClick={() => fetchRecords()}
+                variant="outline"
+                className="text-red-700 border-red-300 hover:bg-red-100"
+              >
+                Retry
+              </Button>
+            </div>
           </div>
         )}
 
         {/* Records List */}
         <div>
-          {records.length === 0 && !isLoading ? (
+          {records.length === 0 && !isLoading && !error ? (
             <Card>
-              <CardContent className="text-center py-8">
-                <p className="text-gray-500">No records found</p>
+              <CardContent className="text-center py-12">
+                <div className="space-y-3">
+                  <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <h3 className="text-lg font-medium text-gray-900">No {activeTab} found</h3>
+                  <p className="text-gray-500">
+                    {selectedForum !== 'all' 
+                      ? `There are no ${activeTab} in ${selectedForum} yet.`
+                      : `No ${activeTab} have been indexed yet. Start crawling to populate data.`
+                    }
+                  </p>
+                </div>
               </CardContent>
             </Card>
           ) : (

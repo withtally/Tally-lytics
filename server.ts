@@ -24,6 +24,7 @@ import { chatRoutes } from './services/server/chatRoutes';
 import { llmRateLimiter } from './services/middleware/rateLimiter';
 import { llmRoutes } from './services/server/llmRoutes';
 import { cronStatusRoutes } from './services/server/cronStatusRoutes';
+import { dataRoutes } from './services/server/dataRoutes';
 
 // HeartbeatMonitor class definition
 class HeartbeatMonitor {
@@ -108,6 +109,9 @@ app.route('', chatRoutes);
 
 // Add cron status routes
 app.route('', cronStatusRoutes);
+
+// Add data routes for posts and topics
+dataRoutes(app, logger);
 
 // Add LLM routes with rate limiting
 app.use('/api/generateSimile', llmRateLimiter);

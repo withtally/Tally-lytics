@@ -16,6 +16,14 @@ export async function vectorizeContent(
   forumName: string,
   retryCount = 3
 ): Promise<void> {
+  // Check if database is available
+  try {
+    await db.raw('SELECT 1');
+  } catch (error) {
+    logger.warn(`Skipping vectorization for ${type} ${id}: Database not available`);
+    return;
+  }
+  
   try {
     let content: string = '';
     let tableName: string = '';

@@ -37,12 +37,26 @@ export interface DiscourseUserResponse {
 
 export class UserService {
   private logger: Logger;
+  private isConnected: boolean = false;
 
   constructor() {
     this.logger = new Logger({
       ...loggerConfig,
       logFile: 'logs/user-service.log',
     });
+    
+    // Check database connection
+    this.checkDatabaseConnection();
+  }
+
+  private async checkDatabaseConnection(): Promise<void> {
+    try {
+      await db.raw('SELECT 1');
+      this.isConnected = true;
+    } catch (error) {
+      this.logger.warn('Database not available - UserService running in limited mode');
+      this.isConnected = false;
+    }
   }
 
   async fetchUserDetails(
@@ -101,6 +115,11 @@ export class UserService {
   }
 
   async upsertUser(user: DiscourseUser, forumName: string): Promise<void> {
+    if (!this.isConnected) {
+      this.logger.debug(`Skipping user upsert for ${user.username} - database not connected`);
+      return;
+    }
+    
     try {
       if (!user.id || !user.username) {
         throw new Error('Missing required user data: id or username');

@@ -11,9 +11,9 @@ lsof -ti:3005 | xargs kill -9 2>/dev/null || true
 lsof -ti:3006 | xargs kill -9 2>/dev/null || true
 sleep 1
 
-# Start backend on 3005
+# Start backend on 3005 in production mode to use Supabase
 echo "🟢 Starting backend on port 3005..."
-PORT=3005 bun server.ts &
+NODE_ENV=production PORT=3005 bun server.ts &
 BACKEND_PID=$!
 
 # Wait for backend

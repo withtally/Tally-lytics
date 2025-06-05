@@ -19,78 +19,118 @@ interface Post {
 export class DatabaseService {
   private db: Knex;
   private logger: Logger;
+  private isConnected: boolean = false;
 
   constructor(private _config: any) {
+    this.logger = new Logger({
+      ...loggerConfig,
+      logFile: 'logs/user-service.log',
+    });
+    
     this.db = db;
 
     this.db
       .raw('SELECT 1')
       .then(() => {
         this.logger.info('Database connection established successfully');
+        this.isConnected = true;
       })
       .catch(error => {
         this.logger.error('Database connection failed:', error);
-        throw error;
+        this.logger.warn('Crawler will run in limited mode without database persistence');
+        this.isConnected = false;
+        // Don't throw error - allow crawler to run without database
       });
+  }
 
-    this.logger = new Logger({
-      ...loggerConfig,
-      logFile: 'logs/user-service.log',
-    });
+  private async checkConnection(): Promise<boolean> {
+    if (!this.isConnected) {
+      this.logger.warn('Database operation skipped - no database connection');
+      return false;
+    }
+    return true;
   }
 
   async getLatestTopicTimestamp(forumName: string): Promise<Date | null> {
-    const result = await this.db('topics')
-      .where({ forum_name: forumName })
-      .max('created_at as latest_timestamp')
-      .first();
-    return result ? new Date(result.latest_timestamp) : null;
+    if (!(await this.checkConnection())) return null;
+    
+    try {
+      const result = await this.db('topics')
+        .where({ forum_name: forumName })
+        .max('created_at as latest_timestamp')
+        .first();
+      return result ? new Date(result.latest_timestamp) : null;
+    } catch (error) {
+      this.logger.error('Error getting latest topic timestamp:', error);
+      return null;
+    }
   }
 
   async getLatestPostTimestamp(forumName: string): Promise<Date | null> {
-    const result = await this.db('posts')
-      .where({ forum_name: forumName })
-      .max('created_at as latest_timestamp')
-      .first();
-    return result ? new Date(result.latest_timestamp) : null;
+    if (!(await this.checkConnection())) return null;
+    
+    try {
+      const result = await this.db('posts')
+        .where({ forum_name: forumName })
+        .max('created_at as latest_timestamp')
+        .first();
+      return result ? new Date(result.latest_timestamp) : null;
+    } catch (error) {
+      this.logger.error('Error getting latest post timestamp:', error);
+      return null;
+    }
   }
 
   async insertPost(post: Post, forumName: string): Promise<void> {
-    await this.db('posts')
-      .insert({
-        id: post.id,
-        forum_name: forumName,
-        topic_id: post.topic_id,
-        username: post.username,
-        plain_text: htmlToText(post.cooked, { wordwrap: 130 }),
-        cooked: post.cooked,
-        created_at: post.created_at,
-        updated_at: post.updated_at || post.created_at,
-      })
-      .onConflict(['id', 'forum_name'])
-      .merge();
+    if (!(await this.checkConnection())) return;
+    
+    try {
+      await this.db('posts')
+        .insert({
+          id: post.id,
+          forum_name: forumName,
+          topic_id: post.topic_id,
+          username: post.username,
+          plain_text: htmlToText(post.cooked, { wordwrap: 130 }),
+          cooked: post.cooked,
+          created_at: post.created_at,
+          updated_at: post.updated_at || post.created_at,
+        })
+        .onConflict(['id', 'forum_name'])
+        .merge();
+    } catch (error) {
+      this.logger.error(`Failed to insert post ${post.id}:`, error);
+    }
   }
 
   async insertTopic(topic: any, forumName: string): Promise<void> {
-    const updatedAt =
-      topic.updated_at || topic.last_posted_at || topic.bumped_at || topic.created_at;
+    if (!(await this.checkConnection())) return;
+    
+    try {
+      const updatedAt =
+        topic.updated_at || topic.last_posted_at || topic.bumped_at || topic.created_at;
 
-    await this.db('topics')
-      .insert({
-        id: topic.id,
-        forum_name: forumName,
-        title: topic.title,
-        slug: topic.slug,
-        posts_count: topic.posts_count,
-        reply_count: topic.reply_count,
-        created_at: topic.created_at,
-        updated_at: updatedAt,
-      })
-      .onConflict(['id', 'forum_name'])
-      .merge();
+      await this.db('topics')
+        .insert({
+          id: topic.id,
+          forum_name: forumName,
+          title: topic.title,
+          slug: topic.slug,
+          posts_count: topic.posts_count,
+          reply_count: topic.reply_count,
+          created_at: topic.created_at,
+          updated_at: updatedAt,
+        })
+        .onConflict(['id', 'forum_name'])
+        .merge();
+    } catch (error) {
+      this.logger.error(`Failed to insert topic ${topic.id}:`, error);
+    }
   }
 
   async insertUser(user: any, forumName: string): Promise<void> {
+    if (!(await this.checkConnection())) return;
+    
     try {
       await userService.upsertUser(
         {
@@ -111,7 +151,6 @@ export class DatabaseService {
       );
     } catch (error: any) {
       this.logger.error(`Failed to insert user ${user.username}:`, error);
-      throw error;
     }
   }
 }

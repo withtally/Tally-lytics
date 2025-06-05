@@ -162,16 +162,18 @@ async function initializePgVectorClient() {
     // Test the connection
     const isHealthy = await pgVectorClient.healthCheck();
     if (!isHealthy) {
-      throw new Error('Database health check failed');
+      logger.warn('Database health check failed - running in limited mode');
+      // Don't throw error, allow the server to start with limited functionality
+    } else {
+      logger.info('Database connection pool initialized successfully', {
+        environment,
+        poolStats: pgVectorClient.getPoolStats(),
+      });
     }
-
-    logger.info('Database connection pool initialized successfully', {
-      environment,
-      poolStats: pgVectorClient.getPoolStats(),
-    });
   } catch (error) {
     logger.error('Failed to initialize database connection pool:', error as object);
-    throw error;
+    logger.warn('Server will run with limited functionality (no database)');
+    // Don't throw error, allow the server to start with limited functionality
   }
 }
 
