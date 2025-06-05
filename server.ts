@@ -274,8 +274,8 @@ const gracefulShutdown = async (server: any, signal: string) => {
           await crawlerManager.stopCrawl(forum);
         }
 
-        // Stop cron jobs
-        cronScheduler.stopAll();
+        // Stop cron jobs and release locks
+        await cronScheduler.shutdown();
 
         // Close database connections
         await pgVectorClient.end();

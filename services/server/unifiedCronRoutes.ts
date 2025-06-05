@@ -9,8 +9,11 @@ export const unifiedCronRoutes = (app: Hono, cronScheduler: CronScheduler, logge
   app.get('/api/cron/status', async (c: Context) => {
     try {
       const status = await cronScheduler.getStatus();
+      const lockStatus = await cronScheduler.getLockStatus();
+      
       return c.json({
         ...status,
+        distributedLocks: lockStatus,
         timestamp: new Date().toISOString(),
       });
     } catch (error: any) {
@@ -296,6 +299,67 @@ export const unifiedCronRoutes = (app: Hono, cronScheduler: CronScheduler, logge
       return c.json(
         {
           error: 'Failed to stop cron job',
+          details: errorMessage,
+          timestamp: new Date().toISOString(),
+        },
+        500
+      );
+    }
+  });
+
+  // Distributed lock management endpoints
+
+  // Get all distributed locks
+  app.get('/api/cron/locks', async (c: Context) => {
+    try {
+      const locks = await cronScheduler.getLockStatus();
+      
+      return c.json({
+        locks,
+        total: locks.length,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      logger.error('Failed to get lock status', { error: errorMessage });
+      
+      return c.json(
+        {
+          error: 'Failed to get lock status',
+          details: errorMessage,
+          timestamp: new Date().toISOString(),
+        },
+        500
+      );
+    }
+  });
+
+  // Force release all locks (emergency use only)
+  app.post('/api/cron/locks/force-release', async (c: Context) => {
+    try {
+      // Check for API key for security
+      if (process.env.CRON_API_KEY) {
+        const apiKey = c.req.header('X-API-Key');
+        if (apiKey !== process.env.CRON_API_KEY) {
+          logger.warn('Unauthorized attempt to force release locks - invalid API key');
+          return c.json({ error: 'Unauthorized', code: 'UNAUTHORIZED' }, 401);
+        }
+      }
+
+      const releasedCount = await cronScheduler.forceReleaseAllLocks();
+      
+      return c.json({
+        message: `Force released ${releasedCount} locks`,
+        releasedCount,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      logger.error('Failed to force release locks', { error: errorMessage });
+      
+      return c.json(
+        {
+          error: 'Failed to force release locks',
           details: errorMessage,
           timestamp: new Date().toISOString(),
         },

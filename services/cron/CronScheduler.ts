@@ -3,6 +3,7 @@ import { CronJob } from 'cron';
 import { CronTask } from './CronTask';
 import { Logger } from '../logging';
 import { CronValidator } from '../validation/cronValidator';
+import { DistributedLock } from './DistributedLock';
 
 /**
  * Manages multiple cron tasks with a unified interface
@@ -16,11 +17,17 @@ export class CronScheduler {
     parseInt(process.env.CRON_EXECUTION_TIMEOUT_MINUTES || '30', 10) * 60 * 1000;
   private readonly RETRY_DELAY =
     parseInt(process.env.CRON_RETRY_DELAY_MINUTES || '5', 10) * 60 * 1000;
+  private readonly USE_DISTRIBUTED_LOCK = process.env.USE_DISTRIBUTED_CRON_LOCK !== 'false';
 
   private retryCount: Map<string, number> = new Map();
   private executionTimeouts: Map<string, NodeJS.Timeout> = new Map();
+  private activeLocks: Map<string, string> = new Map(); // taskName -> instanceId
+  private heartbeatIntervals: Map<string, NodeJS.Timeout> = new Map();
+  private distributedLock: DistributedLock;
 
-  constructor(private readonly logger: Logger) {}
+  constructor(private readonly logger: Logger) {
+    this.distributedLock = new DistributedLock(logger);
+  }
 
   /**
    * Register a task with the scheduler
@@ -152,6 +159,23 @@ export class CronScheduler {
       return;
     }
 
+    // Try to acquire distributed lock if enabled
+    let lockAcquired = false;
+    let instanceId: string | undefined;
+
+    if (this.USE_DISTRIBUTED_LOCK) {
+      instanceId = this.generateInstanceId();
+      lockAcquired = await this.distributedLock.acquireLock(`cron_task_${taskName}`, instanceId);
+      
+      if (!lockAcquired) {
+        this.logger.info(`Task ${taskName} skipped - another instance is already running`);
+        return;
+      }
+
+      this.activeLocks.set(taskName, instanceId);
+      this.startHeartbeat(taskName, instanceId);
+    }
+
     // Clear any existing timeout
     const existingTimeout = this.executionTimeouts.get(taskName);
     if (existingTimeout) {
@@ -196,6 +220,11 @@ export class CronScheduler {
           // Clear timeout
           clearTimeout(timeout);
           this.executionTimeouts.delete(taskName);
+
+          // Release distributed lock if acquired
+          if (lockAcquired && instanceId) {
+            await this.releaseLock(taskName, instanceId);
+          }
         }
       };
 
@@ -288,5 +317,98 @@ export class CronScheduler {
    */
   getRegisteredTasks(): string[] {
     return Array.from(this.tasks.keys());
+  }
+
+  /**
+   * Generate a unique instance ID for this process
+   */
+  private generateInstanceId(): string {
+    const hostname = process.env.HOSTNAME || process.env.RAILWAY_REPLICA_ID || 'unknown';
+    const pid = process.pid;
+    const timestamp = Date.now();
+    return `${hostname}-${pid}-${timestamp}`;
+  }
+
+  /**
+   * Start heartbeat for a locked task
+   */
+  private startHeartbeat(taskName: string, instanceId: string): void {
+    // Update heartbeat every 2 minutes (lock timeout is typically 30 minutes)
+    const heartbeatInterval = setInterval(async () => {
+      const success = await this.distributedLock.updateHeartbeat(`cron_task_${taskName}`, instanceId);
+      if (!success) {
+        this.logger.warn(`Failed to update heartbeat for task ${taskName}`, { instanceId });
+        this.stopHeartbeat(taskName);
+      }
+    }, 2 * 60 * 1000);
+
+    this.heartbeatIntervals.set(taskName, heartbeatInterval);
+  }
+
+  /**
+   * Stop heartbeat for a task
+   */
+  private stopHeartbeat(taskName: string): void {
+    const interval = this.heartbeatIntervals.get(taskName);
+    if (interval) {
+      clearInterval(interval);
+      this.heartbeatIntervals.delete(taskName);
+    }
+  }
+
+  /**
+   * Release lock for a task
+   */
+  private async releaseLock(taskName: string, instanceId: string): Promise<void> {
+    this.stopHeartbeat(taskName);
+    await this.distributedLock.releaseLock(`cron_task_${taskName}`, instanceId);
+    this.activeLocks.delete(taskName);
+  }
+
+  /**
+   * Get distributed lock status for monitoring
+   */
+  async getLockStatus(): Promise<any[]> {
+    if (!this.USE_DISTRIBUTED_LOCK) {
+      return [];
+    }
+    return await this.distributedLock.getAllLocks();
+  }
+
+  /**
+   * Force release all locks (emergency use only)
+   */
+  async forceReleaseAllLocks(): Promise<number> {
+    if (!this.USE_DISTRIBUTED_LOCK) {
+      return 0;
+    }
+
+    // Stop all heartbeats
+    for (const taskName of this.heartbeatIntervals.keys()) {
+      this.stopHeartbeat(taskName);
+    }
+    this.activeLocks.clear();
+
+    return await this.distributedLock.forceReleaseAllLocks();
+  }
+
+  /**
+   * Cleanup method to call on shutdown
+   */
+  async shutdown(): Promise<void> {
+    this.logger.info('Shutting down cron scheduler...');
+    
+    // Stop all tasks
+    this.stopAll();
+    
+    // Release all locks
+    for (const [taskName, instanceId] of this.activeLocks) {
+      await this.releaseLock(taskName, instanceId);
+    }
+    
+    // Stop the distributed lock cleanup process
+    this.distributedLock.stopCleanupProcess();
+    
+    this.logger.info('Cron scheduler shutdown complete');
   }
 }
