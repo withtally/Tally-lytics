@@ -275,13 +275,8 @@ export class CrawlerManager {
       this.logger.info(`Starting thread evaluation for ${forumName}`);
       await evaluateUnevaluatedThreads(forumName);
       
-      // Get actual count of evaluated threads/topics
-      const db = require('../../db/db').default;
-      const evaluatedThreadsCount = await db('topics')
-        .where({ forum_name: forumName })
-        .whereNotNull('thread_quality')
-        .count('* as count')
-        .first();
+      // For now, we don't have thread_quality column, so threads count remains 0
+      const evaluatedThreadsCount = { count: 0 };
 
       // Snapshot proposals (if configured)
       if (config.snapshotSpaceId) {
