@@ -121,8 +121,9 @@ export default function CrawlersPage() {
   };
 
   const calculateProgress = (progress?: any) => {
-    if (!progress || !progress.totalDocuments) return 0;
-    return Math.round((progress.processedDocuments / progress.totalDocuments) * 100);
+    // Since we don't have totalDocuments in the current API response,
+    // we'll show indeterminate progress for running crawlers
+    return 0;
   };
 
   return (
@@ -201,15 +202,15 @@ export default function CrawlersPage() {
                         <div className="grid grid-cols-3 gap-4 mt-3 text-sm">
                           <div>
                             <span className="text-gray-500">Topics</span>
-                            <p className="font-medium">{crawler.progress.evaluations.topics || 0}</p>
+                            <p className="font-medium">{parseInt(crawler.progress.evaluations.topics) || 0}</p>
                           </div>
                           <div>
                             <span className="text-gray-500">Posts</span>
-                            <p className="font-medium">{crawler.progress.evaluations.posts || 0}</p>
+                            <p className="font-medium">{parseInt(crawler.progress.evaluations.posts) || 0}</p>
                           </div>
                           <div>
                             <span className="text-gray-500">Threads</span>
-                            <p className="font-medium">{crawler.progress.evaluations.threads || 0}</p>
+                            <p className="font-medium">{parseInt(crawler.progress.evaluations.threads) || 0}</p>
                           </div>
                         </div>
                       )}
@@ -227,11 +228,23 @@ export default function CrawlersPage() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                     <div>
                       <p className="text-sm text-gray-500">Total Documents</p>
-                      <p className="text-lg font-semibold">{crawler.progress?.totalDocuments || 0}</p>
+                      <p className="text-lg font-semibold">
+                        {crawler.progress?.evaluations 
+                          ? (parseInt(crawler.progress.evaluations.topics) || 0) + 
+                            (parseInt(crawler.progress.evaluations.posts) || 0) + 
+                            (parseInt(crawler.progress.evaluations.threads) || 0)
+                          : 0}
+                      </p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Processed</p>
-                      <p className="text-lg font-semibold">{crawler.progress?.processedDocuments || 0}</p>
+                      <p className="text-lg font-semibold">
+                        {crawler.progress?.evaluations 
+                          ? (parseInt(crawler.progress.evaluations.topics) || 0) + 
+                            (parseInt(crawler.progress.evaluations.posts) || 0) + 
+                            (parseInt(crawler.progress.evaluations.threads) || 0)
+                          : 0}
+                      </p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Start Time</p>
