@@ -21,7 +21,7 @@ export default function CrawlersPage() {
 
   useEffect(() => {
     fetchCrawlerStatus();
-    const interval = setInterval(fetchCrawlerStatus, 3000); // Poll every 3 seconds
+    const interval = setInterval(fetchCrawlerStatus, 1000); // Poll every 1 second
     return () => clearInterval(interval);
   }, []);
 
@@ -176,7 +176,7 @@ export default function CrawlersPage() {
                     <div>
                       <CardTitle>{crawler.forumName}</CardTitle>
                       <CardDescription>
-                        Last run: {formatLastRun(crawler.lastRun)}
+                        Last run: {formatLastRun(crawler.endTime)}
                       </CardDescription>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(crawler.status)}`}>

@@ -55,6 +55,7 @@ export interface CrawlerStatusItem {
   status: string;
   progress: CrawlerProgress;
   startTime?: string;
+  endTime?: string;
   lastRun?: string;
   lastError?: string;
   [key: string]: unknown;
