@@ -18,10 +18,10 @@ describe('Crawl Routes', () => {
     const mockApp = {
       get: () => {},
       post: () => {},
-      use: () => {}
+      use: () => {},
     };
     const mockCrawlerManager = {};
-    
+
     // Should not throw when called with mocks
     expect(() => crawlRoutes(mockApp as any, mockCrawlerManager as any)).not.toThrow();
   });

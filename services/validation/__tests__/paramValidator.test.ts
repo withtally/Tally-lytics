@@ -147,7 +147,6 @@ describe('paramValidator', () => {
     });
 
     describe('ValidationError interface', () => {
-
       it('should create different error codes for different validation failures', () => {
         const testCases = [
           { input: undefined, expectedCode: 'MISSING_PARAMETER' },
@@ -170,7 +169,6 @@ describe('paramValidator', () => {
 
   describe('validateQueryArray', () => {
     describe('basic functionality', () => {
-
       it('should parse single item arrays', () => {
         expect(validateQueryArray('arbitrum')).toEqual(['arbitrum']);
         expect(validateQueryArray('test-forum')).toEqual(['test-forum']);
@@ -280,7 +278,6 @@ describe('paramValidator', () => {
       it('should handle mixed valid and empty items', () => {
         expect(validateQueryArray('arbitrum,  ,uniswap,  ,')).toEqual(['arbitrum', 'uniswap']);
       });
-
 
       it('should validate real-world forum name patterns', () => {
         expect(

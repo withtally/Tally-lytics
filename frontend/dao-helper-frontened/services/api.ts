@@ -8,7 +8,7 @@ const getApiBaseUrl = () => {
   if (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.startsWith('http')) {
     return process.env.NEXT_PUBLIC_API_URL;
   }
-  
+
   // In development or when using Next.js rewrites, use relative URLs
   return '';
 };
@@ -176,9 +176,8 @@ export const crawlerApi = {
   },
 
   stopAllCrawlers: async () => {
-    const response = await api.post<ApiResponse<{ message: string; results?: any[] }>>(
-      '/api/crawl/stop-all'
-    );
+    const response =
+      await api.post<ApiResponse<{ message: string; results?: any[] }>>('/api/crawl/stop-all');
     return response.data;
   },
 };
@@ -388,12 +387,7 @@ export const aiApi = {
 
 // Posts API
 export const postsApi = {
-  getPosts: async (params: {
-    page?: number;
-    limit?: number;
-    forum?: string;
-    orderBy?: string;
-  }) => {
+  getPosts: async (params: { page?: number; limit?: number; forum?: string; orderBy?: string }) => {
     const response = await api.get('/api/posts', { params });
     return response.data;
   },

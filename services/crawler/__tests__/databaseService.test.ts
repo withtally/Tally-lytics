@@ -16,7 +16,7 @@ describe('DatabaseService', () => {
   it('should have required database methods', () => {
     // Create instance with empty config to check methods exist
     const instance = new DatabaseService({});
-    
+
     expect(typeof instance.getLatestTopicTimestamp).toBe('function');
     expect(typeof instance.getLatestPostTimestamp).toBe('function');
     expect(typeof instance.insertPost).toBe('function');

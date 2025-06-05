@@ -17,12 +17,12 @@ describe('ApiService', () => {
     const mockConfig = {
       apiKey: 'test-key',
       apiUsername: 'test-user',
-      discourseUrl: 'https://test.com'
+      discourseUrl: 'https://test.com',
     };
-    
+
     // Create instance to check methods exist
     const instance = new ApiService(mockConfig, 'test-forum');
-    
+
     expect(typeof instance.fetchUserDetails).toBe('function');
     expect(typeof instance.fetchNewTopics).toBe('function');
     expect(typeof instance.fetchNewPosts).toBe('function');
@@ -32,9 +32,9 @@ describe('ApiService', () => {
     const mockConfig = {
       apiKey: 'test-key',
       apiUsername: 'test-user',
-      discourseUrl: 'https://test.com'
+      discourseUrl: 'https://test.com',
     };
-    
+
     const instance = new ApiService(mockConfig, 'test-forum');
     expect(instance.fetchUserDetails.length).toBe(1);
   });
@@ -43,9 +43,9 @@ describe('ApiService', () => {
     const mockConfig = {
       apiKey: 'test-key',
       apiUsername: 'test-user',
-      discourseUrl: 'https://test.com'
+      discourseUrl: 'https://test.com',
     };
-    
+
     const instance = new ApiService(mockConfig, 'test-forum');
     expect(instance.fetchNewTopics.length).toBe(1);
   });
@@ -54,9 +54,9 @@ describe('ApiService', () => {
     const mockConfig = {
       apiKey: 'test-key',
       apiUsername: 'test-user',
-      discourseUrl: 'https://test.com'
+      discourseUrl: 'https://test.com',
     };
-    
+
     const instance = new ApiService(mockConfig, 'test-forum');
     expect(instance.fetchNewPosts.length).toBe(2);
   });

@@ -36,7 +36,7 @@ export const cronRoutes = (app: Hono, cronManager: CronManager, logger: Logger) 
       if (contentType?.includes('application/json')) {
         const body = await c.req.json();
         schedule = body.schedule;
-        
+
         // Validate the schedule if provided
         if (schedule) {
           const validation = CronValidator.validate(schedule);

@@ -21,7 +21,7 @@ export class CommonTopicsCron {
   constructor(schedule = '0 0 * * *', timeframe = '14d') {
     // Default: Run daily at midnight
     this.timeframe = timeframe;
-    
+
     try {
       this.job = new CronJob(
         schedule,
@@ -40,7 +40,9 @@ export class CommonTopicsCron {
       logger.info(`Common topics cron job initialized with schedule: ${schedule}`);
     } catch (error) {
       logger.error('Failed to initialize common topics cron job:', error as Error);
-      throw new Error(`Failed to initialize cron job: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to initialize cron job: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 

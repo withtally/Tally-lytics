@@ -62,7 +62,11 @@ describe('errorResponse utilities', () => {
     });
 
     test('should handle all parameters', () => {
-      const result = createErrorResponse('Server error', 'INTERNAL_ERROR', 'Database connection failed');
+      const result = createErrorResponse(
+        'Server error',
+        'INTERNAL_ERROR',
+        'Database connection failed'
+      );
 
       expect(result).toEqual({
         error: 'Server error',
@@ -168,7 +172,6 @@ describe('errorResponse utilities', () => {
       expect(result.details).toBeUndefined();
     });
   });
-
 
   describe('edge cases', () => {
     test('should handle empty string message', () => {

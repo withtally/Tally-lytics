@@ -43,14 +43,14 @@ describe('DiscourseUrlHelper', () => {
       const topicId = 123;
       const slug = 'test-topic-slug';
       const url = urlHelper.getTopicUrl(topicId, slug);
-      
+
       expect(url).toBe(`${baseUrl}/t/${slug}/${topicId}`);
     });
 
     it('should handle missing slug', () => {
       const topicId = 123;
       const url = urlHelper.getTopicUrl(topicId);
-      
+
       expect(url).toBe(`${baseUrl}/t/${topicId}`);
     });
   });
@@ -60,7 +60,7 @@ describe('DiscourseUrlHelper', () => {
       const topicId = 123;
       const postNumber = 5;
       const url = urlHelper.getPostUrl(topicId, postNumber);
-      
+
       expect(url).toBe(`${baseUrl}/t/${topicId}/${postNumber}`);
     });
 
@@ -69,7 +69,7 @@ describe('DiscourseUrlHelper', () => {
       const postNumber = 5;
       const slug = 'test-topic';
       const url = urlHelper.getPostUrl(topicId, postNumber, slug);
-      
+
       expect(url).toBe(`${baseUrl}/t/${slug}/${topicId}/${postNumber}`);
     });
   });
@@ -78,7 +78,7 @@ describe('DiscourseUrlHelper', () => {
     it('should generate correct user URL', () => {
       const username = 'testuser';
       const url = urlHelper.getUserUrl(username);
-      
+
       expect(url).toBe(`${baseUrl}/u/${username}`);
     });
   });

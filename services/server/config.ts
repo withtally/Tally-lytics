@@ -10,7 +10,12 @@ export const configureMiddleware = (app: Hono) => {
   app.use(
     '*',
     cors({
-      origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3005', 'http://localhost:3006'],
+      origin: [
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'http://localhost:3005',
+        'http://localhost:3006',
+      ],
       credentials: true,
       allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowHeaders: ['Content-Type', 'Authorization'],

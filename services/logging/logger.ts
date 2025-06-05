@@ -3,7 +3,8 @@ import winston from 'winston';
 let chalk: any;
 
 // Check if we're in a test environment
-const isTestEnv = process.env.NODE_ENV === 'test' || typeof jest !== 'undefined' || typeof Bun !== 'undefined';
+const isTestEnv =
+  process.env.NODE_ENV === 'test' || typeof jest !== 'undefined' || typeof Bun !== 'undefined';
 
 if (isTestEnv) {
   // Use fallback in test environments

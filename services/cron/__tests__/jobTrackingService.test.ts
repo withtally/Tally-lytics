@@ -22,7 +22,7 @@ describe('JobTrackingService', () => {
 
   it('should have required job tracking methods', () => {
     const instance = new JobTrackingService();
-    
+
     expect(typeof instance.startJob).toBe('function');
     expect(typeof instance.completeJob).toBe('function');
     expect(typeof instance.failJob).toBe('function');

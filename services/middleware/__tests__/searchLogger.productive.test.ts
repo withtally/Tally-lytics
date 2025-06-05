@@ -12,17 +12,19 @@ describe('searchLogger Middleware (Productive)', () => {
     // Create minimal mock context and next
     const mockContext = {
       req: {
-        json: async () => ({ query: 'test', forum: 'arbitrum' })
+        json: async () => ({ query: 'test', forum: 'arbitrum' }),
       },
-      res: { status: 200 }
+      res: { status: 200 },
     } as any;
-    
+
     let nextCalled = false;
-    const mockNext = async () => { nextCalled = true; };
+    const mockNext = async () => {
+      nextCalled = true;
+    };
 
     // Test that middleware executes
     await searchLogger(mockContext, mockNext);
-    
+
     // Verify next was called
     expect(nextCalled).toBe(true);
   });
@@ -30,17 +32,21 @@ describe('searchLogger Middleware (Productive)', () => {
   it('should handle malformed request data gracefully', async () => {
     const mockContext = {
       req: {
-        json: async () => { throw new Error('Invalid JSON'); }
+        json: async () => {
+          throw new Error('Invalid JSON');
+        },
       },
-      res: { status: 200 }
+      res: { status: 200 },
     } as any;
-    
+
     let nextCalled = false;
-    const mockNext = async () => { nextCalled = true; };
+    const mockNext = async () => {
+      nextCalled = true;
+    };
 
     // Should handle errors gracefully
     await searchLogger(mockContext, mockNext);
-    
+
     // Next should still be called even if logging fails
     expect(nextCalled).toBe(true);
   });

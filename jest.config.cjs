@@ -18,14 +18,17 @@ module.exports = {
     '^@config/(.*)$': '<rootDir>/config/$1',
     '^@utils/(.*)$': '<rootDir>/utils/$1',
     '^(\\.{1,2}/.*)\\.js$': '$1',
-    '\\.\\.\/knexfile\\.js$': '<rootDir>/__mocks__/knexfile.js',
+    '\\.\\./knexfile\\.js$': '<rootDir>/__mocks__/knexfile.js',
   },
 
   // TypeScript handling
   transform: {
-    '^.+\\.ts$': ['ts-jest', {
-      useESM: false,
-    }],
+    '^.+\\.ts$': [
+      'ts-jest',
+      {
+        useESM: false,
+      },
+    ],
     '^.+\\.js$': 'babel-jest',
   },
 

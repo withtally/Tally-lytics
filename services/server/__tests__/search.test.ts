@@ -18,12 +18,12 @@ describe('Search Routes', () => {
     const mockApp = {
       get: () => {},
       post: () => {},
-      use: () => {}
+      use: () => {},
     };
     const mockSearchService = {
-      search: async () => []
+      search: async () => [],
     };
-    
+
     // Should not throw when called with mocks
     expect(() => searchRoutes(mockApp as any, mockSearchService as any)).not.toThrow();
   });

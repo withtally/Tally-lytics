@@ -28,10 +28,7 @@ export function Header({ className }: HeaderProps) {
         </div>
         <div className="flex flex-1 justify-end space-x-4">
           <nav className="flex items-center space-x-4">
-            <Link
-              href="/"
-              className="text-sm font-medium transition-colors hover:text-primary"
-            >
+            <Link href="/" className="text-sm font-medium transition-colors hover:text-primary">
               Dashboard
             </Link>
             <Link
@@ -64,11 +61,7 @@ export function Header({ className }: HeaderProps) {
             >
               System
             </Link>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleLogout}
-            >
+            <Button variant="outline" size="sm" onClick={handleLogout}>
               Logout
             </Button>
           </nav>

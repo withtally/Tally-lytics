@@ -12,31 +12,35 @@ const defaultParsedResponse = {
 
 // Create mock functions
 export const mockParse = mock(async () => ({
-  choices: [{
-    message: {
-      parsed: defaultParsedResponse,
-      refusal: null,
-    }
-  }],
+  choices: [
+    {
+      message: {
+        parsed: defaultParsedResponse,
+        refusal: null,
+      },
+    },
+  ],
   usage: {
     prompt_tokens: 100,
     completion_tokens: 50,
     total_tokens: 150,
-  }
+  },
 }));
 
 export const mockCreate = mock(async () => ({
-  choices: [{
-    message: {
-      content: JSON.stringify(defaultParsedResponse),
-      role: 'assistant',
-    }
-  }],
+  choices: [
+    {
+      message: {
+        content: JSON.stringify(defaultParsedResponse),
+        role: 'assistant',
+      },
+    },
+  ],
   usage: {
     prompt_tokens: 100,
     completion_tokens: 50,
     total_tokens: 150,
-  }
+  },
 }));
 
 export const mockEmbeddingsCreate = mock(async (params: any) => ({

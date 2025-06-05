@@ -231,7 +231,9 @@ export async function crawlNewsArticleEvaluationsForForum(forumName: string): Pr
     }
   }
 
-  logger.info(`Completed news article evaluations for ${forumName}. Processed: ${processedCount} articles.`);
+  logger.info(
+    `Completed news article evaluations for ${forumName}. Processed: ${processedCount} articles.`
+  );
 }
 
 export async function crawlNewsArticleEvaluations(): Promise<void> {

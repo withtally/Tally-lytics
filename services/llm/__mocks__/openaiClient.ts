@@ -25,21 +25,22 @@ const defaultTopicEvaluation = {
 const mockParse = mock(async (params: any) => {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 10));
-  
+
   // Determine response based on input
   let parsed = defaultPostEvaluation;
-  
+
   if (params.messages && params.messages.length > 0) {
     const lastMessage = params.messages[params.messages.length - 1];
-    const content = typeof lastMessage.content === 'string' 
-      ? lastMessage.content 
-      : JSON.stringify(lastMessage.content);
-    
+    const content =
+      typeof lastMessage.content === 'string'
+        ? lastMessage.content
+        : JSON.stringify(lastMessage.content);
+
     if (content.includes('topic')) {
       parsed = defaultTopicEvaluation;
     }
   }
-  
+
   return {
     choices: [
       {
@@ -62,19 +63,19 @@ const mockParse = mock(async (params: any) => {
 const mockCreate = mock(async (params: any) => {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 10));
-  
+
   let content = 'This is a mock response from OpenAI.';
-  
+
   if (params.messages && params.messages.length > 0) {
     const lastMessage = params.messages[params.messages.length - 1];
-    
+
     if (lastMessage.content.includes('evaluate')) {
       content = JSON.stringify(defaultPostEvaluation);
     } else if (lastMessage.content.includes('topic')) {
       content = JSON.stringify(defaultTopicEvaluation);
     }
   }
-  
+
   return {
     choices: [
       {
@@ -96,12 +97,12 @@ const mockCreate = mock(async (params: any) => {
 // Create embeddings mock
 const mockEmbeddingsCreate = mock(async (params: any) => {
   await new Promise(resolve => setTimeout(resolve, 10));
-  
+
   const embeddings = params.input.map((_: any, index: number) => ({
     embedding: Array.from({ length: 1536 }, () => Math.random() * 2 - 1),
     index,
   }));
-  
+
   return {
     data: embeddings,
     usage: {

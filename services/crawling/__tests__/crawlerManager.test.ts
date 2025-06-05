@@ -26,18 +26,18 @@ describe('CrawlerManager', () => {
     const mockLogger = {
       info: () => {},
       warn: () => {},
-      error: () => {}
+      error: () => {},
     };
-    
+
     const mockHeartbeatMonitor = {
       updateHeartbeat: () => {},
       isStalled: () => false,
       clear: () => {},
-      getAllStalled: () => []
+      getAllStalled: () => [],
     };
-    
+
     const instance = new CrawlerManager(mockLogger as any, mockHeartbeatMonitor as any);
-    
+
     expect(typeof instance.startCrawl).toBe('function');
     expect(typeof instance.stopCrawl).toBe('function');
     expect(typeof instance.getStatus).toBe('function');
@@ -48,16 +48,16 @@ describe('CrawlerManager', () => {
     const mockLogger = {
       info: () => {},
       warn: () => {},
-      error: () => {}
+      error: () => {},
     };
-    
+
     const mockHeartbeatMonitor = {
       updateHeartbeat: () => {},
       isStalled: () => false,
       clear: () => {},
-      getAllStalled: () => []
+      getAllStalled: () => [],
     };
-    
+
     const instance = new CrawlerManager(mockLogger as any, mockHeartbeatMonitor as any);
     expect(instance.startCrawl.length).toBe(1);
   });
@@ -66,16 +66,16 @@ describe('CrawlerManager', () => {
     const mockLogger = {
       info: () => {},
       warn: () => {},
-      error: () => {}
+      error: () => {},
     };
-    
+
     const mockHeartbeatMonitor = {
       updateHeartbeat: () => {},
       isStalled: () => false,
       clear: () => {},
-      getAllStalled: () => []
+      getAllStalled: () => [],
     };
-    
+
     const instance = new CrawlerManager(mockLogger as any, mockHeartbeatMonitor as any);
     expect(instance.stopCrawl.length).toBe(1);
   });
@@ -84,16 +84,16 @@ describe('CrawlerManager', () => {
     const mockLogger = {
       info: () => {},
       warn: () => {},
-      error: () => {}
+      error: () => {},
     };
-    
+
     const mockHeartbeatMonitor = {
       updateHeartbeat: () => {},
       isStalled: () => false,
       clear: () => {},
-      getAllStalled: () => []
+      getAllStalled: () => [],
     };
-    
+
     const instance = new CrawlerManager(mockLogger as any, mockHeartbeatMonitor as any);
     expect(instance.getStatus.length).toBe(1);
   });
@@ -102,16 +102,16 @@ describe('CrawlerManager', () => {
     const mockLogger = {
       info: () => {},
       warn: () => {},
-      error: () => {}
+      error: () => {},
     };
-    
+
     const mockHeartbeatMonitor = {
       updateHeartbeat: () => {},
       isStalled: () => false,
       clear: () => {},
-      getAllStalled: () => []
+      getAllStalled: () => [],
     };
-    
+
     const instance = new CrawlerManager(mockLogger as any, mockHeartbeatMonitor as any);
     expect(instance.getAllStatuses.length).toBe(0);
   });

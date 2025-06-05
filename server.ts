@@ -81,7 +81,46 @@ const logger = new Logger({
 
 export const crawlerManager = new CrawlerManager(logger, state.heartbeatMonitor);
 const searchService = new VectorSearchService();
-const cronManager = new CronManager(crawlerManager, logger);
+
+// Initialize unified cron scheduler
+import { CronScheduler } from './services/cron/CronScheduler';
+import { CrawlAllForumsTask } from './services/cron/tasks/CrawlAllForumsTask';
+import { GenerateTopicsTask } from './services/cron/tasks/GenerateTopicsTask';
+
+const cronScheduler = new CronScheduler(logger);
+
+// Register cron tasks
+const crawlTask = new CrawlAllForumsTask(crawlerManager, logger);
+const topicsTask = new GenerateTopicsTask(logger);
+
+cronScheduler.registerTask(crawlTask);
+cronScheduler.registerTask(topicsTask);
+
+// For backward compatibility, create a cronManager wrapper
+const cronManager = {
+  startScheduledCrawls: (schedule?: string) => {
+    if (schedule) {
+      cronScheduler.startTask('crawl_all_forums', schedule);
+    } else {
+      cronScheduler.startTask('crawl_all_forums');
+    }
+  },
+  stopScheduledCrawls: () => {
+    cronScheduler.stopTask('crawl_all_forums');
+  },
+  getStatus: () => {
+    // This will be async in the new system, but keeping sync for compatibility
+    return {
+      enabled: true, // Will be updated based on actual status
+      schedule: crawlTask.defaultSchedule,
+      nextRun: null, // Will be populated by the new system
+      lastRun: null,
+      isExecuting: false,
+      retryCount: 0,
+      maxRetries: 3,
+    };
+  },
+};
 
 import { Hono } from 'hono';
 const app = new Hono();
@@ -93,7 +132,10 @@ configureMiddleware(app);
 healthRoutes(app, crawlerManager);
 crawlRoutes(app, crawlerManager, logger);
 searchRoutes(app, searchService, logger);
-cronRoutes(app, cronManager, logger);
+
+// Use unified cron routes
+import { unifiedCronRoutes } from './services/server/unifiedCronRoutes';
+unifiedCronRoutes(app, cronScheduler, logger);
 marketCapRoutes(app, logger);
 newsRoutes(app, logger);
 app.get('/rss', async c => {
@@ -118,10 +160,17 @@ app.use('/api/generateSimile', llmRateLimiter);
 app.use('/api/generateFollowUp', llmRateLimiter);
 app.route('', llmRoutes);
 
-// Initialize cron job for common topics - DISABLED for Railway deployment
-// We now use Railway's native cron service instead
-// const commonTopicsCron = new CommonTopicsCron();
-// commonTopicsCron.start();
+// Initialize unified cron scheduler based on environment
+// In production, we can choose between in-app cron or external Railway cron
+const shouldStartCron =
+  process.env.ENABLE_IN_APP_CRON === 'true' || process.env.NODE_ENV !== 'production';
+
+if (shouldStartCron) {
+  logger.info('Starting in-app cron scheduler');
+  cronScheduler.startAll();
+} else {
+  logger.info('In-app cron scheduler disabled - using external cron service');
+}
 
 // Add search logging middleware to search routes
 // app.post('/api/search', searchLogger, searchHandler);
@@ -226,7 +275,7 @@ const gracefulShutdown = async (server: any, signal: string) => {
         }
 
         // Stop cron jobs
-        cronManager.stopScheduledCrawls();
+        cronScheduler.stopAll();
 
         // Close database connections
         await pgVectorClient.end();

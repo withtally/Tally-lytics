@@ -112,7 +112,9 @@ export default function Home() {
               <CardTitle className="text-sm font-medium">System Status</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className={`text-2xl font-bold ${systemHealth ? 'text-green-600' : 'text-gray-400'}`}>
+              <p
+                className={`text-2xl font-bold ${systemHealth ? 'text-green-600' : 'text-gray-400'}`}
+              >
                 {systemHealth ? 'Healthy' : 'Unknown'}
               </p>
               <p className="text-xs text-muted-foreground">all systems operational</p>
@@ -145,8 +147,11 @@ export default function Home() {
               <p className="text-muted-foreground">No crawlers configured</p>
             ) : (
               <div className="space-y-4">
-                {crawlerStatuses.map((crawler) => (
-                  <div key={crawler.forumName} className="flex items-center justify-between p-4 border rounded-lg">
+                {crawlerStatuses.map(crawler => (
+                  <div
+                    key={crawler.forumName}
+                    className="flex items-center justify-between p-4 border rounded-lg"
+                  >
                     <div className="flex-1">
                       <h3 className="font-semibold">{crawler.forumName}</h3>
                       <p className={`text-sm ${getStatusColor(crawler.status)}`}>
@@ -154,14 +159,12 @@ export default function Home() {
                       </p>
                       {crawler.progress && (
                         <p className="text-sm text-muted-foreground">
-                          Documents: {crawler.progress.processedDocuments || 0} / {crawler.progress.totalDocuments || 0}
+                          Documents: {crawler.progress.processedDocuments || 0} /{' '}
+                          {crawler.progress.totalDocuments || 0}
                         </p>
                       )}
                     </div>
-                    <Button
-                      size="sm"
-                      onClick={() => router.push('/crawlers')}
-                    >
+                    <Button size="sm" onClick={() => router.push('/crawlers')}>
                       Manage
                     </Button>
                   </div>

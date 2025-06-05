@@ -25,7 +25,7 @@ describe('CitationFormatter', () => {
   describe('formatCitation', () => {
     it('should format citations correctly', () => {
       const formatter = new CitationFormatter(mockForumConfig);
-      
+
       // Test the formatting logic without mocking dependencies
       const result = {
         id: 123,
@@ -35,7 +35,7 @@ describe('CitationFormatter', () => {
         username: 'testuser',
         forum_name: 'test-forum',
       };
-      
+
       // Verify the method exists and returns a string
       expect(typeof formatter.formatCitation).toBe('function');
       const citation = formatter.formatCitation(result);

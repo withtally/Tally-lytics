@@ -91,19 +91,13 @@ export class CrawlerManager {
   private async updateProgressCounts(forumName: string) {
     try {
       const db = require('../../db/db').default;
-      
+
       // Get counts from database
       const [topicsCount, postsCount] = await Promise.all([
-        db('topic_evaluations')
-          .where({ forum_name: forumName })
-          .count('* as count')
-          .first(),
-        db('post_evaluations')
-          .where({ forum_name: forumName })
-          .count('* as count')
-          .first()
+        db('topic_evaluations').where({ forum_name: forumName }).count('* as count').first(),
+        db('post_evaluations').where({ forum_name: forumName }).count('* as count').first(),
       ]);
-      
+
       // For now, threads count is 0 since we don't have thread evaluations
       const threadsCount = { count: 0 };
 
@@ -131,7 +125,7 @@ export class CrawlerManager {
         this.stopProgressUpdates(forumName);
       }
     }, 10000);
-    
+
     this.progressIntervals.set(forumName, interval);
   }
 
@@ -146,10 +140,10 @@ export class CrawlerManager {
   private async processContent(forumName: string): Promise<void> {
     try {
       this.logger.info(`Starting content processing for ${forumName}`);
-      
+
       // Get counts before processing
       const db = require('../../db/db').default;
-      
+
       // Summarize topics
       this.logger.info(`Starting topic summarization for ${forumName}`);
       await fetchAndSummarizeTopics(forumName);
@@ -157,7 +151,7 @@ export class CrawlerManager {
       // Evaluate topics
       this.logger.info(`Starting topic evaluation for ${forumName}`);
       await evaluateUnanalyzedTopics(forumName);
-      
+
       // Get actual count of evaluated topics
       const evaluatedTopicsCount = await db('topic_evaluations')
         .where({ forum_name: forumName })
@@ -178,7 +172,7 @@ export class CrawlerManager {
       // Evaluate posts
       this.logger.info(`Starting post evaluation for ${forumName}`);
       await evaluateUnanalyzedPostsInBatches(forumName);
-      
+
       // Get actual count of evaluated posts
       const evaluatedPostsCount = await db('post_evaluations')
         .where({ forum_name: forumName })
@@ -218,7 +212,7 @@ export class CrawlerManager {
       startTime: new Date(),
       lastError: undefined,
     });
-    
+
     // Start periodic progress updates
     this.startProgressUpdates(forumName);
 
@@ -229,7 +223,7 @@ export class CrawlerManager {
 
       await forumCrawler.start();
       await updateCrawlTime(forumName);
-      
+
       // Update progress after forum crawl
       await this.updateProgressCounts(forumName);
 
@@ -274,7 +268,7 @@ export class CrawlerManager {
       // Evaluate entire threads
       this.logger.info(`Starting thread evaluation for ${forumName}`);
       await evaluateUnevaluatedThreads(forumName);
-      
+
       // For now, we don't have thread_quality column, so threads count remains 0
       const evaluatedThreadsCount = { count: 0 };
 
@@ -329,7 +323,7 @@ export class CrawlerManager {
     } finally {
       // Stop progress updates
       this.stopProgressUpdates(forumName);
-      
+
       const crawler = this.activeCrawlers.get(forumName);
       if (crawler) {
         await crawler.stop();

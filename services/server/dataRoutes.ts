@@ -14,25 +14,28 @@ export const dataRoutes = (app: Hono, logger: Logger) => {
       const offset = (pageNum - 1) * limitNum;
 
       const db = require('../../db/db').default;
-      
+
       let query = db('posts')
         .leftJoin('post_evaluations', 'posts.id', 'post_evaluations.post_id')
-        .leftJoin('topics', function() {
-          this.on('posts.topic_id', '=', 'topics.id')
-              .on('posts.forum_name', '=', 'topics.forum_name');
+        .leftJoin('topics', function () {
+          this.on('posts.topic_id', '=', 'topics.id').on(
+            'posts.forum_name',
+            '=',
+            'topics.forum_name'
+          );
         })
         .select([
           'posts.id',
           'topics.title',
           'posts.plain_text as content',
-          'posts.username as author', 
+          'posts.username as author',
           'posts.created_at',
           'posts.forum_name',
           'posts.topic_id',
           'post_evaluations.overall_quality',
           'post_evaluations.relevance',
           'post_evaluations.emotional_tone',
-          'post_evaluations.key_points'
+          'post_evaluations.key_points',
         ])
         .limit(limitNum)
         .offset(offset)
@@ -54,12 +57,19 @@ export const dataRoutes = (app: Hono, logger: Logger) => {
         created_at: post.created_at,
         forum_name: post.forum_name,
         topic_id: post.topic_id,
-        post_evaluation: post.overall_quality ? {
-          quality_score: post.overall_quality,
-          relevance_score: post.relevance,
-          sentiment: post.emotional_tone <= 5 ? 'negative' : post.emotional_tone >= 8 ? 'positive' : 'neutral',
-          summary: post.key_points
-        } : undefined
+        post_evaluation: post.overall_quality
+          ? {
+              quality_score: post.overall_quality,
+              relevance_score: post.relevance,
+              sentiment:
+                post.emotional_tone <= 5
+                  ? 'negative'
+                  : post.emotional_tone >= 8
+                    ? 'positive'
+                    : 'neutral',
+              summary: post.key_points,
+            }
+          : undefined,
       }));
 
       return c.json({
@@ -67,20 +77,20 @@ export const dataRoutes = (app: Hono, logger: Logger) => {
         pagination: {
           page: pageNum,
           limit: limitNum,
-          hasMore: transformedPosts.length === limitNum
-        }
+          hasMore: transformedPosts.length === limitNum,
+        },
       });
     } catch (error: any) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       logger.error('Posts fetch error:', { error: errorMessage });
-      
+
       // Return 200 with empty data and error info for better frontend compatibility
       return c.json({
         data: [],
         pagination: {
           page: pageNum,
           limit: limitNum,
-          hasMore: false
+          hasMore: false,
         },
         error: 'Failed to fetch posts',
         details: errorMessage,
@@ -98,7 +108,7 @@ export const dataRoutes = (app: Hono, logger: Logger) => {
       const offset = (pageNum - 1) * limitNum;
 
       const db = require('../../db/db').default;
-      
+
       let query = db('topics')
         .leftJoin('topic_evaluations', 'topics.id', 'topic_evaluations.topic_id')
         .select([
@@ -109,7 +119,7 @@ export const dataRoutes = (app: Hono, logger: Logger) => {
           'topics.posts_count',
           'topic_evaluations.overall_quality',
           'topic_evaluations.relevance',
-          'topic_evaluations.key_points'
+          'topic_evaluations.key_points',
         ])
         .limit(limitNum)
         .offset(offset)
@@ -130,11 +140,13 @@ export const dataRoutes = (app: Hono, logger: Logger) => {
         forum_name: topic.forum_name,
         posts_count: topic.posts_count || 0,
         views: 0, // Views not tracked in current schema
-        topic_evaluation: topic.overall_quality ? {
-          quality_score: topic.overall_quality,
-          relevance_score: topic.relevance,
-          summary: topic.key_points
-        } : undefined
+        topic_evaluation: topic.overall_quality
+          ? {
+              quality_score: topic.overall_quality,
+              relevance_score: topic.relevance,
+              summary: topic.key_points,
+            }
+          : undefined,
       }));
 
       return c.json({
@@ -142,20 +154,20 @@ export const dataRoutes = (app: Hono, logger: Logger) => {
         pagination: {
           page: pageNum,
           limit: limitNum,
-          hasMore: transformedTopics.length === limitNum
-        }
+          hasMore: transformedTopics.length === limitNum,
+        },
       });
     } catch (error: any) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       logger.error('Topics fetch error:', { error: errorMessage });
-      
+
       // Return 200 with empty data and error info for better frontend compatibility
       return c.json({
         data: [],
         pagination: {
           page: pageNum,
           limit: limitNum,
-          hasMore: false
+          hasMore: false,
         },
         error: 'Failed to fetch topics',
         details: errorMessage,

@@ -18,12 +18,12 @@ describe('Health Routes', () => {
     const mockApp = {
       get: () => {},
       post: () => {},
-      use: () => {}
+      use: () => {},
     };
     const mockCrawlerManager = {
-      getAllStatuses: () => []
+      getAllStatuses: () => [],
     };
-    
+
     // Should not throw when called with mocks
     expect(() => healthRoutes(mockApp as any, mockCrawlerManager as any)).not.toThrow();
   });

@@ -196,7 +196,10 @@ async function fetchAndInsertAllDays(
 }
 
 // Public crawl function for a specific forum
-export async function crawlTokenMarketDataForForum(forumName: string, forceRefresh = false): Promise<void> {
+export async function crawlTokenMarketDataForForum(
+  forumName: string,
+  forceRefresh = false
+): Promise<void> {
   logger.info(`Starting token market data crawl for ${forumName}...`, { forceRefresh });
 
   // Check if we have a global CoinGecko PRO API key

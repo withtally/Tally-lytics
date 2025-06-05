@@ -44,7 +44,7 @@ export class UserService {
       ...loggerConfig,
       logFile: 'logs/user-service.log',
     });
-    
+
     // Check database connection
     this.checkDatabaseConnection();
   }
@@ -119,7 +119,7 @@ export class UserService {
       this.logger.debug(`Skipping user upsert for ${user.username} - database not connected`);
       return;
     }
-    
+
     try {
       if (!user.id || !user.username) {
         throw new Error('Missing required user data: id or username');

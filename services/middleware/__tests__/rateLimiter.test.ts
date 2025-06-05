@@ -38,7 +38,6 @@ describe('llmRateLimiter middleware', () => {
   });
 
   describe('middleware function', () => {
-
     it('should call next function when under rate limit', async () => {
       await llmRateLimiter(mockContext, mockNext);
       expect(mockNext).toHaveBeenCalled();
@@ -298,7 +297,7 @@ describe('llmRateLimiter middleware', () => {
       });
 
       await expect(llmRateLimiter(mockContext, mockNext)).rejects.toThrow('Cache error');
-      
+
       Date.now = originalGet;
     });
 

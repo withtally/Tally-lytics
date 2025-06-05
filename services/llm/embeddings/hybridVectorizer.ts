@@ -23,7 +23,7 @@ export async function vectorizeContent(
     logger.warn(`Skipping vectorization for ${type} ${id}: Database not available`);
     return;
   }
-  
+
   try {
     let content: string = '';
     let tableName: string = '';

@@ -15,13 +15,29 @@ export class CronValidator {
 
   // Month names mapping
   private static readonly MONTH_NAMES: Record<string, number> = {
-    jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6,
-    jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12,
+    jan: 1,
+    feb: 2,
+    mar: 3,
+    apr: 4,
+    may: 5,
+    jun: 6,
+    jul: 7,
+    aug: 8,
+    sep: 9,
+    oct: 10,
+    nov: 11,
+    dec: 12,
   };
 
   // Day names mapping
   private static readonly DAY_NAMES: Record<string, number> = {
-    sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6,
+    sun: 0,
+    mon: 1,
+    tue: 2,
+    wed: 3,
+    thu: 4,
+    fri: 5,
+    sat: 6,
   };
 
   /**
@@ -41,7 +57,7 @@ export class CronValidator {
 
     // Split into fields
     const fields = schedule.trim().split(/\s+/);
-    
+
     // Standard cron has 5 fields (minute hour day month dayOfWeek)
     // Some implementations support 6 fields (adding seconds at the beginning)
     if (fields.length < 5 || fields.length > 6) {
@@ -79,15 +95,26 @@ export class CronValidator {
    * Checks for potentially malicious characters
    */
   private static containsMaliciousCharacters(schedule: string): boolean {
-    // Disallow shell metacharacters and control characters
-    const maliciousPattern = /[;&|`$()<>\\\n\r\t\x00-\x1F\x7F]/;
-    return maliciousPattern.test(schedule);
+    // Disallow shell metacharacters
+    const shellMetaPattern = /[;&|`$()<>\\]/;
+    
+    // Check for control characters separately
+    const hasControlChars = /[\n\r\t]/.test(schedule) || 
+                           schedule.split('').some(char => {
+                             const code = char.charCodeAt(0);
+                             return (code >= 0 && code <= 31) || code === 127;
+                           });
+    
+    return shellMetaPattern.test(schedule) || hasControlChars;
   }
 
   /**
    * Validates a single cron field
    */
-  private static validateField(field: string, fieldName: string): { isValid: boolean; error?: string } {
+  private static validateField(
+    field: string,
+    fieldName: string
+  ): { isValid: boolean; error?: string } {
     // Handle wildcards
     if (field === '*' || field === '?') {
       return { isValid: true };
@@ -115,7 +142,10 @@ export class CronValidator {
   /**
    * Validates a range expression (e.g., "1-5")
    */
-  private static validateRange(field: string, fieldName: string): { isValid: boolean; error?: string } {
+  private static validateRange(
+    field: string,
+    fieldName: string
+  ): { isValid: boolean; error?: string } {
     const parts = field.split('-');
     if (parts.length !== 2) {
       return { isValid: false, error: `Invalid range in ${fieldName}: ${field}` };
@@ -129,7 +159,10 @@ export class CronValidator {
     }
 
     if (start >= end) {
-      return { isValid: false, error: `Invalid range in ${fieldName}: start must be less than end` };
+      return {
+        isValid: false,
+        error: `Invalid range in ${fieldName}: start must be less than end`,
+      };
     }
 
     const range = this.getFieldRange(fieldName);
@@ -143,7 +176,10 @@ export class CronValidator {
   /**
    * Validates a step expression (e.g., "asterisk/5" or "1-10/2")
    */
-  private static validateStep(field: string, fieldName: string): { isValid: boolean; error?: string } {
+  private static validateStep(
+    field: string,
+    fieldName: string
+  ): { isValid: boolean; error?: string } {
     const parts = field.split('/');
     if (parts.length !== 2) {
       return { isValid: false, error: `Invalid step in ${fieldName}: ${field}` };
@@ -171,9 +207,12 @@ export class CronValidator {
   /**
    * Validates a list expression (e.g., "1,3,5")
    */
-  private static validateList(field: string, fieldName: string): { isValid: boolean; error?: string } {
+  private static validateList(
+    field: string,
+    fieldName: string
+  ): { isValid: boolean; error?: string } {
     const values = field.split(',');
-    
+
     for (const value of values) {
       const validation = this.validateSingleValue(value.trim(), fieldName);
       if (!validation.isValid) {
@@ -187,7 +226,10 @@ export class CronValidator {
   /**
    * Validates a single value
    */
-  private static validateSingleValue(value: string, fieldName: string): { isValid: boolean; error?: string } {
+  private static validateSingleValue(
+    value: string,
+    fieldName: string
+  ): { isValid: boolean; error?: string } {
     const parsed = this.parseValue(value, fieldName);
     if (parsed === null) {
       return { isValid: false, error: `Invalid value in ${fieldName}: ${value}` };
@@ -195,7 +237,10 @@ export class CronValidator {
 
     const range = this.getFieldRange(fieldName);
     if (parsed < range.min || parsed > range.max) {
-      return { isValid: false, error: `${fieldName} value out of bounds: ${value} (must be ${range.min}-${range.max})` };
+      return {
+        isValid: false,
+        error: `${fieldName} value out of bounds: ${value} (must be ${range.min}-${range.max})`,
+      };
     }
 
     return { isValid: true };

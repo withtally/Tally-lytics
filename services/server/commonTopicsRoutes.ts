@@ -103,10 +103,12 @@ commonTopicsRoutes.post('/api/common-topics/generate', async c => {
 
     // Track job execution
     const jobId = await jobTrackingService.recordJobStart(`generate_topics_${forum}`);
-    
+
     // Check if job tracking failed
     if (jobId === -1) {
-      logger.error('Failed to start job tracking for topic generation. Continuing without tracking.');
+      logger.error(
+        'Failed to start job tracking for topic generation. Continuing without tracking.'
+      );
       // Continue without job tracking rather than failing the entire operation
     }
 
@@ -176,10 +178,12 @@ commonTopicsRoutes.post('/api/common-topics/generate-all', async c => {
 
     // Track the overall job
     const masterJobId = await jobTrackingService.recordJobStart('generate_all_topics');
-    
+
     // Check if job tracking failed
     if (masterJobId === -1) {
-      logger.error('Failed to start job tracking for generate all topics. Continuing without tracking.');
+      logger.error(
+        'Failed to start job tracking for generate all topics. Continuing without tracking.'
+      );
     }
 
     try {
@@ -188,7 +192,7 @@ commonTopicsRoutes.post('/api/common-topics/generate-all', async c => {
       const searchLogsJobId = await jobTrackingService.recordJobStart(
         'generate_topics_search_logs'
       );
-      
+
       if (searchLogsJobId === -1) {
         logger.error('Failed to start job tracking for search logs. Continuing without tracking.');
       }
@@ -218,9 +222,11 @@ commonTopicsRoutes.post('/api/common-topics/generate-all', async c => {
 
       for (const forum of forums) {
         const forumJobId = await jobTrackingService.recordJobStart(`generate_topics_${forum}`);
-        
+
         if (forumJobId === -1) {
-          logger.error(`Failed to start job tracking for forum ${forum}. Continuing without tracking.`);
+          logger.error(
+            `Failed to start job tracking for forum ${forum}. Continuing without tracking.`
+          );
         }
 
         try {

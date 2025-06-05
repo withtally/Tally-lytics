@@ -45,7 +45,10 @@ export interface MockEmbeddingResponse {
 function generateParsedResponse(params: any): any {
   if (params.messages && params.messages.length > 0) {
     const lastMessage = params.messages[params.messages.length - 1];
-    const content = typeof lastMessage.content === 'string' ? lastMessage.content : JSON.stringify(lastMessage.content);
+    const content =
+      typeof lastMessage.content === 'string'
+        ? lastMessage.content
+        : JSON.stringify(lastMessage.content);
 
     if (content.includes('evaluate') || content.includes('post')) {
       return {
@@ -189,7 +192,7 @@ export class OpenAI {
   chat = openai.chat;
   beta = openai.beta;
   embeddings = openai.embeddings;
-  
+
   constructor(config?: any) {
     // Mock constructor
   }

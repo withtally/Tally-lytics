@@ -11,7 +11,7 @@ describe('CoingeckoProService', () => {
   it('should have required methods', () => {
     const originalEnv = process.env.COINGECKO_PRO_API_KEY;
     process.env.COINGECKO_PRO_API_KEY = 'test-key';
-    
+
     try {
       const service = new CoingeckoProService();
       expect(service).toBeDefined();
@@ -27,9 +27,9 @@ describe('CoingeckoProService', () => {
   it('should require API key', () => {
     const originalEnv = process.env.COINGECKO_PRO_API_KEY;
     delete process.env.COINGECKO_PRO_API_KEY;
-    
+
     expect(() => new CoingeckoProService()).toThrow();
-    
+
     process.env.COINGECKO_PRO_API_KEY = originalEnv;
   });
 });

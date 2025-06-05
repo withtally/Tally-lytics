@@ -19,11 +19,11 @@ describe('searchLogger middleware', () => {
       req: {
         query: () => ({}),
         param: () => null,
-        raw: { method: 'GET', url: 'test' }
-      }
+        raw: { method: 'GET', url: 'test' },
+      },
     };
     const mockNext = async () => {};
-    
+
     const result = searchLogger(mockContext as any, mockNext);
     expect(result).toBeInstanceOf(Promise);
   });

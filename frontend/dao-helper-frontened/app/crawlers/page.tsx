@@ -111,7 +111,7 @@ export default function CrawlersPage() {
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
-    
+
     if (diffMins < 1) return 'Just now';
     if (diffMins < 60) return `${diffMins} minutes ago`;
     const diffHours = Math.floor(diffMins / 60);
@@ -139,10 +139,7 @@ export default function CrawlersPage() {
             >
               {actionLoading === 'stop-all' ? 'Stopping...' : 'Stop All Crawlers'}
             </Button>
-            <Button
-              onClick={handleStartAll}
-              disabled={actionLoading === 'all'}
-            >
+            <Button onClick={handleStartAll} disabled={actionLoading === 'all'}>
               {actionLoading === 'all' ? 'Starting...' : 'Start All Crawlers'}
             </Button>
           </div>
@@ -169,17 +166,17 @@ export default function CrawlersPage() {
           </Card>
         ) : (
           <div className="grid gap-6">
-            {crawlerStatuses.map((crawler) => (
+            {crawlerStatuses.map(crawler => (
               <Card key={crawler.forumName}>
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>
                       <CardTitle>{crawler.forumName}</CardTitle>
-                      <CardDescription>
-                        Last run: {formatLastRun(crawler.endTime)}
-                      </CardDescription>
+                      <CardDescription>Last run: {formatLastRun(crawler.endTime)}</CardDescription>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(crawler.status)}`}>
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(crawler.status)}`}
+                    >
                       {crawler.status}
                     </span>
                   </div>
@@ -202,15 +199,21 @@ export default function CrawlersPage() {
                         <div className="grid grid-cols-3 gap-4 mt-3 text-sm">
                           <div>
                             <span className="text-gray-500">Topics</span>
-                            <p className="font-medium">{parseInt(crawler.progress.evaluations.topics) || 0}</p>
+                            <p className="font-medium">
+                              {parseInt(crawler.progress.evaluations.topics) || 0}
+                            </p>
                           </div>
                           <div>
                             <span className="text-gray-500">Posts</span>
-                            <p className="font-medium">{parseInt(crawler.progress.evaluations.posts) || 0}</p>
+                            <p className="font-medium">
+                              {parseInt(crawler.progress.evaluations.posts) || 0}
+                            </p>
                           </div>
                           <div>
                             <span className="text-gray-500">Threads</span>
-                            <p className="font-medium">{parseInt(crawler.progress.evaluations.threads) || 0}</p>
+                            <p className="font-medium">
+                              {parseInt(crawler.progress.evaluations.threads) || 0}
+                            </p>
                           </div>
                         </div>
                       )}
@@ -229,9 +232,9 @@ export default function CrawlersPage() {
                     <div>
                       <p className="text-sm text-gray-500">Total Documents</p>
                       <p className="text-lg font-semibold">
-                        {crawler.progress?.evaluations 
-                          ? (parseInt(crawler.progress.evaluations.topics) || 0) + 
-                            (parseInt(crawler.progress.evaluations.posts) || 0) + 
+                        {crawler.progress?.evaluations
+                          ? (parseInt(crawler.progress.evaluations.topics) || 0) +
+                            (parseInt(crawler.progress.evaluations.posts) || 0) +
                             (parseInt(crawler.progress.evaluations.threads) || 0)
                           : 0}
                       </p>
@@ -239,9 +242,9 @@ export default function CrawlersPage() {
                     <div>
                       <p className="text-sm text-gray-500">Processed</p>
                       <p className="text-lg font-semibold">
-                        {crawler.progress?.evaluations 
-                          ? (parseInt(crawler.progress.evaluations.topics) || 0) + 
-                            (parseInt(crawler.progress.evaluations.posts) || 0) + 
+                        {crawler.progress?.evaluations
+                          ? (parseInt(crawler.progress.evaluations.topics) || 0) +
+                            (parseInt(crawler.progress.evaluations.posts) || 0) +
                             (parseInt(crawler.progress.evaluations.threads) || 0)
                           : 0}
                       </p>

@@ -26,7 +26,7 @@ export class DatabaseService {
       ...loggerConfig,
       logFile: 'logs/user-service.log',
     });
-    
+
     this.db = db;
 
     this.db
@@ -53,7 +53,7 @@ export class DatabaseService {
 
   async getLatestTopicTimestamp(forumName: string): Promise<Date | null> {
     if (!(await this.checkConnection())) return null;
-    
+
     try {
       const result = await this.db('topics')
         .where({ forum_name: forumName })
@@ -68,7 +68,7 @@ export class DatabaseService {
 
   async getLatestPostTimestamp(forumName: string): Promise<Date | null> {
     if (!(await this.checkConnection())) return null;
-    
+
     try {
       const result = await this.db('posts')
         .where({ forum_name: forumName })
@@ -83,7 +83,7 @@ export class DatabaseService {
 
   async insertPost(post: Post, forumName: string): Promise<void> {
     if (!(await this.checkConnection())) return;
-    
+
     try {
       await this.db('posts')
         .insert({
@@ -105,7 +105,7 @@ export class DatabaseService {
 
   async insertTopic(topic: any, forumName: string): Promise<void> {
     if (!(await this.checkConnection())) return;
-    
+
     try {
       const updatedAt =
         topic.updated_at || topic.last_posted_at || topic.bumped_at || topic.created_at;
@@ -130,7 +130,7 @@ export class DatabaseService {
 
   async insertUser(user: any, forumName: string): Promise<void> {
     if (!(await this.checkConnection())) return;
-    
+
     try {
       await userService.upsertUser(
         {

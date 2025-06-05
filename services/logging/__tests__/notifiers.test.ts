@@ -111,7 +111,6 @@ describe('notifiers', () => {
   });
 
   describe('smsNotifier', () => {
-
     it('should log SMS notification with correct format for info level', () => {
       const phoneNumber = '+1234567890';
       const notifier = smsNotifier(phoneNumber);

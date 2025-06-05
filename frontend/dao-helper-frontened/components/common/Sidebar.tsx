@@ -24,9 +24,7 @@ export function Sidebar({ className }: SidebarProps) {
     },
     {
       section: 'Search & Analysis',
-      items: [
-        { name: 'Universal Search', href: '/search' },
-      ],
+      items: [{ name: 'Universal Search', href: '/search' }],
     },
     {
       section: 'System',

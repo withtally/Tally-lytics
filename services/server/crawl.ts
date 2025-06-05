@@ -239,10 +239,10 @@ export const crawlRoutes = (app: Hono, crawlerManager: CrawlerManager, logger: L
           stopResults.push({ forum: crawler.forumName, status: 'stopped' });
           logger.info(`Stopped crawler for ${crawler.forumName}`);
         } catch (error: any) {
-          stopResults.push({ 
-            forum: crawler.forumName, 
-            status: 'failed', 
-            error: error.message 
+          stopResults.push({
+            forum: crawler.forumName,
+            status: 'failed',
+            error: error.message,
           });
           logger.error(`Failed to stop crawler for ${crawler.forumName}:`, error);
         }
