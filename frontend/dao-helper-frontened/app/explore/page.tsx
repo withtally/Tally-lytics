@@ -118,7 +118,12 @@ export default function ExplorePage() {
       if (page === 1) {
         setRecords(recordsArray);
       } else {
-        setRecords(prev => [...prev, ...recordsArray]);
+        // Filter out duplicates when appending new records
+        setRecords(prev => {
+          const existingIds = new Set(prev.map(record => record.id));
+          const newRecords = recordsArray.filter((record: any) => !existingIds.has(record.id));
+          return [...prev, ...newRecords];
+        });
       }
       
       // Use pagination info if available, otherwise check array length
@@ -155,7 +160,7 @@ export default function ExplorePage() {
   };
 
   const renderPost = (post: Post) => (
-    <Card key={`post-${post.id}`} className="mb-4">
+    <Card className="mb-4">
       <CardHeader>
         <div className="flex justify-between items-start">
           <div className="flex-1">
@@ -197,7 +202,7 @@ export default function ExplorePage() {
   );
 
   const renderTopic = (topic: Topic) => (
-    <Card key={`topic-${topic.id}`} className="mb-4">
+    <Card className="mb-4">
       <CardHeader>
         <div className="flex justify-between items-start">
           <div className="flex-1">
@@ -319,8 +324,16 @@ export default function ExplorePage() {
           ) : (
             <>
               {activeTab === 'posts' 
-                ? (records as Post[]).map(renderPost)
-                : (records as Topic[]).map(renderTopic)
+                ? (records as Post[]).map((post, index) => (
+                    <div key={`post-${post.id}-${index}`}>
+                      {renderPost(post)}
+                    </div>
+                  ))
+                : (records as Topic[]).map((topic, index) => (
+                    <div key={`topic-${topic.id}-${index}`}>
+                      {renderTopic(topic)}
+                    </div>
+                  ))
               }
             </>
           )}
