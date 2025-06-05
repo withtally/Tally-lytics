@@ -93,7 +93,7 @@ export class CrawlerManager {
       const db = require('../../db/db').default;
       
       // Get counts from database
-      const [topicsCount, postsCount, threadsCount] = await Promise.all([
+      const [topicsCount, postsCount] = await Promise.all([
         db('topic_evaluations')
           .where({ forum_name: forumName })
           .count('* as count')
@@ -101,13 +101,11 @@ export class CrawlerManager {
         db('post_evaluations')
           .where({ forum_name: forumName })
           .count('* as count')
-          .first(),
-        db('topics')
-          .where({ forum_name: forumName })
-          .whereNotNull('thread_quality')
-          .count('* as count')
           .first()
       ]);
+      
+      // For now, threads count is 0 since we don't have thread evaluations
+      const threadsCount = { count: 0 };
 
       this.updateStatus(forumName, {
         progress: {
