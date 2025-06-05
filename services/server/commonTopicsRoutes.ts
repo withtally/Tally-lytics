@@ -103,10 +103,18 @@ commonTopicsRoutes.post('/api/common-topics/generate', async c => {
 
     // Track job execution
     const jobId = await jobTrackingService.recordJobStart(`generate_topics_${forum}`);
+    
+    // Check if job tracking failed
+    if (jobId === -1) {
+      logger.error('Failed to start job tracking for topic generation. Continuing without tracking.');
+      // Continue without job tracking rather than failing the entire operation
+    }
 
     try {
       await commonTopicsService.generateCommonTopics(forum, timeframe);
-      await jobTrackingService.recordJobCompletion(jobId, 'success');
+      if (jobId !== -1) {
+        await jobTrackingService.recordJobCompletion(jobId, 'success');
+      }
 
       logger.info('Successfully generated common topics');
       return c.json({
@@ -115,11 +123,13 @@ commonTopicsRoutes.post('/api/common-topics/generate', async c => {
       });
     } catch (error) {
       // Record job failure
-      await jobTrackingService.recordJobCompletion(
-        jobId,
-        'failed',
-        error instanceof Error ? error.message : 'Unknown error'
-      );
+      if (jobId !== -1) {
+        await jobTrackingService.recordJobCompletion(
+          jobId,
+          'failed',
+          error instanceof Error ? error.message : 'Unknown error'
+        );
+      }
 
       // Re-throw to be handled by the outer catch
       throw error;
@@ -166,6 +176,11 @@ commonTopicsRoutes.post('/api/common-topics/generate-all', async c => {
 
     // Track the overall job
     const masterJobId = await jobTrackingService.recordJobStart('generate_all_topics');
+    
+    // Check if job tracking failed
+    if (masterJobId === -1) {
+      logger.error('Failed to start job tracking for generate all topics. Continuing without tracking.');
+    }
 
     try {
       // Process search logs first
@@ -173,16 +188,24 @@ commonTopicsRoutes.post('/api/common-topics/generate-all', async c => {
       const searchLogsJobId = await jobTrackingService.recordJobStart(
         'generate_topics_search_logs'
       );
+      
+      if (searchLogsJobId === -1) {
+        logger.error('Failed to start job tracking for search logs. Continuing without tracking.');
+      }
 
       try {
         await commonTopicsService.generateCommonTopicsFromSearchLogs(timeframe);
-        await jobTrackingService.recordJobCompletion(searchLogsJobId, 'success');
+        if (searchLogsJobId !== -1) {
+          await jobTrackingService.recordJobCompletion(searchLogsJobId, 'success');
+        }
       } catch (error) {
-        await jobTrackingService.recordJobCompletion(
-          searchLogsJobId,
-          'failed',
-          error instanceof Error ? error.message : 'Unknown error'
-        );
+        if (searchLogsJobId !== -1) {
+          await jobTrackingService.recordJobCompletion(
+            searchLogsJobId,
+            'failed',
+            error instanceof Error ? error.message : 'Unknown error'
+          );
+        }
         logger.error('Error generating topics from search logs:', error as object);
         // Continue with forums even if search logs fail
       }
@@ -195,15 +218,23 @@ commonTopicsRoutes.post('/api/common-topics/generate-all', async c => {
 
       for (const forum of forums) {
         const forumJobId = await jobTrackingService.recordJobStart(`generate_topics_${forum}`);
+        
+        if (forumJobId === -1) {
+          logger.error(`Failed to start job tracking for forum ${forum}. Continuing without tracking.`);
+        }
 
         try {
           logger.info(`Generating topics for forum: ${forum}`);
           await commonTopicsService.generateCommonTopics(forum, timeframe);
-          await jobTrackingService.recordJobCompletion(forumJobId, 'success');
+          if (forumJobId !== -1) {
+            await jobTrackingService.recordJobCompletion(forumJobId, 'success');
+          }
           results[forum] = 'success';
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-          await jobTrackingService.recordJobCompletion(forumJobId, 'failed', errorMessage);
+          if (forumJobId !== -1) {
+            await jobTrackingService.recordJobCompletion(forumJobId, 'failed', errorMessage);
+          }
           logger.error(`Error generating topics for forum ${forum}:`, error as object);
           results[forum] = `error: ${errorMessage}`;
           // Continue with next forum
@@ -211,7 +242,9 @@ commonTopicsRoutes.post('/api/common-topics/generate-all', async c => {
       }
 
       // Record overall job completion
-      await jobTrackingService.recordJobCompletion(masterJobId, 'success');
+      if (masterJobId !== -1) {
+        await jobTrackingService.recordJobCompletion(masterJobId, 'success');
+      }
 
       return c.json({
         message: 'Common topics generation completed for all forums',
@@ -220,11 +253,13 @@ commonTopicsRoutes.post('/api/common-topics/generate-all', async c => {
       });
     } catch (error) {
       // Record overall job failure
-      await jobTrackingService.recordJobCompletion(
-        masterJobId,
-        'failed',
-        error instanceof Error ? error.message : 'Unknown error'
-      );
+      if (masterJobId !== -1) {
+        await jobTrackingService.recordJobCompletion(
+          masterJobId,
+          'failed',
+          error instanceof Error ? error.message : 'Unknown error'
+        );
+      }
 
       throw error;
     }

@@ -2,6 +2,7 @@
 import type { Context, Hono } from 'hono';
 import { CronManager } from '../cron/cronManager';
 import { Logger } from '../logging';
+import { CronValidator } from '../validation/cronValidator';
 
 export const cronRoutes = (app: Hono, cronManager: CronManager, logger: Logger) => {
   // Get cron job status
@@ -35,6 +36,21 @@ export const cronRoutes = (app: Hono, cronManager: CronManager, logger: Logger) 
       if (contentType?.includes('application/json')) {
         const body = await c.req.json();
         schedule = body.schedule;
+        
+        // Validate the schedule if provided
+        if (schedule) {
+          const validation = CronValidator.validate(schedule);
+          if (!validation.isValid) {
+            return c.json(
+              {
+                error: 'Invalid cron schedule',
+                details: validation.error,
+                timestamp: new Date().toISOString(),
+              },
+              400
+            );
+          }
+        }
       }
 
       cronManager.startScheduledCrawls(schedule);

@@ -21,7 +21,27 @@ export class CommonTopicsCron {
   constructor(schedule = '0 0 * * *', timeframe = '14d') {
     // Default: Run daily at midnight
     this.timeframe = timeframe;
-    this.job = new CronJob(schedule, this.execute.bind(this), null, true, 'UTC');
+    
+    try {
+      this.job = new CronJob(
+        schedule,
+        async () => {
+          try {
+            await this.execute();
+          } catch (error) {
+            logger.error('Uncaught error in common topics cron job execution:', error as Error);
+            // Continue running - don't let one failure stop future executions
+          }
+        },
+        null,
+        true,
+        'UTC'
+      );
+      logger.info(`Common topics cron job initialized with schedule: ${schedule}`);
+    } catch (error) {
+      logger.error('Failed to initialize common topics cron job:', error as Error);
+      throw new Error(`Failed to initialize cron job: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   }
 
   private async checkTablesExist(): Promise<boolean> {
