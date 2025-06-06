@@ -100,7 +100,11 @@ export class Crawler {
 
     // do vectorization here
     await this.dbService.insertTopic(topicData, this.forumName);
-    await vectorizeContent('topic', topicData.id, this.forumName);
+    try {
+      await vectorizeContent('topic', topicData.id, this.forumName);
+    } catch (error) {
+      this.logger.warn(`Failed to vectorize topic ${topicData.id}: ${error}. Continuing without vector.`);
+    }
 
     for (const post of posts) {
       await this.processPost(post);
@@ -123,7 +127,11 @@ export class Crawler {
     await this.dbService.insertPost(post, this.forumName);
 
     // Vectorize the post after it has been inserted
-    await vectorizeContent('post', post.id, this.forumName);
+    try {
+      await vectorizeContent('post', post.id, this.forumName);
+    } catch (error) {
+      this.logger.warn(`Failed to vectorize post ${post.id}: ${error}. Continuing without vector.`);
+    }
   }
 
   private handleError(error: Error): void {

@@ -1,0 +1,11 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "./Dockerfile"
+
+[deploy]
+startCommand = "docker-entrypoint.sh postgres"
+
+[environment]
+POSTGRES_DB = "dao_helper"
+POSTGRES_USER = "postgres"
+POSTGRES_PASSWORD = "${{POSTGRES_PASSWORD}}"
