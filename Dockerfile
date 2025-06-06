@@ -2,7 +2,7 @@
 FROM oven/bun:1-alpine AS base
 
 # Install dependencies for PostgreSQL client and other tools
-RUN apk add --no-cache postgresql-client git bash
+RUN apk add --no-cache postgresql-client git bash curl
 
 # Set working directory
 WORKDIR /app

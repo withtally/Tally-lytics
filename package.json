@@ -35,7 +35,8 @@
     "format": "prettier --write \"./services/**/*.{js,jsx,ts,tsx,cjs}\" \"./db/**/*.{js,jsx,ts,tsx,cjs}\" \"./config/**/*.{js,jsx,ts,tsx,cjs}\" \"./utils/**/*.{js,jsx,ts,tsx,cjs}\" \"*.{js,jsx,ts,tsx,json,md,cjs}\"",
     "format:check": "prettier --check \"./services/**/*.{js,jsx,ts,tsx,cjs}\" \"./db/**/*.{js,jsx,ts,tsx,cjs}\" \"./config/**/*.{js,jsx,ts,tsx,cjs}\" \"./utils/**/*.{js,jsx,ts,tsx,cjs}\" \"*.{js,jsx,ts,tsx,json,md,cjs}\"",
     "lint": "eslint \"**/*.{js,jsx,ts,tsx,cjs}\" --ignore-pattern \"db/migrations/*\" --fix",
-    "lint:check": "eslint \"**/*.{js,jsx,ts,tsx,cjs}\" --ignore-pattern \"db/migrations/*\""
+    "lint:check": "eslint \"**/*.{js,jsx,ts,tsx,cjs}\" --ignore-pattern \"db/migrations/*\"",
+    "health-check": "curl -f http://localhost:3004/api/health || exit 1"
   },
   "dependencies": {
     "@radix-ui/react-tabs": "^1.1.1",
