@@ -4,8 +4,8 @@
 exports.up = function (knex) {
   return (
     knex.schema
-      // Enable pgvector extension
-      .raw('CREATE EXTENSION IF NOT EXISTS vector;')
+      // Enable pgvector extension (skip for Railway PostgreSQL)
+      // .raw('CREATE EXTENSION IF NOT EXISTS vector;')
 
       // Tally Proposals Table
       .createTable('tally_proposals', function (table) {
@@ -295,7 +295,8 @@ exports.up = function (knex) {
         table.foreign('tag_id').references('id').inTable('tags').onDelete('CASCADE');
       })
 
-      // Vector Tables
+      // Vector Tables - Commented out for Railway PostgreSQL
+      /*
       .createTable('topic_vectors', function (table) {
         table.increments('id').primary();
         table.integer('topic_id').notNullable();
@@ -349,6 +350,7 @@ exports.up = function (knex) {
         table.timestamps(true, true);
         table.unique(['proposal_id', 'forum_name']); // Change to composite unique
       })
+      */
       // Embedding State Tracker Table
       .createTable('embedding_state', function (table) {
         table.string('table_name').primary();
@@ -356,10 +358,11 @@ exports.up = function (knex) {
         table.timestamps(true, true);
       })
 
-      // Add Foreign Key Constraints for Vector Tables
-      // Add Foreign Key Constraints for Vector Tables
+      // Add Foreign Key Constraints for Vector Tables - Commented out for Railway
       .then(() => {
         return knex.raw(`
+    -- Vector table foreign keys commented out for Railway PostgreSQL
+    /*
     -- Foreign Keys for Topic Vectors
     ALTER TABLE topic_vectors
     ADD CONSTRAINT fk_topic_vectors_topics
@@ -375,18 +378,18 @@ exports.up = function (knex) {
     ON DELETE CASCADE;
 
     -- Foreign Keys for Topic Evaluation Vectors
-ALTER TABLE topic_evaluation_vectors
-ADD CONSTRAINT fk_topic_evaluation_vectors_topic_evaluations
-FOREIGN KEY (evaluation_id, forum_name)
-REFERENCES topic_evaluations(id, forum_name)
-ON DELETE CASCADE;
+    ALTER TABLE topic_evaluation_vectors
+    ADD CONSTRAINT fk_topic_evaluation_vectors_topic_evaluations
+    FOREIGN KEY (evaluation_id, forum_name)
+    REFERENCES topic_evaluations(id, forum_name)
+    ON DELETE CASCADE;
 
     -- Foreign Keys for Post Evaluation Vectors
-ALTER TABLE post_evaluation_vectors
-ADD CONSTRAINT fk_post_evaluation_vectors_post_evaluations
-FOREIGN KEY (evaluation_id, forum_name)
-REFERENCES post_evaluations(id, forum_name)
-ON DELETE CASCADE;
+    ALTER TABLE post_evaluation_vectors
+    ADD CONSTRAINT fk_post_evaluation_vectors_post_evaluations
+    FOREIGN KEY (evaluation_id, forum_name)
+    REFERENCES post_evaluations(id, forum_name)
+    ON DELETE CASCADE;
 
     -- Foreign Keys for Snapshot Proposal Vectors
     ALTER TABLE snapshot_proposal_vectors
@@ -401,7 +404,9 @@ ON DELETE CASCADE;
     FOREIGN KEY (proposal_id, forum_name)
     REFERENCES tally_proposals(id, forum_name)
     ON DELETE CASCADE;
+    */
 
+    -- Keep non-vector foreign keys
     -- Foreign Keys for Proposal Evaluations
     ALTER TABLE tally_proposal_evaluations
     ADD CONSTRAINT fk_tally_proposal_evaluations_tally_proposals
@@ -417,7 +422,8 @@ ON DELETE CASCADE;
   `);
       })
 
-      // Create Indexes for Efficient Vector Search
+      // Create Indexes for Efficient Vector Search - Commented out for Railway
+      /*
       .then(() => {
         return knex.raw(`
           CREATE INDEX IF NOT EXISTS idx_topic_vectors_vector ON topic_vectors USING ivfflat (vector vector_l2_ops) WITH (lists = 100);
@@ -428,6 +434,7 @@ ON DELETE CASCADE;
           CREATE INDEX IF NOT EXISTS idx_tally_proposal_vectors_vector ON tally_proposal_vectors USING ivfflat (vector vector_l2_ops) WITH (lists = 100);
         `);
       })
+      */
 
       .then(() => {
         return knex.raw(`
