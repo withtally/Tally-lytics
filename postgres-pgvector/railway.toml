@@ -5,7 +5,8 @@ dockerfilePath = "./Dockerfile"
 [deploy]
 startCommand = "docker-entrypoint.sh postgres"
 
-[environment]
-POSTGRES_DB = "dao_helper"
+[variables]
+POSTGRES_DB = "railway"
 POSTGRES_USER = "postgres"
-POSTGRES_PASSWORD = "${{POSTGRES_PASSWORD}}"
+POSTGRES_PASSWORD = "secure_random_password_123"
+PGDATA = "/var/lib/postgresql/data/pgdata"

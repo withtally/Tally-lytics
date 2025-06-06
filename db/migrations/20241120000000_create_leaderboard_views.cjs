@@ -11,8 +11,7 @@ exports.up = async function (knex) {
     try {
       if (isProd) {
         // Enable pg_cron extension if not already enabled (only in production)
-        // Commented out for Railway PostgreSQL
-        // await trx.raw('CREATE EXTENSION IF NOT EXISTS "pg_cron";');
+        await trx.raw('CREATE EXTENSION IF NOT EXISTS "pg_cron";');
       }
 
       // Create combined score calculation function
