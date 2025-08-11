@@ -11,8 +11,8 @@ WORKDIR /app
 COPY package.json ./
 COPY bun.lockb* ./
 
-# Install dependencies
-RUN bun install --frozen-lockfile
+# Install all dependencies including optional ones for build
+RUN bun install --frozen-lockfile --production=false
 
 # Copy application code
 COPY . .

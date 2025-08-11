@@ -8,13 +8,7 @@
     "@types/knex": "0.16.1",
     "@types/lru-cache": "^7.10.10",
     "@types/supertest": "^6.0.3",
-    "@typescript-eslint/eslint-plugin": "^6.11.0",
-    "@typescript-eslint/parser": "^6.11.0",
     "bun-types": "latest",
-    "eslint": "^8.53.0",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-prettier": "^5.0.1",
-    "prettier": "^3.1.0",
     "supertest": "^7.1.1",
     "typescript-eslint": "^8.11.0"
   },
@@ -22,6 +16,7 @@
     "typescript": "^5.0.0"
   },
   "scripts": {
+    "build": "bun build ./server.ts --compile --outfile server",
     "run:dev": "bun scripts/setup-dev.ts",
     "run:dev:reset": "bun scripts/setup-dev.ts --reset",
     "start": "bun server.ts",
