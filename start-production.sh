@@ -1,14 +1,19 @@
 #!/bin/bash
 
 # Production startup script for Railway deployment
-# Runs migrations in background and starts server immediately
+# IMPORTANT: This is production with existing tables - migrations are optional
 
 echo "Starting production server..."
 
-# Run migrations in background (non-blocking)
-echo "Running database migrations in background..."
-bun migrate 2>&1 | tee migrations.log &
+# Check if we should run migrations (opt-in for safety)
+if [ "$RUN_MIGRATIONS" = "true" ]; then
+  echo "RUN_MIGRATIONS is set to true - running database migrations..."
+  bun migrate 2>&1 | tee migrations.log
+  echo "Migrations complete."
+else
+  echo "Skipping migrations (set RUN_MIGRATIONS=true to run them)"
+fi
 
-# Start the server immediately (so health checks pass)
+# Start the server
 echo "Starting server on port ${PORT:-3004}..."
 exec bun start

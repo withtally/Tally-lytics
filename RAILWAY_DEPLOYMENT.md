@@ -1,5 +1,14 @@
 # Railway Deployment Guide
 
+## ⚠️ IMPORTANT: Production Database
+
+**This application is deployed to PRODUCTION with existing database tables.**
+
+Migrations are **DISABLED by default** for safety. To run migrations:
+1. Set environment variable: `RUN_MIGRATIONS=true`
+2. Only enable when you need to apply new schema changes
+3. Review migration files before enabling
+
 ## Required Environment Variables
 
 The following environment variables MUST be set in Railway for the application to deploy and run successfully:
@@ -18,6 +27,9 @@ SUPABASE_CONNECTION_STRING=postgresql://...  # If using external Supabase databa
 
 ### Optional Variables
 ```bash
+# Migration Control (PRODUCTION SAFETY)
+RUN_MIGRATIONS=false  # Set to 'true' only when you need to run migrations
+
 # Cron Configuration
 CRON_API_KEY=your_secure_cron_api_key
 TOPICS_GENERATION_TIMEFRAME=14d
