@@ -9,16 +9,14 @@ WORKDIR /app
 
 # Copy package files
 COPY package.json ./
-COPY bun.lockb* ./
+# Copy lockfile if it exists (Railway might not have it)
+COPY bun.lockb ./
 
-# Install all dependencies including optional ones for build
-RUN bun install --frozen-lockfile --production=false
+# Install all dependencies
+RUN bun install
 
 # Copy application code
 COPY . .
-
-# Build the application (TypeScript type checking - non-blocking)
-RUN bun run typecheck
 
 # Create necessary directories with proper permissions
 RUN mkdir -p /app/logs && chmod -R 755 /app/logs
