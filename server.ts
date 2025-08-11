@@ -25,6 +25,7 @@ import { llmRateLimiter } from './services/middleware/rateLimiter';
 import { llmRoutes } from './services/server/llmRoutes';
 import { cronStatusRoutes } from './services/server/cronStatusRoutes';
 import { dataRoutes } from './services/server/dataRoutes';
+import { forumConfigs } from './config/forumConfig';
 
 // HeartbeatMonitor class definition
 class HeartbeatMonitor {
@@ -136,6 +137,39 @@ searchRoutes(app, searchService, logger);
 // Use unified cron routes
 import { unifiedCronRoutes } from './services/server/unifiedCronRoutes';
 unifiedCronRoutes(app, cronScheduler, logger);
+
+// Add simple /cron endpoint for Railway cron service
+app.post('/cron', async (c) => {
+  logger.info('Railway cron trigger received');
+  try {
+    // Start crawling all forums
+    const results = [];
+    for (const config of forumConfigs) {
+      try {
+        await crawlerManager.startCrawl(config.name);
+        results.push({ forum: config.name, status: 'started' });
+      } catch (error: any) {
+        logger.error(`Failed to start crawl for ${config.name}`, { error });
+        results.push({ forum: config.name, status: 'failed', error: error.message });
+      }
+    }
+    
+    return c.json({
+      success: true,
+      message: 'Crawl initiated for all forums',
+      results,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    logger.error('Failed to start crawl from Railway cron', { error });
+    return c.json({
+      success: false,
+      error: error.message || 'Failed to start crawl',
+      timestamp: new Date().toISOString(),
+    }, 500);
+  }
+});
+
 marketCapRoutes(app, logger);
 newsRoutes(app, logger);
 app.get('/rss', async c => {

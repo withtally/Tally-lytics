@@ -5,6 +5,20 @@ import { prettyJSON } from 'hono/pretty-json';
 import { serveStatic } from 'hono/bun';
 
 export const configureMiddleware = (app: Hono) => {
+  // Normalize paths by removing double slashes
+  app.use('*', async (c, next) => {
+    const path = c.req.path;
+    if (path.includes('//')) {
+      const normalizedPath = path.replace(/\/+/g, '/');
+      console.log(`Path normalization: ${path} -> ${normalizedPath}`);
+      // Rewrite the request path
+      const url = new URL(c.req.url);
+      url.pathname = normalizedPath;
+      return c.redirect(url.toString(), 307);
+    }
+    await next();
+  });
+  
   app.use('*', logger());
   app.use('*', prettyJSON());
   app.use(
