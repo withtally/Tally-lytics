@@ -3,32 +3,8 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-// Add detailed logging
-console.log('=== KNEXFILE CONFIGURATION DEBUGGING ===');
-console.log('Current NODE_ENV:', process.env.NODE_ENV);
-console.log('Current working directory:', process.cwd());
-
-// Check if .env.production is loaded when in production mode
-if (process.env.NODE_ENV === 'production') {
-  console.log('Loading production environment variables...');
-  try {
-    const result = dotenv.config({ path: '.env.production' });
-    if (result.error) {
-      console.error('Error loading .env.production:', result.error.message);
-    } else {
-      console.log('.env.production loaded successfully');
-    }
-  } catch (error) {
-    console.error('Exception loading .env.production:', error);
-  }
-}
-
-// Log connection details (safely)
 // Support both Railway's DATABASE_URL and custom SUPABASE_CONNECTION_STRING
 const connectionString = process.env.DATABASE_URL || process.env.SUPABASE_CONNECTION_STRING;
-console.log('DATABASE_URL present:', !!process.env.DATABASE_URL);
-console.log('SUPABASE_CONNECTION_STRING present:', !!process.env.SUPABASE_CONNECTION_STRING);
-console.log('Using connection string:', !!connectionString);
 
 const commonConfig = {
   client: 'pg',
@@ -66,7 +42,6 @@ const config = {
     },
   },
   production: {
-    debug: true, // Enable debug for production to see queries
     ...commonConfig,
     connection: connectionString
       ? {
@@ -83,20 +58,5 @@ const config = {
         },
   },
 };
-
-// Log the final configuration (without sensitive data)
-const environment = process.env.NODE_ENV || 'development';
-console.log('Using environment:', environment);
-console.log(
-  'Connection config type:',
-  typeof config[environment].connection === 'string' ? 'Connection String' : 'Connection Object'
-);
-if (typeof config[environment].connection === 'object') {
-  const connObj = { ...config[environment].connection };
-  if (connObj.password) connObj.password = '***REDACTED***';
-  if (connObj.connectionString) connObj.connectionString = '***REDACTED***';
-  console.log('Connection config:', connObj);
-}
-console.log('=== END DEBUGGING ===');
 
 export default config;
