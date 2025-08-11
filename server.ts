@@ -26,6 +26,7 @@ import { llmRoutes } from './services/server/llmRoutes';
 import { cronStatusRoutes } from './services/server/cronStatusRoutes';
 import { dataRoutes } from './services/server/dataRoutes';
 import { forumConfigs } from './config/forumConfig';
+import { serveStatic } from 'hono/bun';
 
 // HeartbeatMonitor class definition
 class HeartbeatMonitor {
@@ -193,6 +194,13 @@ dataRoutes(app, logger);
 app.use('/api/generateSimile', llmRateLimiter);
 app.use('/api/generateFollowUp', llmRateLimiter);
 app.route('', llmRoutes);
+
+// Serve static files from managementFrontend (after all API routes)
+// Serve root index.html
+app.get('/', serveStatic({ path: './managementFrontend/index.html' }));
+
+// Serve any static files directly from managementFrontend
+app.use('/*', serveStatic({ root: './managementFrontend' }));
 
 // Initialize unified cron scheduler based on environment
 // In production, we can choose between in-app cron or external Railway cron

@@ -29,6 +29,8 @@ export const configureMiddleware = (app: Hono) => {
         'http://localhost:3001',
         'http://localhost:3005',
         'http://localhost:3006',
+        'https://web-production-88af4.up.railway.app',
+        'https://*.up.railway.app',
       ],
       credentials: true,
       allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -38,6 +40,5 @@ export const configureMiddleware = (app: Hono) => {
     })
   );
 
-  // Serve static files from the managementFrontend directory
-  app.use('/*', serveStatic({ root: './managementFrontend' }));
+  // Don't add static file serving here - it should be added after API routes
 };
