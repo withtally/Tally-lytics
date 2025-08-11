@@ -9,10 +9,10 @@ WORKDIR /app
 
 # Copy package files
 COPY package.json ./
-# Copy lockfile if it exists (Railway might not have it)
-COPY bun.lockb ./
+# Copy lockfile (use wildcard to handle if it doesn't exist)
+COPY bun.lockb* ./
 
-# Install all dependencies
+# Install all dependencies (will generate lockfile if missing)
 RUN bun install
 
 # Copy application code
