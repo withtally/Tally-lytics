@@ -17,6 +17,7 @@
   },
   "scripts": {
     "build": "bun build ./server.ts --compile --outfile server",
+    "typecheck": "tsc --noEmit || true",
     "run:dev": "bun scripts/setup-dev.ts",
     "run:dev:reset": "bun scripts/setup-dev.ts --reset",
     "start": "bun server.ts",

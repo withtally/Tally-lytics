@@ -39,10 +39,11 @@ if (environment === 'development') {
     ssl: false,
   };
 } else {
-  // Use Supabase configuration for production
+  // Use Railway DATABASE_URL or Supabase configuration for production
+  const connectionString = process.env.DATABASE_URL || process.env.SUPABASE_CONNECTION_STRING;
   poolConfig = {
     ...basePoolConfig,
-    connectionString: process.env.SUPABASE_CONNECTION_STRING,
+    connectionString: connectionString,
     ssl: {
       rejectUnauthorized: false,
     },

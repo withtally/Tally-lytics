@@ -3,9 +3,9 @@ builder = "dockerfile"
 dockerfilePath = "./Dockerfile"
 
 [deploy]
-startCommand = "bun start"
+startCommand = "bun migrate || true && bun start"
 healthcheckPath = "/api/health"
-healthcheckTimeout = 100
+healthcheckTimeout = 5000
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
 

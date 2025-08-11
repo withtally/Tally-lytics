@@ -17,10 +17,13 @@ RUN bun install --frozen-lockfile --production=false
 # Copy application code
 COPY . .
 
-# Create necessary directories
-RUN mkdir -p /app/logs
+# Build the application (TypeScript type checking - non-blocking)
+RUN bun run typecheck
 
-# Expose application port
+# Create necessary directories with proper permissions
+RUN mkdir -p /app/logs && chmod -R 755 /app/logs
+
+# Expose application port (Railway sets PORT env var)
 EXPOSE 3004
 
 # Health check

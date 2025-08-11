@@ -24,8 +24,11 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Log connection details (safely)
-const connectionString = process.env.SUPABASE_CONNECTION_STRING;
-console.log('SUPABASE_CONNECTION_STRING present:', !!connectionString);
+// Support both Railway's DATABASE_URL and custom SUPABASE_CONNECTION_STRING
+const connectionString = process.env.DATABASE_URL || process.env.SUPABASE_CONNECTION_STRING;
+console.log('DATABASE_URL present:', !!process.env.DATABASE_URL);
+console.log('SUPABASE_CONNECTION_STRING present:', !!process.env.SUPABASE_CONNECTION_STRING);
+console.log('Using connection string:', !!connectionString);
 
 const commonConfig = {
   client: 'pg',
