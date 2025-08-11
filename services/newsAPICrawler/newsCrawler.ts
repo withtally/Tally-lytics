@@ -12,8 +12,9 @@ const logger = new Logger({
 
 const limiter = new RateLimiter({ tokensPerInterval: 1, interval: 2000 });
 const NEWS_API_KEY = process.env.NEWS_API_KEY;
+// Make NEWS_API_KEY optional - only warn if missing
 if (!NEWS_API_KEY) {
-  throw new Error('Missing NEWS_API_KEY in environment variables');
+  logger.warn('NEWS_API_KEY not configured - news features will be disabled');
 }
 
 // Basic fetch with retry logic
